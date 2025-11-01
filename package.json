@@ -1,0 +1,29 @@
+{
+  "name": "ehr-nlp-project",
+  "version": "0.1.0",
+  "description": "Electronic Health Record system with NLP-powered medical text analysis",
+  "type": "module",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "EHR",
+    "NLP",
+    "medical",
+    "healthcare",
+    "spacy"
+  ],
+  "author": "ChaminduSR",
+  "license": "MIT",
+  "devDependencies": {
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.1.7"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
+
