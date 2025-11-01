@@ -1,0 +1,19 @@
+{
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintArgs": [
+    "--max-line-length=79"
+  ],
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": [
+    "--line-length=79"
+  ],
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python",
+    "editor.formatOnSave": true,
+    "editor.rulers": [79]
+  },
+  "git.ignoreLimitWarning": true,
+  "better-comments.multilineComments": true,
+  "better-comments.highlightPlainText": false
+}
