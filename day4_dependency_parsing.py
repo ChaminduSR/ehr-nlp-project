@@ -31,7 +31,7 @@ for note_num, note in enumerate(clinical_notes, 1):
     print("-" * 80)
 
     for token in doc:
-        indent = "  " * (len([t for t in token.ancestors]))
+        indent = "  " * (len([t for t in token.ancestors]))  # noqa: C416
         dep_type = token.dep_
         parent = token.head.text
         print(f"{indent}{token.text:15} ({dep_type:12}) -> {parent}")
