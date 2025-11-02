@@ -18,6 +18,5 @@ jupyter==1.1.1
 ipython==9.6.0
 
 # Code Quality (Development)
-black==25.9.0
-pylint==4.0.2
-isort==7.0.0
+ruff==0.1.6    # Combines linting and formatting
+black==25.9.0  # Keep as backup/alternative formatter
