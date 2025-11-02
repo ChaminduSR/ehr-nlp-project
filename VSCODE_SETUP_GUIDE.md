@@ -20,6 +20,7 @@ Install the following extensions:
 2. Better Comments
 3. Python extension
 4. Jupyter Notebooks
+5. Ruff (charliermarsh.ruff) - For Python linting and formatting
 
 ## 2. Project Configuration
 
@@ -156,6 +157,10 @@ npm list husky
 # Check Python environment
 python --version
 pip list
+
+# Verify Ruff installation and configuration
+ruff --version
+cat ruff.toml  # Verify Ruff configuration
 ```
 
 ## 6. Daily Development Workflow
