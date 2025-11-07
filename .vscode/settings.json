@@ -21,6 +21,7 @@
   "ruff.lint.enable": true,
   "ruff.format.enable": true,
   "conventionalCommits.scopes": [
-    "learning"
+    "learning",
+    "setup"
   ]
 }
