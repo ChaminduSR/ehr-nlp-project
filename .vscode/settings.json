@@ -19,5 +19,8 @@
   // Enable Ruff
   "ruff.lineLength": 79,
   "ruff.lint.enable": true,
-  "ruff.format.enable": true
+  "ruff.format.enable": true,
+  "conventionalCommits.scopes": [
+    "learning"
+  ]
 }
