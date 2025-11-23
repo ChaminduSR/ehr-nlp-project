@@ -202,14 +202,8 @@ python app.py
 # Navigate to project root (if in backend/)
 cd ..
 
-# Install root-level dependencies (Commitizen, Husky)
-npm install
-
-# Initialize Husky hooks
-npx husky init
-
-# Configure Commitizen
-npm pkg set config.commitizen.path="./node_modules/cz-conventional-changelog"
+# Install root-level tooling (if you plan to manage repo-level scripts)
+# You can initialize frontend tools inside the `frontend/` folder instead.
 ```
 
 ### Frontend Dependencies (Future)
@@ -248,19 +242,7 @@ git remote -v
 git pull origin Dev
 ```
 
-### Configure Commitizen Hooks
-```powershell
-# Create prepare-commit-msg hook
-New-Item -Path .husky/prepare-commit-msg -Type File -Force
-
-# Add content to .husky/prepare-commit-msg:
-# #!/usr/bin/env sh
-# . "$(dirname -- "$0")/_/husky.sh"
-# exec < /dev/tty && npx cz --hook || true
-
-# Make hook executable
-git update-index --add --chmod=+x .husky/prepare-commit-msg
-```
+> Note: This project no longer uses Husky/Commitizen hooks. If you used those tools previously, remove the `.husky/` folder and any package.json entries that referenced `husky` or `commitizen`.
 
 ---
 
@@ -270,7 +252,7 @@ git update-index --add --chmod=+x .husky/prepare-commit-msg
 ehr-nlp-project/
 ├── .env.example               # Environment template
 ├── .gitignore                 # Git ignore patterns
-├── .husky/                    # Git hooks (Commitizen)
+├── (optional) .husky/         # Git hooks (removed in this repo)
 ├── .vscode/                   # VS Code settings
 │   ├── settings.json          # Editor settings
 │   ├── launch.json            # Debug configurations
@@ -468,49 +450,25 @@ npm test
 npm run lint
 ```
 
-### Making Commits
+git commit
+### Making commits
 ```powershell
 # 1. Stage changes
 git add .
 
-# 2. Commit (Commitizen opens automatically)
-git commit
+# 2. Commit with a clear message
+git commit -m "feat(scope): short meaningful message"
 
-# 3. Follow Commitizen prompts:
-#    - Type: feat, fix, docs, refactor, test, style, chore
-#    - Scope: patients, nlp, voice, frontend, backend, etc.
-#    - Description: Short summary (50 chars)
-#    - Long description: Detailed explanation (optional)
-#    - Breaking changes: Yes/No
-#    - Issues: Reference issue numbers
-
-# 4. Push to remote
+# 3. Push to remote branch
 git push origin Dev
 ```
 
-### Example Commit Flow
+### Example commit flow
 ```powershell
 # Scenario: Adding voice transcription feature
 
 git add backend/routes/voice.py
-git commit
-
-# Commitizen prompts:
-# ? Select type: feat
-# ? Scope: voice
-# ? Short description: add VOSK offline transcription endpoint
-# ? Long description: Implements POST /api/v1/voice/transcribe endpoint...
-# ? Breaking changes: No
-# ? Issues: #12
-
-# Result:
-# feat(voice): add VOSK offline transcription endpoint
-#
-# Implements POST /api/v1/voice/transcribe endpoint using VOSK model
-# for offline speech-to-text conversion. Supports WAV audio files.
-#
-# Closes #12
-
+git commit -m "feat(voice): add VOSK offline transcription endpoint"
 git push origin Dev
 ```
 
@@ -552,22 +510,17 @@ python -m spacy info en_core_sci_md
 
 ### Git Issues
 
-#### Commitizen Not Opening
+#### If you have commit hooks (Husky)
+If you previously used Husky hooks (in a `.husky/` folder) and need to troubleshoot or remove them, use the commands below. These steps are optional — this project no longer requires Husky/Commitizen.
+
 ```powershell
-# Verify hook exists
-ls .husky/prepare-commit-msg
+# Check if hooks exist
+ls -Force .husky || Write-Host 'No .husky hooks directory found'
 
-# Reinstall Husky
-npm install
-npx husky init
+# To remove all husky hooks (use with caution)
+# Remove-Item -Recurse -Force .husky
 
-# Manual commit with Commitizen
-npx cz commit
-```
-
-#### Bypass Commitizen (Emergency)
-```powershell
-# Only use when necessary
+# Commit without hooks (bypass)
 git commit --no-verify -m "your message"
 ```
 

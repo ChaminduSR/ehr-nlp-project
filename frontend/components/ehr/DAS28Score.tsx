@@ -1,4 +1,4 @@
-import React from 'react';
+// React default import removed (unused with automatic JSX runtime)
 
 interface DAS28ScoreProps {
   score: number;
@@ -28,9 +28,9 @@ export function DAS28Score({ score, showLabel = true }: DAS28ScoreProps) {
       textColor: 'text-white'
     };
   };
-  
+
   const category = getScoreCategory(score);
-  
+
   return (
     <div className="flex flex-col gap-2">
       {showLabel && (
@@ -52,29 +52,29 @@ interface DAS28CalculatorProps {
   onCalculate?: (score: number) => void;
 }
 
-export function DAS28Calculator({ 
-  tenderJointCount, 
-  swollenJointCount, 
-  esr, 
+export function DAS28Calculator({
+  tenderJointCount,
+  swollenJointCount,
+  esr,
   patientGlobal,
-  onCalculate 
+  onCalculate
 }: DAS28CalculatorProps) {
   const calculateDAS28 = () => {
     // DAS28-ESR formula
-    const score = 0.56 * Math.sqrt(tenderJointCount) + 
-                  0.28 * Math.sqrt(swollenJointCount) + 
-                  0.70 * Math.log(esr) + 
+    const score = 0.56 * Math.sqrt(tenderJointCount) +
+                  0.28 * Math.sqrt(swollenJointCount) +
+                  0.70 * Math.log(esr) +
                   0.014 * patientGlobal;
-    
+
     if (onCalculate) {
       onCalculate(score);
     }
-    
+
     return score;
   };
-  
+
   const score = calculateDAS28();
-  
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -95,7 +95,7 @@ export function DAS28Calculator({
           <div className="text-2xl font-medium">{patientGlobal}</div>
         </div>
       </div>
-      
+
       <DAS28Score score={score} showLabel={false} />
     </div>
   );

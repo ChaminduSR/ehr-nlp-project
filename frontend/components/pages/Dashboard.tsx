@@ -1,4 +1,4 @@
-import React from 'react';
+// React default import removed (unused with automatic JSX runtime)
 import { Card, CardHeader, CardTitle, CardContent } from '../ehr/Card';
 
 export function Dashboard() {
@@ -8,28 +8,28 @@ export function Dashboard() {
     { label: 'Active Patients', value: '156', color: 'text-[#00AA00]' },
     { label: 'Follow-ups Due', value: '12', color: 'text-[#CC0000]' },
   ];
-  
+
   const recentPatients = [
     { id: 1, name: 'Rajesh Kumar', mrn: 'MRN-2025-001', lastVisit: '2025-11-15', das28: 3.5 },
     { id: 2, name: 'Priya Sharma', mrn: 'MRN-2025-002', lastVisit: '2025-11-15', das28: 2.4 },
     { id: 3, name: 'Amit Patel', mrn: 'MRN-2025-003', lastVisit: '2025-11-14', das28: 5.8 },
     { id: 4, name: 'Sunita Devi', mrn: 'MRN-2025-004', lastVisit: '2025-11-14', das28: 3.9 },
   ];
-  
+
   const getDAS28Color = (score: number) => {
     if (score < 2.6) return 'text-[#00AA00]';
     if (score < 3.2) return 'text-[#FFCC00]';
     if (score <= 5.1) return 'text-[#FF9900]';
     return 'text-[#CC0000]';
   };
-  
+
   return (
     <div className="space-y-6">
       <div>
         <h1>Dashboard</h1>
         <p className="text-[#333333] mt-2">Welcome back, Dr. Singh</p>
       </div>
-      
+
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, idx) => (
@@ -43,7 +43,7 @@ export function Dashboard() {
           </Card>
         ))}
       </div>
-      
+
       {/* Quick Actions */}
       <Card>
         <CardHeader>
@@ -66,7 +66,7 @@ export function Dashboard() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Recent Patients */}
       <Card>
         <CardHeader>
@@ -97,7 +97,7 @@ export function Dashboard() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* System Status */}
       <Card>
         <CardHeader>

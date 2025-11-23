@@ -1,82 +1,112 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '../ehr/Button';
-import { Input, Textarea, Select } from '../ehr/Input';
+import { Textarea } from '../ehr/Input';
 import { AutoSaveIndicator } from '../ehr/AutoSaveIndicator';
 import { Card, CardHeader, CardTitle, CardContent } from '../ehr/Card';
+import { api } from '../../services/api';
+import { useApp } from '../../contexts/AppContext';
 
 type SaveStatus = 'saving' | 'saved' | 'error';
 type NoteStatus = 'draft' | 'finalized';
 
 export function MedicalNote() {
+  const { currentPatient, currentVisit, setError, isLoading, setIsLoading } = useApp();
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
-  const [lastSaved, setLastSaved] = useState<Date>(new Date());
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [noteStatus, setNoteStatus] = useState<NoteStatus>('draft');
-  const [formData, setFormData] = useState({
-    patientMRN: 'MRN-2025-001',
-    patientName: 'Rajesh Kumar',
-    chiefComplaint: '',
-    historyPresentIllness: '',
-    physicalExam: '',
-    assessment: '',
-    plan: '',
-    medications: '',
-    followUp: '',
-  });
-  
+  const [noteId, setNoteId] = useState<number | null>(null);
+  const [noteText, setNoteText] = useState('');
+  const [nlpResults, setNlpResults] = useState<{
+    entities_extracted: number;
+    processing_time_ms: number;
+  } | null>(null);
+
+  // Build complete note text from all fields
+  const buildNoteText = () => {
+    const sections = [
+      noteText.trim() ? noteText : '',
+    ];
+    return sections.filter(s => s).join('\n\n');
+  };
+
   // Auto-save every 30 seconds
   useEffect(() => {
-    if (noteStatus === 'draft') {
+    if (noteStatus === 'draft' && currentVisit && noteText.trim()) {
       const interval = setInterval(() => {
         handleAutoSave();
       }, 30000); // 30 seconds
-      
+
       return () => clearInterval(interval);
     }
-  }, [formData, noteStatus]);
-  
-  const handleAutoSave = () => {
+  }, [noteText, noteStatus, currentVisit]);
+
+  const handleAutoSave = async () => {
+    if (!currentVisit) {
+      setError('No active visit. Please create a visit first.');
+      return;
+    }
+
     setSaveStatus('saving');
-    
-    // Simulate save operation
-    setTimeout(() => {
+
+    try {
+      const text = buildNoteText();
+      const response = await api.saveDraft(currentVisit.id, text);
+
+      if (!noteId) {
+        setNoteId(response.note_id);
+      }
+
       setSaveStatus('saved');
-      setLastSaved(new Date());
-      console.log('Auto-saved:', formData);
-    }, 500);
-  };
-  
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Trigger auto-save status
-    if (saveStatus === 'saved') {
-      setSaveStatus('saving');
-      setTimeout(() => {
-        setSaveStatus('saved');
-        setLastSaved(new Date());
-      }, 1000);
+      setLastSaved(new Date(response.draft_saved_at));
+      console.log('Auto-saved draft:', response);
+    } catch (err: any) {
+      setSaveStatus('error');
+      setError(err.message || 'Failed to save draft');
+      console.error('Auto-save error:', err);
     }
   };
-  
-  const handleFinalize = () => {
-    if (window.confirm('Are you sure you want to finalize this note? Finalized notes cannot be edited.')) {
-      setSaveStatus('saving');
-      setTimeout(() => {
-        setNoteStatus('finalized');
-        setSaveStatus('saved');
-        setLastSaved(new Date());
-        alert('Medical note has been finalized successfully.');
-      }, 500);
+
+  const handleFinalize = async () => {
+    if (!noteId) {
+      alert('Please save a draft first before finalizing.');
+      return;
+    }
+
+    if (!window.confirm('Are you sure you want to finalize this note? Finalized notes cannot be edited and will be processed with NLP.')) {
+      return;
+    }
+
+    setIsLoading(true);
+    setSaveStatus('saving');
+
+    try {
+      const text = buildNoteText();
+      const response = await api.finalizeNote(noteId, text);
+
+      setNoteStatus('finalized');
+      setSaveStatus('saved');
+      setLastSaved(new Date(response.signed_at));
+      setNlpResults({
+        entities_extracted: response.entities_extracted,
+        processing_time_ms: response.processing_time_ms,
+      });
+
+      alert(`Medical note finalized successfully!\nEntities extracted: ${response.entities_extracted}\nProcessing time: ${response.processing_time_ms}ms`);
+    } catch (err: any) {
+      setSaveStatus('error');
+      setError(err.message || 'Failed to finalize note');
+      alert('Error finalizing note: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsLoading(false);
     }
   };
-  
+
   const handleSaveDraft = () => {
     handleAutoSave();
-    alert('Draft saved successfully.');
   };
-  
-  const isFinalized = noteStatus === 'finalized';
-  
+
+  // noteStatus is used directly in the JSX below; no separate `isFinalized` variable needed
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
@@ -84,205 +114,138 @@ export function MedicalNote() {
           <h1>Medical Note</h1>
           <p className="text-[#333333] mt-2">Create comprehensive rheumatology assessment</p>
         </div>
-        <AutoSaveIndicator status={saveStatus} lastSaved={lastSaved} />
+        <AutoSaveIndicator status={saveStatus} lastSaved={lastSaved || undefined} />
       </div>
-      
+
       {/* Patient Info */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Patient Information</CardTitle>
-            {noteStatus === 'finalized' ? (
-              <span className="px-4 py-2 bg-[#00AA00] text-white rounded">
-                Finalized
-              </span>
-            ) : (
-              <span className="px-4 py-2 bg-[#FF9900] text-white rounded">
-                Draft
-              </span>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-sm text-[#333333]">MRN</div>
-              <div className="font-medium">{formData.patientMRN}</div>
-            </div>
-            <div>
-              <div className="text-sm text-[#333333]">Patient Name</div>
-              <div className="font-medium">{formData.patientName}</div>
-            </div>
-            <div>
-              <div className="text-sm text-[#333333]">Date</div>
-              <div className="font-medium">15 November 2025</div>
-            </div>
-            <div>
-              <div className="text-sm text-[#333333]">Provider</div>
-              <div className="font-medium">Dr. Singh</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Note Form */}
-      <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Chief Complaint</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Input
-              id="chief-complaint"
-              placeholder="Enter chief complaint..."
-              value={formData.chiefComplaint}
-              onChange={(e) => handleChange('chiefComplaint', e.target.value)}
-              disabled={isFinalized}
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>History of Present Illness</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              id="history-present-illness"
-              placeholder="Document patient's history..."
-              rows={6}
-              value={formData.historyPresentIllness}
-              onChange={(e) => handleChange('historyPresentIllness', e.target.value)}
-              disabled={isFinalized}
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Physical Examination</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              id="physical-exam"
-              placeholder="Document physical examination findings..."
-              rows={6}
-              value={formData.physicalExam}
-              onChange={(e) => handleChange('physicalExam', e.target.value)}
-              disabled={isFinalized}
-            />
-            <div className="mt-4 p-4 bg-[#F5F5F5] border-2 border-[#CCCCCC] rounded">
+      {!currentPatient && (
+        <div className="p-4 bg-yellow-50 border-2 border-yellow-300 rounded">
+          <p className="text-yellow-800">No patient selected. Please select a patient from Patient Management first.</p>
+        </div>
+      )}
+
+      {!currentVisit && currentPatient && (
+        <div className="p-4 bg-yellow-50 border-2 border-yellow-300 rounded">
+          <p className="text-yellow-800">No active visit. Please create a visit for this patient first.</p>
+        </div>
+      )}
+
+      {currentPatient && currentVisit && (
+        <>
+          <Card>
+            <CardHeader>
               <div className="flex items-center justify-between">
-                <span>Joint assessment not completed</span>
-                <Button variant="secondary" size="default" disabled={isFinalized}>
-                  Open Joint Assessment
+                <CardTitle>Patient Information</CardTitle>
+                {noteStatus === 'finalized' ? (
+                  <span className="px-4 py-2 bg-[#00AA00] text-white rounded">
+                    Finalized {nlpResults && `(${nlpResults.entities_extracted} entities)`}
+                  </span>
+                ) : (
+                  <span className="px-4 py-2 bg-[#FF9900] text-white rounded">
+                    Draft
+                  </span>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm text-[#333333]">MRN</div>
+                  <div className="font-medium">{currentPatient.mrn}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-[#333333]">Patient Name</div>
+                  <div className="font-medium">{currentPatient.first_name} {currentPatient.last_name}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-[#333333]">Visit Date</div>
+                  <div className="font-medium">{currentVisit.visit_date}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-[#333333]">Visit Type</div>
+                  <div className="font-medium">{currentVisit.visit_type}</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Note Form */}
+          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Medical Note</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  id="note-text"
+                  placeholder="Document the medical note here. Include chief complaint, history of present illness, physical exam findings, assessment, and plan..."
+                  rows={20}
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  disabled={noteStatus === 'finalized'}
+                />
+                <p className="text-sm text-[#666666] mt-2">
+                  Note will be auto-saved every 30 seconds while in draft status.
+                  When finalized, the note will be processed with NLP to extract medical entities.
+                </p>
+              </CardContent>
+            </Card>
+
+            {nlpResults && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>NLP Processing Results</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-[#333333]">Entities Extracted</div>
+                      <div className="font-medium text-lg">{nlpResults.entities_extracted}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-[#333333]">Processing Time</div>
+                      <div className="font-medium text-lg">{nlpResults.processing_time_ms.toFixed(2)}ms</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Actions */}
+            {noteStatus !== 'finalized' && (
+              <div className="flex gap-4">
+                <Button
+                  type="button"
+                  variant="draft"
+                  fullWidth
+                  onClick={handleSaveDraft}
+                  disabled={isLoading || !noteText.trim()}
+                >
+                  Save Draft Now
+                </Button>
+                <Button
+                  type="button"
+                  variant="success"
+                  fullWidth
+                  onClick={handleFinalize}
+                  disabled={isLoading || !noteId}
+                >
+                  {isLoading ? 'Processing...' : 'Finalize Note & Run NLP'}
                 </Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Assessment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              id="assessment"
-              placeholder="Clinical assessment and diagnosis..."
-              rows={6}
-              value={formData.assessment}
-              onChange={(e) => handleChange('assessment', e.target.value)}
-              disabled={isFinalized}
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Plan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              id="plan"
-              placeholder="Treatment plan and next steps..."
-              rows={6}
-              value={formData.plan}
-              onChange={(e) => handleChange('plan', e.target.value)}
-              disabled={isFinalized}
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Medications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              id="medications"
-              placeholder="List medications, dosages, and instructions..."
-              rows={4}
-              value={formData.medications}
-              onChange={(e) => handleChange('medications', e.target.value)}
-              disabled={isFinalized}
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Follow-up</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Select
-              id="follow-up"
-              label="Follow-up Interval"
-              options={[
-                { value: '', label: 'Select follow-up period...' },
-                { value: '1-week', label: '1 Week' },
-                { value: '2-weeks', label: '2 Weeks' },
-                { value: '1-month', label: '1 Month' },
-                { value: '2-months', label: '2 Months' },
-                { value: '3-months', label: '3 Months' },
-                { value: '6-months', label: '6 Months' },
-              ]}
-              value={formData.followUp}
-              onChange={(e) => handleChange('followUp', e.target.value)}
-              disabled={isFinalized}
-            />
-          </CardContent>
-        </Card>
-        
-        {/* Actions */}
-        {!isFinalized && (
-          <div className="flex gap-4">
-            <Button type="button" variant="draft" fullWidth onClick={handleSaveDraft}>
-              Save Draft
-            </Button>
-            <Button type="button" variant="success" fullWidth onClick={handleFinalize}>
-              Finalize Note
-            </Button>
-          </div>
-        )}
-        
-        {isFinalized && (
-          <div className="p-4 bg-[#F5F5F5] border-2 border-[#CCCCCC] rounded">
-            <p className="text-center">
-              This note has been finalized and cannot be edited. 
-              You can print or export this note for records.
-            </p>
-            <div className="flex gap-4 mt-4">
-              <Button type="button" variant="secondary" fullWidth>
-                Print Note
-              </Button>
-              <Button type="button" variant="secondary" fullWidth>
-                Export as PDF
-              </Button>
-            </div>
-          </div>
-        )}
-      </form>
+            )}
+
+            {noteStatus === 'finalized' && (
+              <div className="p-4 bg-[#F5F5F5] border-2 border-[#CCCCCC] rounded">
+                <p className="text-center">
+                  This note has been finalized and processed with NLP.
+                  Finalized notes cannot be edited.
+                </p>
+              </div>
+            )}
+          </form>
+        </>
+      )}
     </div>
   );
 }

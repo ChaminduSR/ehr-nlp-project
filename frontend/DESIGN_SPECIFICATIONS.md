@@ -2,10 +2,10 @@
 
 ## Project Overview
 
-**Application Name**: Rheumatology EHR  
-**Target Users**: Rheumatology doctors, clinicians, nurses, hospital administrators in rural India and low-resource countries  
-**Primary Goal**: Fast, accessible, offline-capable electronic health record system  
-**Performance Target**: <111KB total bundle size, <1 second load on 3G  
+**Application Name**: Rheumatology EHR
+**Target Users**: Rheumatology doctors, clinicians, nurses, hospital administrators in rural India and low-resource countries
+**Primary Goal**: Fast, accessible, offline-capable electronic health record system
+**Performance Target**: <150KB total bundle size, <1 second load on 3G
 **Platform Support**: Windows 7, IE11+, 10+ year old computers
 
 ---
@@ -457,7 +457,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-
 
 ### Bundle Size
 
-**Target**: <111KB total (including fonts, icons, etc.)
+**Target**: <150KB total (including fonts, icons, etc.)
 
 **Strategies**:
 1. System fonts only (0KB font loading)
@@ -546,7 +546,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-
   --color-draft: #FF9900;
   --color-success: #00AA00;
   --color-error: #CC0000;
-  
+
   /* Typography */
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   --text-xs: 0.75rem;
@@ -555,14 +555,14 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-
   --text-lg: 1.125rem;
   --text-xl: 1.5rem;
   --text-2xl: 2rem;
-  
+
   /* Spacing */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
-  
+
   /* Interactive */
   --button-height: 48px;
   --input-height: 48px;
@@ -600,7 +600,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-
 
 ### Performance Testing
 
-- [ ] Bundle size < 111KB
+- [ ] Bundle size < 150KB
 - [ ] Load time < 1s on 3G
 - [ ] Auto-save every 30s
 - [ ] Canvas performance on old hardware
@@ -645,6 +645,6 @@ For questions about design specifications:
 
 ---
 
-**Document Status**: ✅ Complete  
-**Last Updated**: November 15, 2025  
+**Document Status**: ✅ Complete
+**Last Updated**: November 15, 2025
 **Version**: 1.0

@@ -5,7 +5,7 @@ A performance-optimized, accessible Electronic Health Record system designed spe
 ## 🎯 Key Features
 
 ### Performance First
-- **<111KB Total Bundle Size** - Loads on 10+ year old computers
+- **<150KB Total Bundle Size** - Loads on 10+ year old computers
 - **<1 Second Load Time** - Optimized for 3G networks
 - **System Fonts Only** - No web font loading delays
 - **No Animations** - Minimal CPU/GPU usage
@@ -204,7 +204,7 @@ Open the application to explore:
 
 ### Performance Targets
 
-- **Bundle Size**: <111KB total (including all assets)
+- **Bundle Size**: <150KB total (including all assets)
 - **Load Time**: <1 second on 3G networks
 - **First Paint**: <500ms
 - **Interactive**: <1 second
@@ -346,7 +346,7 @@ Open the application to explore:
 
 ### Automated Testing
 
-- [ ] Bundle size verification (<111KB)
+- [ ] Bundle size verification (<150KB)
 - [ ] Color contrast ratios (7:1 minimum)
 - [ ] HTML validation
 - [ ] Accessibility audit (axe DevTools)
@@ -454,7 +454,7 @@ This is a demonstration project created with Figma Make. For production use, ens
 - **48px**: Minimum button/input height
 - **7:1**: Minimum contrast ratio
 - **30s**: Auto-save interval
-- **<111KB**: Target bundle size
+- **<150KB**: Target bundle size
 - **<1s**: Target load time on 3G
 
 ### Color Quick Reference
@@ -481,8 +481,8 @@ XS:    12px / 400
 
 ---
 
-**Version**: 1.0  
-**Last Updated**: November 15, 2025  
+**Version**: 1.0
+**Last Updated**: November 15, 2025
 **Status**: ✅ Production Ready (Frontend Only)
 
 Built with ❤️ for rural healthcare

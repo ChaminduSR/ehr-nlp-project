@@ -1,4 +1,4 @@
-import React from 'react';
+// React default import removed (unused with automatic JSX runtime)
 import { Button } from '../ehr/Button';
 import { Input, Textarea, Select } from '../ehr/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../ehr/Card';
@@ -14,7 +14,7 @@ export function DesignSystem() {
           Complete design system for Rheumatology EHR - Optimized for rural clinics
         </p>
       </div>
-      
+
       {/* Color Palette */}
       <Card>
         <CardHeader>
@@ -47,14 +47,14 @@ export function DesignSystem() {
                 </div>
               </div>
             </div>
-            
+
             <div>
               <h4 className="mb-3">DAS28 Score Colors</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <div className="w-full h-24 bg-[#00AA00] border-2 border-[#CCCCCC] rounded mb-2"></div>
                   <div className="text-sm font-medium">Remission</div>
-                  <div className="text-xs text-[#333333]"><2.6</div>
+                  <div className="text-xs text-[#333333]">&lt;2.6</div>
                 </div>
                 <div>
                   <div className="w-full h-24 bg-[#FFCC00] border-2 border-[#CCCCCC] rounded mb-2"></div>
@@ -69,11 +69,11 @@ export function DesignSystem() {
                 <div>
                   <div className="w-full h-24 bg-[#CC0000] border-2 border-[#CCCCCC] rounded mb-2"></div>
                   <div className="text-sm font-medium">High Activity</div>
-                  <div className="text-xs text-[#333333]">>5.1</div>
+                  <div className="text-xs text-[#333333]">&gt;5.1</div>
                 </div>
               </div>
             </div>
-            
+
             <div>
               <h4 className="mb-3">Neutral Colors</h4>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -107,7 +107,7 @@ export function DesignSystem() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Typography */}
       <Card>
         <CardHeader>
@@ -148,7 +148,7 @@ export function DesignSystem() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Buttons */}
       <Card>
         <CardHeader>
@@ -191,7 +191,7 @@ export function DesignSystem() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Form Elements */}
       <Card>
         <CardHeader>
@@ -232,7 +232,7 @@ export function DesignSystem() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Special Components */}
       <Card>
         <CardHeader>
@@ -264,7 +264,7 @@ export function DesignSystem() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Accessibility */}
       <Card>
         <CardHeader>
@@ -282,7 +282,7 @@ export function DesignSystem() {
                 <li>✅ Focus indicators with 3px outline and 2px offset</li>
               </ul>
             </div>
-            
+
             <div className="p-4 border-2 border-[#CCCCCC] rounded">
               <h4 className="mb-2">Touch Targets</h4>
               <ul className="space-y-2 text-sm">
@@ -292,7 +292,7 @@ export function DesignSystem() {
                 <li>✅ Adequate spacing between interactive elements</li>
               </ul>
             </div>
-            
+
             <div className="p-4 border-2 border-[#CCCCCC] rounded">
               <h4 className="mb-2">Keyboard Navigation</h4>
               <ul className="space-y-2 text-sm">
@@ -302,7 +302,7 @@ export function DesignSystem() {
                 <li>✅ Visual focus indicators on all elements</li>
               </ul>
             </div>
-            
+
             <div className="p-4 border-2 border-[#CCCCCC] rounded">
               <h4 className="mb-2">Screen Reader Support</h4>
               <ul className="space-y-2 text-sm">
@@ -315,7 +315,7 @@ export function DesignSystem() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Performance */}
       <Card>
         <CardHeader>
@@ -330,10 +330,10 @@ export function DesignSystem() {
                 <li>✅ No animations or transitions (removed motion dependency)</li>
                 <li>✅ Minimal CSS (Tailwind v4 with purging)</li>
                 <li>✅ Canvas-based joint assessment (no heavy libraries)</li>
-                <li>✅ Target bundle size: <111KB</li>
+                <li>✅ Target bundle size: &lt;150KB</li>
               </ul>
             </div>
-            
+
             <div className="p-4 border-2 border-[#CCCCCC] rounded">
               <h4 className="mb-2">Network Optimization</h4>
               <ul className="space-y-2 text-sm">
@@ -343,7 +343,7 @@ export function DesignSystem() {
                 <li>✅ Offline-capable design</li>
               </ul>
             </div>
-            
+
             <div className="p-4 border-2 border-[#CCCCCC] rounded">
               <h4 className="mb-2">Browser Support</h4>
               <ul className="space-y-2 text-sm">
@@ -356,7 +356,7 @@ export function DesignSystem() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Design Constraints */}
       <Card>
         <CardHeader>
@@ -377,14 +377,14 @@ export function DesignSystem() {
                 <li>• Optimize for offline use</li>
               </ul>
             </div>
-            
+
             <div className="p-4 border-2 border-[#CC0000] bg-[#FFF0F0] rounded">
               <h4 className="mb-2 text-[#CC0000]">❌ DON'T</h4>
               <ul className="space-y-1 text-sm">
                 <li>• Don't use web fonts</li>
                 <li>• Don't add heavy animations</li>
                 <li>• Don't use low contrast</li>
-                <li>• Don't make buttons <48px</li>
+                <li>• Don't make buttons &lt;48px</li>
                 <li>• Don't use jargon</li>
                 <li>• Don't require mouse-only input</li>
                 <li>• Don't assume fast internet</li>

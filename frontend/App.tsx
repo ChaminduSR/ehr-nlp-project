@@ -1,53 +1,23 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Activity, 
-  Users, 
-  FileText, 
-  Hand, 
-  BarChart3,
-  Palette,
-  Type,
-  Box,
-  LayoutDashboard,
-  Settings,
-  Check,
-  Clock,
-  AlertCircle,
-  ChevronRight,
-  Search,
-  Plus,
-  Download,
-  TrendingUp,
-  TrendingDown,
-  Save,
-  Zap,
-  Shield,
-  Smartphone,
-  Calendar,
-  Heart,
-  Target,
-  ArrowRight,
-  Sparkles,
-  Eye
-} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import * as Lucide from 'lucide-react';
 
 type View = 'overview' | 'colors' | 'typography' | 'components' | 'dashboard' | 'patients' | 'medical-note' | 'joint-assessment' | 'reports' | 'specs';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('overview');
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
       {/* Animated Header with Gradient */}
-      <motion.header 
+      <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white shadow-2xl sticky top-0 z-50 backdrop-blur-md border-b border-white/10"
       >
         <div className="px-8 py-6">
           <div className="flex items-center justify-between">
-            <motion.div 
+            <motion.div
               className="flex items-center gap-3"
               whileHover={{ scale: 1.02 }}
             >
@@ -56,31 +26,31 @@ export default function App() {
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 className="p-2 bg-white/10 backdrop-blur-sm rounded-xl"
               >
-                <Activity className="w-8 h-8" />
+                <Lucide.Activity className="w-8 h-8" />
               </motion.div>
               <div>
                 <h1 className="text-2xl">Rheumatology EHR</h1>
                 <p className="text-sm text-blue-100">Modern Design System v1.0</p>
               </div>
-            </motion.div>
+              </motion.div>
             <div className="flex items-center gap-3">
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm border border-white/20"
               >
                 <div className="text-xs text-blue-100">Bundle Size</div>
                 <div className="text-sm flex items-center gap-2">
-                  <Zap className="w-4 h-4" />
+                  <Lucide.Zap className="w-4 h-4" />
                   150KB
                 </div>
               </motion.div>
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm border border-white/20"
               >
                 <div className="text-xs text-blue-100">WCAG AAA</div>
                 <div className="text-sm flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
+                  <Lucide.Shield className="w-4 h-4" />
                   7:1 Contrast
                 </div>
               </motion.div>
@@ -88,43 +58,43 @@ export default function App() {
           </div>
         </div>
       </motion.header>
-      
+
       {/* Modern Tab Navigation with Animation */}
       <nav className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-[98px] z-40 shadow-sm">
         <div className="px-8 py-1 flex gap-1 overflow-x-auto">
-          <NavTab active={currentView === 'overview'} onClick={() => setCurrentView('overview')} icon={<LayoutDashboard className="w-4 h-4" />}>
+          <NavTab active={currentView === 'overview'} onClick={() => setCurrentView('overview')} icon={<Lucide.LayoutDashboard className="w-4 h-4" />}>
             Overview
           </NavTab>
-          <NavTab active={currentView === 'colors'} onClick={() => setCurrentView('colors')} icon={<Palette className="w-4 h-4" />}>
+          <NavTab active={currentView === 'colors'} onClick={() => setCurrentView('colors')} icon={<Lucide.Palette className="w-4 h-4" />}>
             Colors
           </NavTab>
-          <NavTab active={currentView === 'typography'} onClick={() => setCurrentView('typography')} icon={<Type className="w-4 h-4" />}>
+          <NavTab active={currentView === 'typography'} onClick={() => setCurrentView('typography')} icon={<Lucide.Type className="w-4 h-4" />}>
             Typography
           </NavTab>
-          <NavTab active={currentView === 'components'} onClick={() => setCurrentView('components')} icon={<Box className="w-4 h-4" />}>
+          <NavTab active={currentView === 'components'} onClick={() => setCurrentView('components')} icon={<Lucide.Box className="w-4 h-4" />}>
             Components
           </NavTab>
-          <NavTab active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} icon={<Activity className="w-4 h-4" />}>
+          <NavTab active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} icon={<Lucide.Activity className="w-4 h-4" />}>
             Dashboard
           </NavTab>
-          <NavTab active={currentView === 'patients'} onClick={() => setCurrentView('patients')} icon={<Users className="w-4 h-4" />}>
+          <NavTab active={currentView === 'patients'} onClick={() => setCurrentView('patients')} icon={<Lucide.Users className="w-4 h-4" />}>
             Patients
           </NavTab>
-          <NavTab active={currentView === 'medical-note'} onClick={() => setCurrentView('medical-note')} icon={<FileText className="w-4 h-4" />}>
+          <NavTab active={currentView === 'medical-note'} onClick={() => setCurrentView('medical-note')} icon={<Lucide.FileText className="w-4 h-4" />}>
             Medical Note
           </NavTab>
-          <NavTab active={currentView === 'joint-assessment'} onClick={() => setCurrentView('joint-assessment')} icon={<Hand className="w-4 h-4" />}>
+          <NavTab active={currentView === 'joint-assessment'} onClick={() => setCurrentView('joint-assessment')} icon={<Lucide.Hand className="w-4 h-4" />}>
             Joint Assessment
           </NavTab>
-          <NavTab active={currentView === 'reports'} onClick={() => setCurrentView('reports')} icon={<BarChart3 className="w-4 h-4" />}>
+          <NavTab active={currentView === 'reports'} onClick={() => setCurrentView('reports')} icon={<Lucide.BarChart3 className="w-4 h-4" />}>
             Reports
           </NavTab>
-          <NavTab active={currentView === 'specs'} onClick={() => setCurrentView('specs')} icon={<Settings className="w-4 h-4" />}>
+          <NavTab active={currentView === 'specs'} onClick={() => setCurrentView('specs')} icon={<Lucide.Settings className="w-4 h-4" />}>
             Specs
           </NavTab>
         </div>
       </nav>
-      
+
       {/* Main Content with Page Transitions */}
       <main className="px-8 py-8 max-w-[1600px] mx-auto">
         <AnimatePresence mode="wait">
@@ -148,12 +118,12 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
-      
+
       {/* Modern Footer */}
       <footer className="mt-16 py-8 px-8 bg-white/60 backdrop-blur-lg border-t border-slate-200/60">
         <div className="max-w-[1600px] mx-auto text-center text-slate-600">
           <p className="flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4 text-blue-600" />
+            <Lucide.Sparkles className="w-4 h-4 text-blue-600" />
             Rheumatology EHR Design System v1.0 • November 2025
           </p>
           <p className="mt-2 text-sm">Optimized for rural clinics • WCAG AAA compliant • Performance-first design</p>
@@ -170,8 +140,8 @@ function NavTab({ active, onClick, children, icon }: { active: boolean; onClick:
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       className={`px-4 py-3 rounded-t-xl whitespace-nowrap flex items-center gap-2 transition-all relative ${
-        active 
-          ? 'bg-white text-blue-600 shadow-md' 
+        active
+          ? 'bg-white text-blue-600 shadow-md'
           : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
       }`}
     >
@@ -192,7 +162,7 @@ function OverviewView() {
   return (
     <div className="space-y-8">
       {/* Hero Section with Animation */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-3xl p-12 text-white shadow-2xl"
@@ -206,10 +176,10 @@ function OverviewView() {
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               className="p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20"
             >
-              <Activity className="w-12 h-12" />
+              <Lucide.Activity className="w-12 h-12" />
             </motion.div>
             <div>
-              <motion.h2 
+              <motion.h2
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -217,7 +187,7 @@ function OverviewView() {
               >
                 Design System
               </motion.h2>
-              <motion.p 
+              <motion.p
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -227,69 +197,69 @@ function OverviewView() {
               </motion.p>
             </div>
           </div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
             className="flex gap-4"
           >
             <button className="px-6 py-3 bg-white text-blue-700 rounded-xl hover:bg-blue-50 transition-colors flex items-center gap-2">
-              <Eye className="w-5 h-5" />
+              <Lucide.Eye className="w-5 h-5" />
               View Components
             </button>
             <button className="px-6 py-3 bg-white/10 backdrop-blur-sm text-white rounded-xl hover:bg-white/20 transition-colors border border-white/20 flex items-center gap-2">
-              <Download className="w-5 h-5" />
+              <Lucide.Download className="w-5 h-5" />
               Download
             </button>
           </motion.div>
         </div>
       </motion.div>
-      
+
       {/* Animated Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {[
-          { value: "150KB", label: "Bundle Size", color: "blue", icon: <Zap className="w-6 h-6" />, trend: "optimized" },
-          { value: "7:1", label: "Contrast Ratio", color: "green", icon: <Shield className="w-6 h-6" />, trend: "excellent" },
-          { value: "48px", label: "Touch Target", color: "purple", icon: <Hand className="w-6 h-6" />, trend: "accessible" },
-          { value: "<1s", label: "Load Time", color: "orange", icon: <Activity className="w-6 h-6" />, trend: "fast" }
+          { value: "150KB", label: "Bundle Size", color: "blue", icon: <Lucide.Zap className="w-6 h-6" />, trend: "optimized" },
+          { value: "7:1", label: "Contrast Ratio", color: "green", icon: <Lucide.Shield className="w-6 h-6" />, trend: "excellent" },
+          { value: "48px", label: "Touch Target", color: "purple", icon: <Lucide.Hand className="w-6 h-6" />, trend: "accessible" },
+          { value: "<1s", label: "Load Time", color: "orange", icon: <Lucide.Activity className="w-6 h-6" />, trend: "fast" }
         ].map((metric, index) => (
           <MetricCard key={index} {...metric} index={index} />
         ))}
       </div>
-      
+
       {/* Animated Design Principles */}
       <div className="grid md:grid-cols-2 gap-6">
         {[
-          { title: "Speed over Beauty", desc: "Performance is paramount. System fonts, minimal animations, optimized assets.", icon: <Zap className="w-8 h-8" />, color: "blue" },
-          { title: "Accessibility First", desc: "WCAG AAA compliance with 7:1 contrast ratios and full keyboard navigation.", icon: <Shield className="w-8 h-8" />, color: "green" },
-          { title: "Simplicity over Complexity", desc: "Clean, functional design focused on clinical workflows and user efficiency.", icon: <Target className="w-8 h-8" />, color: "purple" },
-          { title: "Clinical-first Design", desc: "Built for healthcare professionals in resource-constrained environments.", icon: <Heart className="w-8 h-8" />, color: "orange" }
+          { title: "Speed over Beauty", desc: "Performance is paramount. System fonts, minimal animations, optimized assets.", icon: <Lucide.Zap className="w-8 h-8" />, color: "blue" },
+          { title: "Accessibility First", desc: "WCAG AAA compliance with 7:1 contrast ratios and full keyboard navigation.", icon: <Lucide.Shield className="w-8 h-8" />, color: "green" },
+          { title: "Simplicity over Complexity", desc: "Clean, functional design focused on clinical workflows and user efficiency.", icon: <Lucide.Target className="w-8 h-8" />, color: "purple" },
+          { title: "Clinical-first Design", desc: "Built for healthcare professionals in resource-constrained environments.", icon: <Lucide.Heart className="w-8 h-8" />, color: "orange" }
         ].map((principle, index) => (
           <PrincipleCard key={index} {...principle} index={index} />
         ))}
       </div>
-      
+
       {/* Features Grid with Stagger Animation */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
       >
-        <h3 className="text-2xl mb-6 flex items-center gap-3">
+          <h3 className="text-2xl mb-6 flex items-center gap-3">
           <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl text-white">
-            <Check className="w-6 h-6" />
+            <Lucide.Check className="w-6 h-6" />
           </div>
           Core Features
         </h3>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { title: "Patient Management", desc: "Search, view, and manage patient records efficiently", icon: <Users className="w-5 h-5" /> },
-            { title: "Medical Notes", desc: "Auto-save every 30s with draft and finalized states", icon: <FileText className="w-5 h-5" /> },
-            { title: "Joint Assessment", desc: "Interactive 28-joint evaluation with DAS28 calculation", icon: <Hand className="w-5 h-5" /> },
-            { title: "Analytics Dashboard", desc: "Real-time clinic metrics and patient outcomes", icon: <BarChart3 className="w-5 h-5" /> },
-            { title: "Disease Tracking", desc: "DAS28 scores with color-coded severity indicators", icon: <Activity className="w-5 h-5" /> },
-            { title: "Responsive Design", desc: "Works on 10+ year old computers and mobile devices", icon: <Smartphone className="w-5 h-5" /> }
+            { title: "Patient Management", desc: "Search, view, and manage patient records efficiently", icon: <Lucide.Users className="w-5 h-5" /> },
+            { title: "Medical Notes", desc: "Auto-save every 30s with draft and finalized states", icon: <Lucide.FileText className="w-5 h-5" /> },
+            { title: "Joint Assessment", desc: "Interactive 28-joint evaluation with DAS28 calculation", icon: <Lucide.Hand className="w-5 h-5" /> },
+            { title: "Analytics Dashboard", desc: "Real-time clinic metrics and patient outcomes", icon: <Lucide.BarChart3 className="w-5 h-5" /> },
+            { title: "Disease Tracking", desc: "DAS28 scores with color-coded severity indicators", icon: <Lucide.Activity className="w-5 h-5" /> },
+            { title: "Responsive Design", desc: "Works on 10+ year old computers and mobile devices", icon: <Lucide.Smartphone className="w-5 h-5" /> }
           ].map((feature, index) => (
             <FeatureItem key={index} {...feature} index={index} />
           ))}
@@ -306,7 +276,7 @@ function MetricCard({ value, label, color, icon, trend, index }: any) {
     purple: 'from-purple-500 to-purple-600',
     orange: 'from-orange-500 to-orange-600'
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -315,7 +285,7 @@ function MetricCard({ value, label, color, icon, trend, index }: any) {
       whileHover={{ y: -5, scale: 1.02 }}
       className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl p-6 border border-white/20 hover:shadow-2xl transition-shadow"
     >
-      <motion.div 
+      <motion.div
         whileHover={{ rotate: 360 }}
         transition={{ duration: 0.6 }}
         className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${colors[color as keyof typeof colors]} text-white mb-4 shadow-lg`}
@@ -339,14 +309,14 @@ function PrincipleCard({ title, desc, icon, color, index }: any) {
     purple: 'from-purple-50 to-purple-100 group-hover:from-purple-100 group-hover:to-purple-200',
     orange: 'from-orange-50 to-orange-100 group-hover:from-orange-100 group-hover:to-orange-200'
   };
-  
+
   const iconColors = {
     blue: 'text-blue-600',
     green: 'text-green-600',
     purple: 'text-purple-600',
     orange: 'text-orange-600'
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
@@ -355,7 +325,7 @@ function PrincipleCard({ title, desc, icon, color, index }: any) {
       whileHover={{ scale: 1.02 }}
       className="group bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl p-8 border border-white/20 hover:shadow-2xl transition-all"
     >
-      <motion.div 
+      <motion.div
         whileHover={{ scale: 1.1, rotate: 5 }}
         className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${colors[color as keyof typeof colors]} ${iconColors[color as keyof typeof iconColors]} mb-4 transition-all`}
       >
@@ -363,7 +333,7 @@ function PrincipleCard({ title, desc, icon, color, index }: any) {
       </motion.div>
       <h3 className="text-xl mb-3">{title}</h3>
       <p className="text-slate-600 leading-relaxed">{desc}</p>
-      <motion.div 
+      <motion.div
         initial={{ width: 0 }}
         whileInView={{ width: "100%" }}
         transition={{ delay: 0.2, duration: 0.6 }}
@@ -382,7 +352,7 @@ function FeatureItem({ title, desc, icon, index }: any) {
       whileHover={{ x: 5 }}
       className="flex items-start gap-3 p-5 rounded-xl hover:bg-white/80 transition-all cursor-pointer group border border-transparent hover:border-blue-200"
     >
-      <motion.div 
+      <motion.div
         whileHover={{ scale: 1.2 }}
         className="flex-shrink-0 p-2 bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-xl group-hover:from-blue-500 group-hover:to-blue-600 group-hover:text-white transition-all"
       >
@@ -392,7 +362,7 @@ function FeatureItem({ title, desc, icon, index }: any) {
         <div className="mb-1 group-hover:text-blue-600 transition-colors">{title}</div>
         <div className="text-sm text-slate-600">{desc}</div>
       </div>
-      <ArrowRight className="w-4 h-4 text-slate-400 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+      <Lucide.ArrowRight className="w-4 h-4 text-slate-400 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
     </motion.div>
   );
 }
@@ -400,20 +370,20 @@ function FeatureItem({ title, desc, icon, index }: any) {
 function ColorsView() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
       >
         <h2 className="text-4xl mb-2 flex items-center gap-3">
-          <Palette className="w-10 h-10 text-blue-600" />
+          <Lucide.Palette className="w-10 h-10 text-blue-600" />
           Color Palette
         </h2>
         <p className="text-slate-600">WCAG AAA compliant colors with 7:1 contrast minimum</p>
       </motion.div>
-      
+
       {/* Primary Colors with Stagger */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -431,16 +401,16 @@ function ColorsView() {
           ))}
         </div>
       </motion.div>
-      
+
       {/* DAS28 Scale with Animation */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
       >
         <h3 className="text-2xl mb-6 flex items-center gap-2">
-          <Activity className="w-6 h-6 text-blue-600" />
+          <Lucide.Activity className="w-6 h-6 text-blue-600" />
           DAS28 Disease Activity Scale
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -454,9 +424,9 @@ function ColorsView() {
           ))}
         </div>
       </motion.div>
-      
+
       {/* Color Gradients Showcase */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -478,7 +448,7 @@ function ColorsView() {
               whileHover={{ scale: 1.02 }}
               className={`h-24 rounded-2xl bg-gradient-to-r ${item.gradient} shadow-xl flex items-center justify-center text-white transition-transform`}
             >
-              <Sparkles className="w-6 h-6 mr-2" />
+              <Lucide.Sparkles className="w-6 h-6 mr-2" />
               {item.name}
             </motion.div>
           ))}
@@ -496,7 +466,7 @@ function ColorCard({ color, hex, name, contrast, usage, index }: any) {
       transition={{ delay: index * 0.1 }}
       className="group"
     >
-      <motion.div 
+      <motion.div
         whileHover={{ scale: 1.05, rotate: 2 }}
         className={`${color} rounded-2xl h-40 mb-4 shadow-xl flex items-center justify-center text-white transition-transform relative overflow-hidden`}
       >
@@ -505,7 +475,7 @@ function ColorCard({ color, hex, name, contrast, usage, index }: any) {
           whileHover={{ scale: 1 }}
           className="absolute inset-0 bg-white/10 backdrop-blur-sm flex items-center justify-center"
         >
-          <Palette className="w-12 h-12" />
+          <Lucide.Palette className="w-12 h-12" />
         </motion.div>
       </motion.div>
       <div className="space-y-1">
@@ -536,7 +506,7 @@ function DAS28Card({ color, label, range, description, textDark, index }: any) {
         <div className="relative z-10">
           <div className="text-sm opacity-90 mb-1">{range}</div>
           <div className="text-lg mb-2 flex items-center gap-2">
-            <Activity className="w-5 h-5" />
+            <Lucide.Activity className="w-5 h-5" />
             {label}
           </div>
           <div className="text-xs opacity-75">{description}</div>
@@ -549,19 +519,19 @@ function DAS28Card({ color, label, range, description, textDark, index }: any) {
 function TypographyView() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
       >
         <h2 className="text-4xl mb-2 flex items-center gap-3">
-          <Type className="w-10 h-10 text-blue-600" />
+          <Lucide.Type className="w-10 h-10 text-blue-600" />
           Typography System
         </h2>
         <p className="text-slate-600">System fonts for instant loading and native feel</p>
       </motion.div>
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -574,12 +544,12 @@ function TypographyView() {
           </code>
         </div>
         <div className="mt-4 text-sm text-slate-600 flex items-center gap-2">
-          <Zap className="w-4 h-4 text-blue-600" />
+          <Lucide.Zap className="w-4 h-4 text-blue-600" />
           Uses native system fonts for zero loading time and familiar appearance
         </div>
       </motion.div>
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -616,7 +586,7 @@ function TypeScale({ size, label, pixels, sample, index }: any) {
     >
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm text-slate-500 flex items-center gap-2">
-          <Type className="w-4 h-4" />
+          <Lucide.Type className="w-4 h-4" />
           {label}
         </span>
         <span className="text-xs text-slate-400 px-3 py-1 bg-slate-100 rounded-full">{pixels}</span>
@@ -629,20 +599,20 @@ function TypeScale({ size, label, pixels, sample, index }: any) {
 function ComponentsView() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
       >
         <h2 className="text-4xl mb-2 flex items-center gap-3">
-          <Box className="w-10 h-10 text-blue-600" />
+          <Lucide.Box className="w-10 h-10 text-blue-600" />
           UI Components
         </h2>
         <p className="text-slate-600">Modern, accessible component library with smooth interactions</p>
       </motion.div>
-      
+
       {/* Buttons */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -651,19 +621,19 @@ function ComponentsView() {
         <h3 className="text-2xl mb-6">Buttons</h3>
         <div className="space-y-6">
           {[
-            { variant: "primary", label: "Primary Button", description: "Main call-to-action for important actions", icon: <Check className="w-5 h-5" /> },
-            { variant: "secondary", label: "Secondary Button", description: "Secondary actions and cancel operations", icon: <ArrowRight className="w-5 h-5" /> },
-            { variant: "success", label: "Success Button", description: "Confirmation and finalize actions", icon: <Check className="w-5 h-5" /> },
-            { variant: "warning", label: "Warning Button", description: "Draft saves and caution actions", icon: <AlertCircle className="w-5 h-5" /> },
-            { variant: "danger", label: "Danger Button", description: "Destructive actions like delete", icon: <AlertCircle className="w-5 h-5" /> }
+            { variant: "primary", label: "Primary Button", description: "Main call-to-action for important actions", icon: <Lucide.Check className="w-5 h-5" /> },
+            { variant: "secondary", label: "Secondary Button", description: "Secondary actions and cancel operations", icon: <Lucide.ArrowRight className="w-5 h-5" /> },
+            { variant: "success", label: "Success Button", description: "Confirmation and finalize actions", icon: <Lucide.Check className="w-5 h-5" /> },
+            { variant: "warning", label: "Warning Button", description: "Draft saves and caution actions", icon: <Lucide.AlertCircle className="w-5 h-5" /> },
+            { variant: "danger", label: "Danger Button", description: "Destructive actions like delete", icon: <Lucide.AlertCircle className="w-5 h-5" /> }
           ].map((item, index) => (
             <ButtonShowcase key={index} {...item} index={index} />
           ))}
         </div>
       </motion.div>
-      
+
       {/* Form Elements */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -677,36 +647,36 @@ function ComponentsView() {
             transition={{ delay: 0.3 }}
           >
             <label className="block text-sm mb-2 text-slate-700 flex items-center gap-2">
-              <Search className="w-4 h-4" />
+              <Lucide.Search className="w-4 h-4" />
               Text Input with Icon
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search patients..." 
+              <Lucide.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search patients..."
                 className="w-full h-12 pl-11 pr-4 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
             <label className="block text-sm mb-2 text-slate-700">Textarea</label>
-            <textarea 
-              placeholder="Enter medical notes..." 
+            <textarea
+              placeholder="Enter medical notes..."
               rows={4}
               className="w-full p-4 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </motion.div>
         </div>
       </motion.div>
-      
+
       {/* Status Indicators with Animation */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -719,9 +689,9 @@ function ComponentsView() {
           <StatusIndicator status="error" />
         </div>
       </motion.div>
-      
+
       {/* DAS28 Displays */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
@@ -751,7 +721,7 @@ function ButtonShowcase({ variant, label, description, icon, index }: any) {
     warning: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg',
     danger: 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg'
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -759,7 +729,7 @@ function ButtonShowcase({ variant, label, description, icon, index }: any) {
       transition={{ delay: index * 0.1 }}
       className="flex items-center gap-6"
     >
-      <motion.button 
+      <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         className={`h-12 px-6 rounded-xl transition-all flex items-center gap-2 ${styles[variant as keyof typeof styles]}`}
@@ -776,32 +746,32 @@ function ButtonShowcase({ variant, label, description, icon, index }: any) {
 
 function StatusIndicator({ status }: { status: 'saving' | 'saved' | 'error' }) {
   const configs = {
-    saving: { 
-      icon: <Clock className="w-4 h-4" />, 
-      text: 'Saving...', 
+    saving: {
+      icon: <Lucide.Clock className="w-4 h-4" />,
+      text: 'Saving...',
       color: 'bg-yellow-50 border-yellow-300 text-yellow-700',
       dotColor: 'bg-yellow-500',
       gradient: 'from-yellow-100 to-yellow-50'
     },
-    saved: { 
-      icon: <Check className="w-4 h-4" />, 
-      text: 'Saved', 
+    saved: {
+      icon: <Lucide.Check className="w-4 h-4" />,
+      text: 'Saved',
       time: 'Last saved: 14:30',
       color: 'bg-green-50 border-green-300 text-green-700',
       dotColor: 'bg-green-500',
       gradient: 'from-green-100 to-green-50'
     },
-    error: { 
-      icon: <AlertCircle className="w-4 h-4" />, 
-      text: 'Error - Not Saved', 
+    error: {
+      icon: <Lucide.AlertCircle className="w-4 h-4" />,
+      text: 'Error - Not Saved',
       color: 'bg-red-50 border-red-300 text-red-700',
       dotColor: 'bg-red-500',
       gradient: 'from-red-100 to-red-50'
     }
   };
-  
+
   const config = configs[status];
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -809,7 +779,7 @@ function StatusIndicator({ status }: { status: 'saving' | 'saved' | 'error' }) {
       whileHover={{ scale: 1.02 }}
       className={`inline-flex items-center gap-3 px-5 py-3 rounded-xl border-2 ${config.color} bg-gradient-to-r ${config.gradient} shadow-sm`}
     >
-      <motion.div 
+      <motion.div
         animate={{ scale: [1, 1.2, 1] }}
         transition={{ repeat: Infinity, duration: 2 }}
         className={`w-2 h-2 rounded-full ${config.dotColor}`}
@@ -817,7 +787,7 @@ function StatusIndicator({ status }: { status: 'saving' | 'saved' | 'error' }) {
       {config.icon}
       <div>
         <div className="text-sm">{config.text}</div>
-        {config.time && <div className="text-xs opacity-75">{config.time}</div>}
+        {'time' in config && config.time && <div className="text-xs opacity-75">{config.time}</div>}
       </div>
     </motion.div>
   );
@@ -830,7 +800,7 @@ function DAS28Badge({ score, status, color, index }: any) {
     orange: 'from-orange-500 to-orange-600',
     red: 'from-red-500 to-red-600'
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -840,12 +810,12 @@ function DAS28Badge({ score, status, color, index }: any) {
       className={`flex items-center justify-between px-6 py-4 rounded-xl shadow-xl bg-gradient-to-r ${colors[color as keyof typeof colors]} text-white cursor-pointer`}
     >
       <div className="flex items-center gap-3">
-        <Activity className="w-5 h-5" />
+        <Lucide.Activity className="w-5 h-5" />
         <span>Score: {score}</span>
       </div>
       <div className="flex items-center gap-2">
         <span>{status}</span>
-        <ChevronRight className="w-5 h-5" />
+        <Lucide.ChevronRight className="w-5 h-5" />
       </div>
     </motion.div>
   );
@@ -854,7 +824,7 @@ function DAS28Badge({ score, status, color, index }: any) {
 function DashboardMockup() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
@@ -862,8 +832,8 @@ function DashboardMockup() {
         <h2 className="text-4xl mb-2">Dashboard Mockup</h2>
         <p className="text-slate-600">Main overview screen for clinic management</p>
       </motion.div>
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -879,7 +849,7 @@ function DashboardMockup() {
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 className="p-2 bg-white/10 backdrop-blur-sm rounded-xl"
               >
-                <Activity className="w-8 h-8" />
+                <Lucide.Activity className="w-8 h-8" />
               </motion.div>
               <div>
                 <h1 className="text-2xl">Rheumatology EHR</h1>
@@ -897,37 +867,37 @@ function DashboardMockup() {
             </div>
           </div>
         </div>
-        
+
         {/* Stats Grid */}
         <div className="grid grid-cols-4 gap-6 p-6 bg-gradient-to-br from-slate-50 to-white border-b border-slate-200">
           {[
-            { icon: <Users className="w-5 h-5" />, label: "Patients Today", value: "24", trend: "+3", color: "blue" },
-            { icon: <FileText className="w-5 h-5" />, label: "Pending Notes", value: "7", trend: "-2", color: "orange" },
-            { icon: <Activity className="w-5 h-5" />, label: "Active Patients", value: "156", trend: "+12", color: "green" },
-            { icon: <AlertCircle className="w-5 h-5" />, label: "Follow-ups Due", value: "12", trend: "+5", color: "red" }
+            { icon: <Lucide.Users className="w-5 h-5" />, label: "Patients Today", value: "24", trend: "+3", color: "blue" },
+            { icon: <Lucide.FileText className="w-5 h-5" />, label: "Pending Notes", value: "7", trend: "-2", color: "orange" },
+            { icon: <Lucide.Activity className="w-5 h-5" />, label: "Active Patients", value: "156", trend: "+12", color: "green" },
+            { icon: <Lucide.AlertCircle className="w-5 h-5" />, label: "Follow-ups Due", value: "12", trend: "+5", color: "red" }
           ].map((item, index) => (
             <StatCard key={index} {...item} index={index} />
           ))}
         </div>
-        
+
         {/* Quick Actions */}
         <div className="p-6">
           <h3 className="text-lg mb-4 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-blue-600" />
+            <Lucide.Zap className="w-5 h-5 text-blue-600" />
             Quick Actions
           </h3>
           <div className="grid grid-cols-2 gap-4">
             {[
-              { icon: <Plus className="w-5 h-5" />, label: "New Patient Visit", primary: true },
-              { icon: <Search className="w-5 h-5" />, label: "Search Patient" },
-              { icon: <BarChart3 className="w-5 h-5" />, label: "View Reports" },
-              { icon: <Calendar className="w-5 h-5" />, label: "Schedule" }
+              { icon: <Lucide.Plus className="w-5 h-5" />, label: "New Patient Visit", primary: true },
+              { icon: <Lucide.Search className="w-5 h-5" />, label: "Search Patient" },
+              { icon: <Lucide.BarChart3 className="w-5 h-5" />, label: "View Reports" },
+              { icon: <Lucide.Calendar className="w-5 h-5" />, label: "Schedule" }
             ].map((item, index) => (
               <QuickAction key={index} {...item} index={index} />
             ))}
           </div>
         </div>
-        
+
         {/* Recent Patients */}
         <div className="p-6 border-t border-slate-200 bg-slate-50/50">
           <h3 className="text-lg mb-4">Recent Patients</h3>
@@ -953,7 +923,7 @@ function StatCard({ icon, label, value, trend, color, index }: any) {
     orange: 'from-orange-500 to-orange-600',
     red: 'from-red-500 to-red-600'
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -968,12 +938,12 @@ function StatCard({ icon, label, value, trend, color, index }: any) {
       <div className="text-sm text-slate-600 mb-1">{label}</div>
       <div className="flex items-baseline gap-2">
         <div className="text-2xl">{value}</div>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-xs text-green-600 flex items-center gap-1"
         >
-          <TrendingUp className="w-3 h-3" />
+          <Lucide.TrendingUp className="w-3 h-3" />
           {trend}
         </motion.div>
       </div>
@@ -990,8 +960,8 @@ function QuickAction({ icon, label, primary, index }: any) {
       whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.98 }}
       className={`h-16 px-6 rounded-xl flex items-center gap-3 transition-all ${
-        primary 
-          ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-xl' 
+        primary
+          ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-xl'
           : 'bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 shadow-md'
       }`}
     >
@@ -1007,7 +977,7 @@ function PatientRow({ name, mrn, das28, status, index }: any) {
     moderate: 'from-orange-500 to-orange-600',
     high: 'from-red-500 to-red-600'
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -1018,7 +988,7 @@ function PatientRow({ name, mrn, das28, status, index }: any) {
     >
       <div className="flex items-center gap-4">
         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm shadow-lg">
-          {name.split(' ').map(n => n[0]).join('')}
+          {name.split(' ').map((n: string) => n[0]).join('')}
         </div>
         <div>
           <div>{name}</div>
@@ -1032,7 +1002,7 @@ function PatientRow({ name, mrn, das28, status, index }: any) {
             {das28}
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-slate-400" />
+        <Lucide.ChevronRight className="w-5 h-5 text-slate-400" />
       </div>
     </motion.div>
   );
@@ -1041,7 +1011,7 @@ function PatientRow({ name, mrn, das28, status, index }: any) {
 function PatientsMockup() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
@@ -1049,8 +1019,8 @@ function PatientsMockup() {
         <h2 className="text-4xl mb-2">Patient Management</h2>
         <p className="text-slate-600">Search, view, and manage patient records</p>
       </motion.div>
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -1060,28 +1030,28 @@ function PatientsMockup() {
         <div className="p-6 border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input 
+              <Lucide.Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
                 type="text"
                 placeholder="Search by name, MRN, or phone number..."
                 className="w-full h-12 pl-12 pr-4 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="h-12 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg flex items-center gap-2 transition-colors"
             >
-              <Plus className="w-5 h-5" />
+              <Lucide.Plus className="w-5 h-5" />
               Add Patient
             </motion.button>
           </div>
           <div className="mt-3 text-sm text-slate-500 flex items-center gap-2">
-            <Users className="w-4 h-4" />
+            <Lucide.Users className="w-4 h-4" />
             Found 156 patients
           </div>
         </div>
-        
+
         {/* Modern Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -1118,7 +1088,7 @@ function PatientTableRow({ mrn, name, age, phone, diagnosis, visit, das28, das28
     orange: 'from-orange-500 to-orange-600',
     red: 'from-red-500 to-red-600'
   };
-  
+
   return (
     <motion.tr
       initial={{ opacity: 0, y: 10 }}
@@ -1152,7 +1122,7 @@ function PatientTableRow({ mrn, name, age, phone, diagnosis, visit, das28, das28
 function MedicalNoteMockup() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
@@ -1160,8 +1130,8 @@ function MedicalNoteMockup() {
         <h2 className="text-4xl mb-2">Medical Note</h2>
         <p className="text-slate-600">Clinical documentation with auto-save</p>
       </motion.div>
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -1172,7 +1142,7 @@ function MedicalNoteMockup() {
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-2xl mb-1 flex items-center gap-2">
-                <FileText className="w-6 h-6 text-blue-600" />
+                <Lucide.FileText className="w-6 h-6 text-blue-600" />
                 Create Medical Note
               </h2>
               <p className="text-slate-600">Comprehensive rheumatology assessment</p>
@@ -1180,15 +1150,15 @@ function MedicalNoteMockup() {
             <StatusIndicator status="saved" />
           </div>
         </div>
-        
+
         {/* Patient Info Card */}
         <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-b border-blue-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-600" />
+              <Lucide.Users className="w-5 h-5 text-blue-600" />
               Patient Information
             </h3>
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.05 }}
               className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl text-sm shadow-md"
             >
@@ -1202,29 +1172,29 @@ function MedicalNoteMockup() {
             <InfoField label="Provider" value="Dr. Singh" />
           </div>
         </div>
-        
+
         {/* Form Sections */}
         <div className="p-6 space-y-6">
-          <FormField label="Chief Complaint" placeholder="Enter chief complaint..." icon={<FileText className="w-4 h-4" />} />
-          <FormField label="History of Present Illness" placeholder="Document patient history..." icon={<FileText className="w-4 h-4" />} multiline />
-          <FormField label="Physical Examination" placeholder="Document examination findings..." icon={<Activity className="w-4 h-4" />} multiline />
-          
+          <FormField label="Chief Complaint" placeholder="Enter chief complaint..." icon={<Lucide.FileText className="w-4 h-4" />} />
+          <FormField label="History of Present Illness" placeholder="Document patient history..." icon={<Lucide.FileText className="w-4 h-4" />} multiline />
+          <FormField label="Physical Examination" placeholder="Document examination findings..." icon={<Lucide.Activity className="w-4 h-4" />} multiline />
+
           <div className="pt-4 border-t border-slate-200">
             <div className="flex gap-4">
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex-1 h-12 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl shadow-lg flex items-center justify-center gap-2 transition-colors"
               >
-                <Save className="w-5 h-5" />
+                <Lucide.Save className="w-5 h-5" />
                 Save Draft
               </motion.button>
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex-1 h-12 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl shadow-lg flex items-center justify-center gap-2 transition-colors"
               >
-                <Check className="w-5 h-5" />
+                <Lucide.Check className="w-5 h-5" />
                 Finalize Note
               </motion.button>
             </div>
@@ -1258,13 +1228,13 @@ function FormField({ label, placeholder, multiline, icon }: any) {
         {label}
       </label>
       {multiline ? (
-        <textarea 
+        <textarea
           placeholder={placeholder}
           rows={4}
           className="w-full p-4 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
         />
       ) : (
-        <input 
+        <input
           type="text"
           placeholder={placeholder}
           className="w-full h-12 px-4 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -1277,7 +1247,7 @@ function FormField({ label, placeholder, multiline, icon }: any) {
 function JointAssessmentMockup() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
@@ -1285,8 +1255,8 @@ function JointAssessmentMockup() {
         <h2 className="text-4xl mb-2">Joint Assessment</h2>
         <p className="text-slate-600">Interactive 28-joint evaluation with DAS28 calculation</p>
       </motion.div>
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -1297,10 +1267,10 @@ function JointAssessmentMockup() {
           <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="flex items-center gap-2 text-xl">
-                <Hand className="w-6 h-6 text-blue-600" />
+                <Lucide.Hand className="w-6 h-6 text-blue-600" />
                 28-Joint Assessment
               </h3>
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl transition-colors shadow-md border border-slate-200"
@@ -1308,24 +1278,24 @@ function JointAssessmentMockup() {
                 Reset All
               </motion.button>
             </div>
-            
+
             <div className="bg-white rounded-2xl p-8 mb-6 shadow-xl">
               <div className="text-center mb-8">
                 <div className="text-sm text-slate-600 mb-4 flex items-center justify-center gap-2">
-                  <Target className="w-4 h-4" />
+                  <Lucide.Target className="w-4 h-4" />
                   Click joints to mark swelling • Right-click for tenderness
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-16 max-w-3xl mx-auto">
                 <JointSideDisplay side="Right" />
                 <JointSideDisplay side="Left" />
               </div>
             </div>
-            
+
             <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4">
               <div className="text-sm mb-2 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-blue-600" />
+                <Lucide.Activity className="w-4 h-4 text-blue-600" />
                 Instructions
               </div>
               <ul className="text-xs text-slate-600 space-y-1">
@@ -1336,11 +1306,11 @@ function JointAssessmentMockup() {
             </div>
           </div>
         </div>
-        
+
         {/* Joint Counts */}
         <div className="px-8 pb-4">
           <div className="grid grid-cols-2 gap-4">
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.02 }}
               className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-2xl p-4 shadow-md"
             >
@@ -1350,7 +1320,7 @@ function JointAssessmentMockup() {
               </div>
               <div className="text-2xl text-orange-700">3 / 28</div>
             </motion.div>
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.02 }}
               className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-2xl p-4 shadow-md"
             >
@@ -1362,21 +1332,21 @@ function JointAssessmentMockup() {
             </motion.div>
           </div>
         </div>
-        
+
         {/* DAS28 Result */}
         <div className="p-8 border-t border-slate-200 bg-gradient-to-br from-slate-50 to-white">
           <h3 className="mb-4 flex items-center gap-2 text-xl">
-            <Activity className="w-6 h-6 text-blue-600" />
+            <Lucide.Activity className="w-6 h-6 text-blue-600" />
             DAS28-ESR Calculation
           </h3>
-          <motion.div 
+          <motion.div
             whileHover={{ scale: 1.02 }}
             className="bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white rounded-2xl p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                  <Activity className="w-6 h-6" />
+                  <Lucide.Activity className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="text-sm opacity-90">DAS28 Score</div>
@@ -1399,12 +1369,12 @@ function JointSideDisplay({ side }: { side: string }) {
   return (
     <div className="space-y-6">
       <div className="text-center text-sm text-slate-600 flex items-center justify-center gap-2">
-        <Hand className="w-4 h-4" />
+        <Lucide.Hand className="w-4 h-4" />
         {side} Side
       </div>
       <div className="flex justify-center gap-2">
         {[1, 2, 3, 4, 5].map(i => (
-          <motion.div 
+          <motion.div
             key={i}
             whileHover={{ scale: 1.2, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
             whileTap={{ scale: 0.9 }}
@@ -1420,7 +1390,7 @@ function JointSideDisplay({ side }: { side: string }) {
 function ReportsMockup() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
@@ -1428,8 +1398,8 @@ function ReportsMockup() {
         <h2 className="text-4xl mb-2">Reports & Analytics</h2>
         <p className="text-slate-600">Clinic performance and patient outcomes</p>
       </motion.div>
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -1438,7 +1408,7 @@ function ReportsMockup() {
         {/* Filters */}
         <div className="p-6 border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white">
           <h3 className="mb-4 flex items-center gap-2 text-xl">
-            <BarChart3 className="w-6 h-6 text-blue-600" />
+            <Lucide.BarChart3 className="w-6 h-6 text-blue-600" />
             Generate Report
           </h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
@@ -1460,37 +1430,37 @@ function ReportsMockup() {
             </div>
           </div>
           <div className="flex gap-4">
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="h-12 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg flex items-center gap-2 transition-colors"
             >
-              <BarChart3 className="w-5 h-5" />
+              <Lucide.BarChart3 className="w-5 h-5" />
               Generate Report
             </motion.button>
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="h-12 px-6 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-300 rounded-xl flex items-center gap-2 transition-colors shadow-md"
             >
-              <Download className="w-5 h-5" />
+              <Lucide.Download className="w-5 h-5" />
               Export PDF
             </motion.button>
           </div>
         </div>
-        
+
         {/* Stats */}
         <div className="grid grid-cols-4 gap-6 p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-b border-slate-200">
           {[
-            { label: "Total Patients", value: "156", trend: "+12", icon: <Users className="w-5 h-5" /> },
-            { label: "Active Patients", value: "142", trend: "+8", icon: <Activity className="w-5 h-5" /> },
-            { label: "Avg DAS28", value: "3.4", trend: "-0.3", icon: <TrendingDown className="w-5 h-5" />, positive: true },
-            { label: "Remission Rate", value: "28%", trend: "+5%", icon: <TrendingUp className="w-5 h-5" />, positive: true }
+            { label: "Total Patients", value: "156", trend: "+12", icon: <Lucide.Users className="w-5 h-5" /> },
+            { label: "Active Patients", value: "142", trend: "+8", icon: <Lucide.Activity className="w-5 h-5" /> },
+            { label: "Avg DAS28", value: "3.4", trend: "-0.3", icon: <Lucide.TrendingDown className="w-5 h-5" />, positive: true },
+            { label: "Remission Rate", value: "28%", trend: "+5%", icon: <Lucide.TrendingUp className="w-5 h-5" />, positive: true }
           ].map((item, index) => (
             <MetricBox key={index} {...item} index={index} />
           ))}
         </div>
-        
+
         {/* Charts */}
         <div className="p-6">
           <h3 className="mb-6 text-xl">Disease Activity Distribution</h3>
@@ -1528,7 +1498,7 @@ function MetricBox({ label, value, trend, icon, positive, index }: any) {
       <div className="flex items-baseline gap-2">
         <div className="text-2xl">{value}</div>
         <div className={`text-xs flex items-center gap-1 ${positive ? 'text-green-600' : 'text-green-600'}`}>
-          {positive ? <TrendingUp className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+          {positive ? <Lucide.TrendingUp className="w-3 h-3" /> : <Lucide.TrendingUp className="w-3 h-3" />}
           {trend}
         </div>
       </div>
@@ -1543,9 +1513,9 @@ function ProgressChart({ label, value, count, color, index }: any) {
     orange: { bg: 'from-orange-500 to-orange-600', text: 'text-orange-700', light: 'bg-orange-100' },
     red: { bg: 'from-red-500 to-red-600', text: 'text-red-700', light: 'bg-red-100' }
   };
-  
+
   const c = colors[color as keyof typeof colors];
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -1557,7 +1527,7 @@ function ProgressChart({ label, value, count, color, index }: any) {
         <span className={`text-sm ${c.text}`}>{count} patients ({value})</span>
       </div>
       <div className={`w-full h-4 ${c.light} rounded-full overflow-hidden shadow-inner`}>
-        <motion.div 
+        <motion.div
           initial={{ width: 0 }}
           animate={{ width: value }}
           transition={{ duration: 1, delay: index * 0.1 }}
@@ -1571,62 +1541,62 @@ function ProgressChart({ label, value, count, color, index }: any) {
 function SpecificationsView() {
   return (
     <div className="space-y-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
       >
         <h2 className="text-4xl mb-2 flex items-center gap-3">
-          <Settings className="w-10 h-10 text-blue-600" />
+          <Lucide.Settings className="w-10 h-10 text-blue-600" />
           Technical Specifications
         </h2>
         <p className="text-slate-600">Implementation guidelines and measurements</p>
       </motion.div>
-      
+
       <div className="grid md:grid-cols-2 gap-6">
         {[
-          { 
-            title: "Spacing System", 
-            icon: <Box className="w-5 h-5" />,
+          {
+            title: "Spacing System",
+            icon: <Lucide.Box className="w-5 h-5" />,
             items: ['XS: 4px - Tight spacing', 'SM: 8px - Related elements', 'MD: 16px - Standard spacing', 'LG: 24px - Section spacing', 'XL: 32px - Major sections']
           },
-          { 
-            title: "Border Radius", 
-            icon: <Box className="w-5 h-5" />,
+          {
+            title: "Border Radius",
+            icon: <Lucide.Box className="w-5 h-5" />,
             items: ['SM: 8px - Badges, tags', 'MD: 12px - Buttons, inputs', 'LG: 16px - Cards', 'XL: 24px - Large cards', '2XL: 32px - Hero sections']
           },
-          { 
-            title: "Animations", 
-            icon: <Zap className="w-5 h-5" />,
+          {
+            title: "Animations",
+            icon: <Lucide.Zap className="w-5 h-5" />,
             items: ['Hover: 0.2s ease', 'Page transitions: 0.3s', 'Micro-interactions: 0.15s', 'Progress bars: 1s ease-out', 'All GPU-accelerated']
           },
-          { 
-            title: "Accessibility", 
-            icon: <Shield className="w-5 h-5" />,
+          {
+            title: "Accessibility",
+            icon: <Lucide.Shield className="w-5 h-5" />,
             items: ['Min contrast: 7:1 (WCAG AAA)', 'Touch targets: 48x48px', 'Focus rings: 2px visible', 'Keyboard navigation: Full', 'Screen reader: ARIA labels']
           }
         ].map((item, index) => (
           <SpecCard key={index} {...item} index={index} />
         ))}
       </div>
-      
+
       {/* Performance Metrics */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
         className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white rounded-3xl p-8 shadow-2xl"
       >
         <h3 className="text-2xl mb-6 flex items-center gap-2">
-          <Zap className="w-6 h-6" />
+          <Lucide.Zap className="w-6 h-6" />
           Performance Targets
         </h3>
         <div className="grid md:grid-cols-4 gap-6">
           {[
-            { label: "Bundle Size", value: "150KB", icon: <Download className="w-5 h-5" /> },
-            { label: "Load Time", value: "<1s", icon: <Zap className="w-5 h-5" /> },
-            { label: "3G Compatible", value: "Yes", icon: <Smartphone className="w-5 h-5" /> },
-            { label: "Animations", value: "CSS Only", icon: <Activity className="w-5 h-5" /> }
+            { label: "Bundle Size", value: "150KB", icon: <Lucide.Download className="w-5 h-5" /> },
+            { label: "Load Time", value: "<1s", icon: <Lucide.Zap className="w-5 h-5" /> },
+            { label: "3G Compatible", value: "Yes", icon: <Lucide.Smartphone className="w-5 h-5" /> },
+            { label: "Animations", value: "CSS Only", icon: <Lucide.Activity className="w-5 h-5" /> }
           ].map((item, index) => (
             <motion.div
               key={index}
@@ -1663,14 +1633,14 @@ function SpecCard({ title, icon, items, index }: any) {
       </h3>
       <ul className="space-y-2">
         {items.map((item: string, i: number) => (
-          <motion.li 
+          <motion.li
             key={i}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 + i * 0.05 }}
             className="text-sm text-slate-600 flex items-start gap-2"
           >
-            <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+            <Lucide.ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
             <span>{item}</span>
           </motion.li>
         ))}

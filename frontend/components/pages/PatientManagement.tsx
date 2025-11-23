@@ -1,114 +1,112 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table } from '../ehr/Table';
 import { Button } from '../ehr/Button';
 import { Input } from '../ehr/Input';
 import { Modal } from '../ehr/Modal';
+import { api } from '../../services/api';
+import { useApp } from '../../contexts/AppContext';
+// Removed unused type import `Patient` to avoid TS6133; re-add when used.
 
-interface Patient {
-  id: string;
+// Display patient with combined name for UI
+interface DisplayPatient {
+  id: number;
   name: string;
   mrn: string;
   age: number;
-  gender: string;
-  phone: string;
-  diagnosis: string;
-  lastVisit: string;
-  das28: number;
+  date_of_birth: string;
+  created_at: string;
 }
 
-const MOCK_PATIENTS: Patient[] = [
-  {
-    id: '1',
-    name: 'Rajesh Kumar',
-    mrn: 'MRN-2025-001',
-    age: 52,
-    gender: 'Male',
-    phone: '9876543210',
-    diagnosis: 'Rheumatoid Arthritis',
-    lastVisit: '2025-11-15',
-    das28: 3.5,
-  },
-  {
-    id: '2',
-    name: 'Priya Sharma',
-    mrn: 'MRN-2025-002',
-    age: 45,
-    gender: 'Female',
-    phone: '9876543211',
-    diagnosis: 'Rheumatoid Arthritis',
-    lastVisit: '2025-11-15',
-    das28: 2.4,
-  },
-  {
-    id: '3',
-    name: 'Amit Patel',
-    mrn: 'MRN-2025-003',
-    age: 58,
-    gender: 'Male',
-    phone: '9876543212',
-    diagnosis: 'Psoriatic Arthritis',
-    lastVisit: '2025-11-14',
-    das28: 5.8,
-  },
-  {
-    id: '4',
-    name: 'Sunita Devi',
-    mrn: 'MRN-2025-004',
-    age: 48,
-    gender: 'Female',
-    phone: '9876543213',
-    diagnosis: 'Rheumatoid Arthritis',
-    lastVisit: '2025-11-14',
-    das28: 3.9,
-  },
-  {
-    id: '5',
-    name: 'Mohammed Ali',
-    mrn: 'MRN-2025-005',
-    age: 61,
-    gender: 'Male',
-    phone: '9876543214',
-    diagnosis: 'Ankylosing Spondylitis',
-    lastVisit: '2025-11-13',
-    das28: 2.1,
-  },
-];
-
 export function PatientManagement() {
+  const { setCurrentPatient, isLoading, setIsLoading, error, setError } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedPatient, setSelectedPatient] = useState<DisplayPatient | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
-  const getDAS28Badge = (score: number) => {
-    if (score < 2.6) return <span className="px-2 py-1 bg-[#00AA00] text-white rounded text-sm">{score.toFixed(1)}</span>;
-    if (score < 3.2) return <span className="px-2 py-1 bg-[#FFCC00] text-black rounded text-sm">{score.toFixed(1)}</span>;
-    if (score <= 5.1) return <span className="px-2 py-1 bg-[#FF9900] text-white rounded text-sm">{score.toFixed(1)}</span>;
-    return <span className="px-2 py-1 bg-[#CC0000] text-white rounded text-sm">{score.toFixed(1)}</span>;
+  const [patients, setPatients] = useState<DisplayPatient[]>([]);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    mrn: '',
+    dateOfBirth: '',
+  });
+
+  // Note: Backend doesn't have GET /patients endpoint yet
+  // For now, patients array will be populated when we create new patients
+  useEffect(() => {
+    // You can add api.healthCheck() here to verify backend is running
+    api.healthCheck().catch(err => setError('Backend not reachable: ' + err.message));
+  }, []);
+
+  const calculateAge = (dob: string) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
   };
-  
-  const filteredPatients = MOCK_PATIENTS.filter(patient => 
+
+  const handleAddPatient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.createPatient({
+        mrn: formData.mrn,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        date_of_birth: formData.dateOfBirth,
+      });
+
+      // Fetch the created patient
+      const createdPatient = await api.getPatient(response.id);
+
+      // Add to local state
+      const displayPatient: DisplayPatient = {
+        ...createdPatient,
+        name: `${createdPatient.first_name} ${createdPatient.last_name}`,
+        age: calculateAge(createdPatient.date_of_birth),
+      };
+
+      setPatients(prev => [...prev, displayPatient]);
+      setCurrentPatient(createdPatient);
+
+      // Reset form
+      setFormData({ firstName: '', lastName: '', mrn: '', dateOfBirth: '' });
+      setIsAddModalOpen(false);
+
+      alert(`Patient ${displayPatient.name} created successfully!`);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create patient');
+      alert('Error creating patient: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filteredPatients = patients.filter(patient =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.mrn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.phone.includes(searchTerm)
+    patient.mrn.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
+
   const columns = [
-    { header: 'MRN', accessor: 'mrn' as keyof Patient, width: '15%' },
-    { header: 'Name', accessor: 'name' as keyof Patient, width: '20%' },
-    { header: 'Age/Gender', accessor: (row: Patient) => `${row.age} / ${row.gender}`, width: '15%' },
-    { header: 'Phone', accessor: 'phone' as keyof Patient, width: '15%' },
-    { header: 'Diagnosis', accessor: 'diagnosis' as keyof Patient, width: '20%' },
-    { header: 'Last Visit', accessor: 'lastVisit' as keyof Patient, width: '10%' },
-    { header: 'DAS28', accessor: (row: Patient) => getDAS28Badge(row.das28), width: '10%' },
+    { header: 'MRN', accessor: 'mrn' as keyof DisplayPatient, width: '20%' },
+    { header: 'Name', accessor: 'name' as keyof DisplayPatient, width: '25%' },
+    { header: 'Age', accessor: 'age' as keyof DisplayPatient, width: '15%' },
+    { header: 'Date of Birth', accessor: 'date_of_birth' as keyof DisplayPatient, width: '20%' },
+    { header: 'Created', accessor: (row: DisplayPatient) => new Date(row.created_at).toLocaleDateString(), width: '20%' },
   ];
-  
+
   return (
     <div className="space-y-6">
       <div>
         <h1>Patient Management</h1>
         <p className="text-[#333333] mt-2">Search and manage patient records</p>
       </div>
-      
+
       {/* Search and Actions */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1">
@@ -123,12 +121,12 @@ export function PatientManagement() {
           Add New Patient
         </Button>
       </div>
-      
+
       {/* Results Count */}
       <div className="text-[#333333]">
         Found {filteredPatients.length} patient{filteredPatients.length !== 1 ? 's' : ''}
       </div>
-      
+
       {/* Patients Table */}
       <Table
         columns={columns}
@@ -136,7 +134,7 @@ export function PatientManagement() {
         onRowClick={(patient) => setSelectedPatient(patient)}
         emptyMessage="No patients found. Try a different search term."
       />
-      
+
       {/* Patient Details Modal */}
       {selectedPatient && (
         <Modal
@@ -160,39 +158,27 @@ export function PatientManagement() {
                 <div className="font-medium">{selectedPatient.age} years</div>
               </div>
               <div>
-                <div className="text-sm text-[#333333]">Gender</div>
-                <div className="font-medium">{selectedPatient.gender}</div>
-              </div>
-              <div>
-                <div className="text-sm text-[#333333]">Phone</div>
-                <div className="font-medium">{selectedPatient.phone}</div>
-              </div>
-              <div>
-                <div className="text-sm text-[#333333]">Last Visit</div>
-                <div className="font-medium">{selectedPatient.lastVisit}</div>
+                <div className="text-sm text-[#333333]">Date of Birth</div>
+                <div className="font-medium">{selectedPatient.date_of_birth}</div>
               </div>
               <div className="col-span-2">
-                <div className="text-sm text-[#333333]">Diagnosis</div>
-                <div className="font-medium">{selectedPatient.diagnosis}</div>
-              </div>
-              <div className="col-span-2">
-                <div className="text-sm text-[#333333]">Current DAS28 Score</div>
-                <div className="mt-1">{getDAS28Badge(selectedPatient.das28)}</div>
+                <div className="text-sm text-[#333333]">Created At</div>
+                <div className="font-medium">{new Date(selectedPatient.created_at).toLocaleString()}</div>
               </div>
             </div>
-            
+
             <div className="flex gap-4 pt-4 border-t-2 border-[#CCCCCC]">
               <Button variant="primary" fullWidth>
-                Create Medical Note
+                Create Visit
               </Button>
-              <Button variant="secondary" fullWidth>
-                View History
+              <Button variant="secondary" fullWidth onClick={() => setSelectedPatient(null)}>
+                Close
               </Button>
             </div>
           </div>
         </Modal>
       )}
-      
+
       {/* Add Patient Modal */}
       <Modal
         isOpen={isAddModalOpen}
@@ -200,31 +186,63 @@ export function PatientManagement() {
         title="Add New Patient"
         size="large"
       >
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={handleAddPatient}>
+          {error && (
+            <div className="p-4 bg-red-50 border-2 border-red-300 rounded text-red-800">
+              {error}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
-            <Input label="First Name" id="first-name" required />
-            <Input label="Last Name" id="last-name" required />
-            <Input label="Age" type="number" id="age" required />
-            <Input label="Gender" id="gender" required />
-            <Input label="Phone Number" type="tel" id="phone" required />
-            <Input label="Email" type="email" id="email" />
-            <div className="col-span-2">
-              <Input label="Address" id="address" />
-            </div>
-            <div className="col-span-2">
-              <Input label="Initial Diagnosis" id="diagnosis" />
-            </div>
+            <Input
+              label="First Name"
+              id="first-name"
+              required
+              value={formData.firstName}
+              onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+              disabled={isLoading}
+            />
+            <Input
+              label="Last Name"
+              id="last-name"
+              required
+              value={formData.lastName}
+              onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+              disabled={isLoading}
+            />
+            <Input
+              label="MRN (Medical Record Number)"
+              id="mrn"
+              required
+              placeholder="MRN-2025-001"
+              value={formData.mrn}
+              onChange={(e) => setFormData(prev => ({ ...prev, mrn: e.target.value }))}
+              disabled={isLoading}
+            />
+            <Input
+              label="Date of Birth"
+              type="date"
+              id="dob"
+              required
+              value={formData.dateOfBirth}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+              disabled={isLoading}
+            />
           </div>
-          
+
           <div className="flex gap-4 pt-4 border-t-2 border-[#CCCCCC]">
-            <Button type="submit" variant="primary" fullWidth>
-              Save Patient
+            <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
+              {isLoading ? 'Creating...' : 'Create Patient'}
             </Button>
-            <Button 
-              type="button" 
-              variant="secondary" 
+            <Button
+              type="button"
+              variant="secondary"
               fullWidth
-              onClick={() => setIsAddModalOpen(false)}
+              onClick={() => {
+                setIsAddModalOpen(false);
+                setError(null);
+              }}
+              disabled={isLoading}
             >
               Cancel
             </Button>

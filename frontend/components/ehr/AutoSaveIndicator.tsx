@@ -1,4 +1,4 @@
-import React from 'react';
+// React default import removed (unused with automatic JSX runtime)
 
 interface AutoSaveIndicatorProps {
   status: 'saving' | 'saved' | 'error';
@@ -23,17 +23,17 @@ export function AutoSaveIndicator({ status, lastSaved }: AutoSaveIndicatorProps)
       textColor: 'text-white'
     }
   };
-  
+
   const config = statusConfig[status];
-  
+
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-IN', { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: false 
+      hour12: false
     });
   };
-  
+
   return (
     <div className="flex items-center gap-3 px-4 py-2 border-2 border-[#CCCCCC] rounded bg-white">
       <div className={`w-3 h-3 rounded-full ${config.color}`} aria-hidden="true" />

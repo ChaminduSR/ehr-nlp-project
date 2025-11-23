@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ehr/Card';
 import { Select } from '../ehr/Input';
 import { Button } from '../ehr/Button';
@@ -6,7 +6,7 @@ import { Button } from '../ehr/Button';
 export function Reports() {
   const [reportType, setReportType] = useState('patient-summary');
   const [dateRange, setDateRange] = useState('month');
-  
+
   const reportTypes = [
     { value: 'patient-summary', label: 'Patient Summary Report' },
     { value: 'disease-activity', label: 'Disease Activity Trends' },
@@ -14,7 +14,7 @@ export function Reports() {
     { value: 'visit-summary', label: 'Visit Summary' },
     { value: 'lab-results', label: 'Laboratory Results' },
   ];
-  
+
   const dateRanges = [
     { value: 'week', label: 'Last Week' },
     { value: 'month', label: 'Last Month' },
@@ -22,7 +22,7 @@ export function Reports() {
     { value: 'year', label: 'Last Year' },
     { value: 'custom', label: 'Custom Range' },
   ];
-  
+
   // Mock data for demonstration
   const summaryStats = [
     { label: 'Total Patients', value: '156', change: '+12' },
@@ -30,7 +30,7 @@ export function Reports() {
     { label: 'Average DAS28', value: '3.4', change: '-0.3' },
     { label: 'Remission Rate', value: '28%', change: '+5%' },
   ];
-  
+
   const recentVisits = [
     { date: '2025-11-15', patients: 24, avgDAS28: 3.2 },
     { date: '2025-11-14', patients: 22, avgDAS28: 3.5 },
@@ -38,21 +38,21 @@ export function Reports() {
     { date: '2025-11-12', patients: 20, avgDAS28: 3.6 },
     { date: '2025-11-11', patients: 23, avgDAS28: 3.4 },
   ];
-  
+
   const diseaseDistribution = [
     { diagnosis: 'Rheumatoid Arthritis', count: 98, percentage: 63 },
     { diagnosis: 'Psoriatic Arthritis', count: 28, percentage: 18 },
     { diagnosis: 'Ankylosing Spondylitis', count: 18, percentage: 12 },
     { diagnosis: 'Other', count: 12, percentage: 7 },
   ];
-  
+
   return (
     <div className="space-y-6">
       <div>
         <h1>Reports & Analytics</h1>
         <p className="text-[#333333] mt-2">View clinic performance and patient outcomes</p>
       </div>
-      
+
       {/* Report Filters */}
       <Card>
         <CardHeader>
@@ -81,7 +81,7 @@ export function Reports() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Summary Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {summaryStats.map((stat, idx) => (
@@ -100,7 +100,7 @@ export function Reports() {
           </Card>
         ))}
       </div>
-      
+
       {/* Recent Visits */}
       <Card>
         <CardHeader>
@@ -129,7 +129,7 @@ export function Reports() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Disease Distribution */}
       <Card>
         <CardHeader>
@@ -154,7 +154,7 @@ export function Reports() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* DAS28 Distribution */}
       <Card>
         <CardHeader>
@@ -164,14 +164,14 @@ export function Reports() {
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Remission (<2.6)</span>
+                <span className="font-medium">Remission (&lt;2.6)</span>
                 <span className="text-[#00AA00]">44 patients (28%)</span>
               </div>
               <div className="w-full h-8 bg-[#F5F5F5] border-2 border-[#CCCCCC] rounded overflow-hidden">
                 <div className="h-full bg-[#00AA00]" style={{ width: '28%' }}></div>
               </div>
             </div>
-            
+
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium">Low Activity (2.6-3.2)</span>
@@ -181,7 +181,7 @@ export function Reports() {
                 <div className="h-full bg-[#FFCC00]" style={{ width: '25%' }}></div>
               </div>
             </div>
-            
+
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium">Moderate Activity (3.2-5.1)</span>
@@ -191,10 +191,10 @@ export function Reports() {
                 <div className="h-full bg-[#FF9900]" style={{ width: '35%' }}></div>
               </div>
             </div>
-            
+
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">High Activity (>5.1)</span>
+                <span className="font-medium">High Activity (&gt;5.1)</span>
                 <span className="text-[#CC0000]">18 patients (12%)</span>
               </div>
               <div className="w-full h-8 bg-[#F5F5F5] border-2 border-[#CCCCCC] rounded overflow-hidden">
@@ -204,7 +204,7 @@ export function Reports() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Quick Actions */}
       <Card>
         <CardHeader>

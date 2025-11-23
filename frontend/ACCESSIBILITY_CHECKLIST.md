@@ -136,7 +136,7 @@ This document outlines the accessibility standards and checklist for the Rheumat
 - [x] **3G network optimized**: Loads in <1 second on 3G ✅
 - [x] **Offline capability**: Works without internet connection ✅
 - [x] **Auto-save**: Reduces need for manual saves ✅
-- [x] **Minimal bundle**: Target <111KB total ✅
+- [x] **Minimal bundle**: Target <150KB total ✅
 
 ### Device Performance
 
@@ -202,7 +202,7 @@ This document outlines the accessibility standards and checklist for the Rheumat
 - [ ] Validate HTML semantics
 - [ ] Check color contrast ratios
 - [ ] Measure page load performance
-- [ ] Test bundle size (<111KB target)
+- [ ] Test bundle size (<150KB target)
 
 ### User Testing
 

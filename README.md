@@ -41,12 +41,12 @@ A production-ready Electronic Health Record system designed for rheumatology cli
 - **UI**: Custom EHR components + shadcn/ui library
 - **Canvas**: Konva.js (joint assessment)
 - **Animation**: Framer Motion (minimal, optimized)
-- **Bundle**: <111KB target (old PC compatible)
+- **Bundle**: <150KB target (old PC compatible)
 
 ### Development
 - **Testing**: pytest + pytest-flask
 - **Linting**: Ruff + Black + mypy
-- **Commits**: Commitizen + Husky (conventional commits)
+- **Commits**: Conventional commits encouraged (no Husky/Commitizen hooks required)
 - **Editor**: VS Code with Python + TypeScript extensions
 
 ---
@@ -336,18 +336,15 @@ black backend/
 mypy backend/
 ```
 
-### Git Workflow (Commitizen)
+### Git workflow
 ```powershell
 # Make changes
 git add .
 
-# Commit (automatically opens Commitizen)
-git commit
+# Commit with a short descriptive message
+git commit -m "feat: add new feature"
 
-# Follow prompts:
-# - Type: feat, fix, docs, refactor, test, etc.
-# - Scope: patients, nlp, voice, frontend, etc.
-# - Description: Short summary
+# Follow your project's branching and PR process (e.g. open a PR, select reviewers)
 ```
 
 ### Project Status
