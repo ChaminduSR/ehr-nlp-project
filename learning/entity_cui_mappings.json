@@ -1,0 +1,42 @@
+{
+  "Patient": {
+    "cui": "C0030705",
+    "score": 0.9829968214035034,
+    "occurrences": 1
+  },
+  "diabetes": {
+    "cui": "C0011847",
+    "score": 0.9754753708839417,
+    "occurrences": 1
+  },
+  "hypertension": {
+    "cui": "C0020538",
+    "score": 0.9838637709617615,
+    "occurrences": 1
+  },
+  "heart failure": {
+    "cui": "C0018801",
+    "score": 0.9767115712165833,
+    "occurrences": 1
+  },
+  "Medications": {
+    "cui": "C0013227",
+    "score": 0.9835557341575623,
+    "occurrences": 1
+  },
+  "metformin": {
+    "cui": "C0025598",
+    "score": 0.9361872673034668,
+    "occurrences": 1
+  },
+  "lisinopril": {
+    "cui": "C0065374",
+    "score": 0.9932959675788879,
+    "occurrences": 1
+  },
+  "aspirin": {
+    "cui": "C0004057",
+    "score": 0.9810119271278381,
+    "occurrences": 1
+  }
+}
