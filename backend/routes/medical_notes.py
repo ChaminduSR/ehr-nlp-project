@@ -56,29 +56,51 @@ def finalize_note():
     conn = get_db()
     cursor = conn.cursor()
     
-    # Update note status
-    cursor.execute('''
-        UPDATE medical_notes 
-        SET status = 'finalized', 
-            note_text = ?,
-            signed_at = ?,
-            signed_by = 1
-        WHERE id = ?
-    ''', (data['text'], datetime.utcnow().isoformat(), data['note_id']))
-    
-    conn.commit()
-    
-    # TODO: Trigger NLP processing here (Week 2)
-    
-    conn.close()
-    
-    return jsonify({
-        'success': True,
-        'note_id': data['note_id'],
-        'status': 'finalized',
-        'signed_at': datetime.utcnow().isoformat(),
-        'message': '✅ Note finalized and signed'
-    }), 200
+    try:
+        # Update note status to finalized
+        cursor.execute('''
+            UPDATE medical_notes 
+            SET status = 'finalized', 
+                note_text = ?,
+                signed_at = ?,
+                signed_by = 1
+            WHERE id = ?
+        ''', (data['text'], datetime.utcnow().isoformat(), data['note_id']))
+        
+        conn.commit()
+        
+        # Trigger NLP processing
+        from services.nlp_engine import nlp_engine
+        nlp_result = nlp_engine.process_note(data['text'])
+        
+        if nlp_result['success']:
+            # Store entities count and processing time
+            cursor.execute('''
+                UPDATE medical_notes 
+                SET entity_count = ?,
+                    processing_time_ms = ?
+                WHERE id = ?
+            ''', (nlp_result['entity_count'], nlp_result['processing_time_ms'], data['note_id']))
+            
+            conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'note_id': data['note_id'],
+            'status': 'finalized',
+            'signed_at': datetime.utcnow().isoformat(),
+            'entities_extracted': nlp_result['entity_count'],
+            'processing_time_ms': nlp_result['processing_time_ms'],
+            'entities': nlp_result['entities'][:5],  # Return first 5 entities as preview
+            'message': '✅ Note finalized and NLP processed'
+        }), 200
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+        
+    finally:
+        conn.close()
 
 @medical_notes_bp.route('/<int:note_id>', methods=['GET'])
 def get_note(note_id):

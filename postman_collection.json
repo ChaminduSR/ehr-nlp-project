@@ -229,9 +229,9 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/load-vosk-model",
+              "raw": "{{base_url}}/voice/load-model",
               "host": ["{{base_url}}"],
-              "path": ["load-vosk-model"]
+              "path": ["voice", "load-model"]
             },
             "description": "Load VOSK model on first voice use (TO BE IMPLEMENTED)"
           },
@@ -253,9 +253,9 @@
               ]
             },
             "url": {
-              "raw": "{{base_url}}/transcribe-audio",
+              "raw": "{{base_url}}/voice/transcribe",
               "host": ["{{base_url}}"],
-              "path": ["transcribe-audio"]
+              "path": ["voice", "transcribe"]
             },
             "description": "Transcribe audio file to text using VOSK (TO BE IMPLEMENTED)"
           },
