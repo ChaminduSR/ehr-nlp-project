@@ -22,6 +22,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+*.pyc
 
 # =========================
 # Virtual Environments
@@ -32,59 +33,99 @@ ENV/
 .venv/
 .env
 pip-log.txt
+Pipfile
+Pipfile.lock
 
 # =========================
 # IDE / Editor
 # =========================
 .idea/
-.vscode/
+.vscode/settings.json
+.vscode/launch.json
 *.swp
 *.swo
 *~
+.vs/
 
 # =========================
 # Jupyter Notebook
 # =========================
-.ipynb_checkpoints
+.ipynb_checkpoints/
 *.ipynb_checkpoints/
 
 # =========================
-# Frontend
+# Frontend / Node.js
 # =========================
 node_modules/
-npm-debug.log
 npm-debug.log*
-yarn-debug.log
 yarn-debug.log*
-yarn-error.log
 yarn-error.log*
+pnpm-debug.log*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 frontend/build/
 frontend/dist/
+frontend/.next/
+frontend/out/
+.cache/
+.parcel-cache/
 
 # =========================
-# Data and Models
+# Database Files
 # =========================
-data/raw_clinical_notes/*.txt
+# SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+
+# SQLite WAL mode files (Write-Ahead Logging)
+*.db-wal
+*.db-shm
+*.db-journal
+
+# Database backups
+*.db.bak
+*.db.backup
+*.sql.bak
+backend/database/*.db
+backend/database/*.db-*
+database/*.db
+database/*.db-*
+
+# Keep only schema file
+!backend/database/init_schema.sql
+
+# =========================
+# NLP Models & Data
+# =========================
+# spaCy models (download separately)
 data/models/*.pkl
 data/models/*.bin
 *.model
 *.bin
 *.h5
 
+# VOSK speech models (download separately - 50MB+)
+backend/static/models/vosk-*
+backend/static/models/*.zip
+static/models/vosk-*
+static/models/*.zip
+
+# Training data
+data/raw_clinical_notes/*.txt
+data/annotations/*.json
+!data/annotations/.gitkeep
+
 # =========================
-# Logs and Databases
+# Logs and Monitoring
 # =========================
 *.log
 logs/
-*.sqlite
-*.sqlite3
-*.db
-*.db-journal
-*.db-wal
+*.log.*
+backend/logs/
+*.out
 
 # =========================
 # OS Generated Files
@@ -97,6 +138,7 @@ logs/
 ehthumbs.db
 Thumbs.db
 desktop.ini
+$RECYCLE.BIN/
 
 # =========================
 # Sensitive Data
@@ -104,19 +146,68 @@ desktop.ini
 .env
 *.key
 *.pem
+*.p12
+*.pfx
+secrets/
+.secrets
 
 # =========================
-# Project Specific / Testing
+# Testing & Coverage
 # =========================
 *.bak
 coverage/
 .coverage
+.coverage.*
 htmlcov/
 .pytest_cache/
+.tox/
+.hypothesis/
+*.cover
+*.py,cover
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
 
+# =========================
+# Build & Distribution
+# =========================
+*.whl
+*.tar.gz
+*.zip
+!backend/static/models/.gitkeep
 
-# Conda environment
-environment.yml
+# =========================
+# Temporary Files
+# =========================
+*.tmp
+*.temp
+*.swp
+*~.nib
+local_settings.py
+instance/
+.webassets-cache
+
+# =========================
+# Audio Files (Voice Recognition)
+# =========================
+*.wav
+*.mp3
+*.ogg
+*.flac
+!static/samples/*.wav
+
+# =========================
+# Conda Environment
+# =========================
 .conda/
-*.pyc
-__pycache__/
+conda-meta/
+
+# =========================
+# Type Checking
+# =========================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/

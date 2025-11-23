@@ -67,7 +67,7 @@
                 }
               ]
             },
-            "description": "Retrieve patient by ID (TO BE IMPLEMENTED)"
+            "description": "Retrieve patient by ID with all details"
           },
           "response": []
         }
@@ -95,7 +95,27 @@
               "host": ["{{base_url}}"],
               "path": ["visits"]
             },
-            "description": "Create a new visit for a patient (TO BE IMPLEMENTED)"
+            "description": "Create a new visit for a patient"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Visit by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/visits/:id",
+              "host": ["{{base_url}}"],
+              "path": ["visits", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Retrieve visit by ID with patient and date information"
           },
           "response": []
         }
@@ -123,7 +143,7 @@
               "host": ["{{base_url}}"],
               "path": ["medical_notes", "draft"]
             },
-            "description": "Auto-save endpoint - called every 30 seconds (TO BE IMPLEMENTED)"
+            "description": "Auto-save endpoint - called every 30 seconds. Creates or updates draft note."
           },
           "response": []
         },
@@ -146,7 +166,7 @@
               "host": ["{{base_url}}"],
               "path": ["medical_notes", "finalize"]
             },
-            "description": "Finalize and sign note - triggers NLP processing (TO BE IMPLEMENTED)"
+            "description": "Finalize and sign note - triggers spaCy NLP entity extraction. Returns extracted entities."
           },
           "response": []
         },
@@ -166,7 +186,7 @@
                 }
               ]
             },
-            "description": "Retrieve medical note by ID (TO BE IMPLEMENTED)"
+            "description": "Retrieve medical note by ID with status and timestamps"
           },
           "response": []
         }
@@ -194,7 +214,7 @@
               "host": ["{{base_url}}"],
               "path": ["joint_assessments"]
             },
-            "description": "Save 3-parameter joint assessment (TO BE IMPLEMENTED)"
+            "description": "Save 3-parameter joint assessment (tenderness, pain, swelling 0-3). Replaces existing assessments for visit."
           },
           "response": []
         },
@@ -214,7 +234,7 @@
                 }
               ]
             },
-            "description": "Get all joint assessments for a visit (TO BE IMPLEMENTED)"
+            "description": "Get all joint assessments for a visit with 3-parameter data"
           },
           "response": []
         }
@@ -233,7 +253,7 @@
               "host": ["{{base_url}}"],
               "path": ["voice", "load-model"]
             },
-            "description": "Load VOSK model on first voice use (TO BE IMPLEMENTED)"
+            "description": "Load VOSK model on first voice use (lazy loading). Takes 5-8 seconds on first call."
           },
           "response": []
         },
@@ -257,35 +277,7 @@
               "host": ["{{base_url}}"],
               "path": ["voice", "transcribe"]
             },
-            "description": "Transcribe audio file to text using VOSK (TO BE IMPLEMENTED)"
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "DAS28 Automation",
-      "item": [
-        {
-          "name": "Calculate DAS28 Score",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"visit_id\": 1,\n  \"tender_joint_count\": 8,\n  \"swollen_joint_count\": 4,\n  \"esr\": 35,\n  \"patient_global_health\": 60\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/das28/calculate",
-              "host": ["{{base_url}}"],
-              "path": ["das28", "calculate"]
-            },
-            "description": "Calculate DAS28-ESR score (TO BE IMPLEMENTED)"
+            "description": "Transcribe audio file to text using VOSK offline speech recognition. Requires VOSK model loaded."
           },
           "response": []
         }
@@ -295,7 +287,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:5000/api/v1",
+      "value": "http://localhost:8000/api/v1",
       "type": "default"
     }
   ]
