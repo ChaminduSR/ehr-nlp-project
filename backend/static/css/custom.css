@@ -1,0 +1,39 @@
+/* Custom styling for EHR-NLP System */
+
+/* Auto-save status indicators */
+.status-bar {
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.status-draft {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+.status-saved {
+    background: #d4edda;
+    border-left-color: #28a745;
+}
+
+/* Voice button styling */
+.voice-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.voice-btn:hover {
+    background: #0056b3;
+}
+
+.voice-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
