@@ -1,2 +1,0 @@
-# Run Commitizen instead of the regular commit message editor
-exec < /dev/tty && npx cz --hook || true
