@@ -26,6 +26,8 @@ CREATE TABLE medical_notes (
     draft_saved_at TIMESTAMP,
     signed_by INTEGER,
     signed_at TIMESTAMP,
+    entity_count INTEGER DEFAULT 0,
+    processing_time_ms REAL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (visit_id) REFERENCES visits(id)
 );
