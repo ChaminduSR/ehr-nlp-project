@@ -211,3 +211,33 @@ conda-meta/
 dmypy.json
 .pyre/
 .pytype/
+
+# =========================
+# Frontend / Vite specific
+# =========================
+# Vite cache and local build artifacts
+frontend/.vite/
+frontend/.cache/
+
+# Dist output (already ignoring frontend/dist but keep explicit entries)
+frontend/dist/
+frontend/dist/**/*.br
+frontend/dist/**/*.gz
+
+# Node modules for frontend (global node_modules/ is already ignored but be explicit)
+frontend/node_modules/
+
+# Local npm/yarn debug logs
+npm-debug.log*
+yarn-debug.log*
+
+# Editor/IDE additional files
+.vscode/
+*.iml
+
+# Temporary files
+tmp/
+temp/
+
+# Docker compose override for local env
+docker-compose.override.yml
