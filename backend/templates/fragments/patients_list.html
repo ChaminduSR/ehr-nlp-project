@@ -1,0 +1,23 @@
+<div id="patients-fragment">
+  <div class="fragment-header">
+    <h2>Patients</h2>
+    <form hx-get="{{ url_for('patients.patients_fragment') }}" hx-trigger="submit" hx-target="#patients-fragment"
+      class="search-form" onsubmit="return false;">
+      <input name="q" placeholder="Search patients..." />
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+  <ul class="patient-list">
+    {% if patients and patients|length > 0 %}
+    {% for p in patients %}
+    <li class="patient-item" id="patient-{{ p.id }}">
+      <strong>{{ p.last_name }}, {{ p.first_name }}</strong>
+      <div class="muted">MRN: {{ p.mrn }} • DOB: {{ p.date_of_birth }}</div>
+    </li>
+    {% endfor %}
+    {% else %}
+    <li class="muted">No patients found</li>
+    {% endif %}
+  </ul>
+</div>

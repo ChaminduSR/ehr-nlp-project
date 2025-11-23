@@ -1,0 +1,16 @@
+stages:
+  - build
+
+build_frontend:
+  stage: build
+  image: node:18
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+    - npm run verify-bundle
+  artifacts:
+    paths:
+      - frontend/dist/
+  only:
+    - branches

@@ -1,0 +1,13 @@
+<div id="medical-note-fragment">
+  <h2>Medical Note</h2>
+  <form id="note-form" hx-post="{{ url_for('medical_notes.save_draft') }}" hx-swap="outerHTML">
+    <input type="hidden" name="visit_id" value="{{ note.visit_id if note }}" />
+    <label for="note-text">Note</label>
+    <textarea id="note-text" name="text" rows="8">{{ note.note_text if note }}</textarea>
+    <div style="margin-top:8px">
+      <button type="submit">Save Draft</button>
+      <button type="button"
+        onclick="fetch('{{ url_for('medical_notes.finalize_note') }}', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ note_id: {{ note.id if note }}, text: document.getElementById('note-text').value })}).then(r=>r.json()).then(console.log)">Finalize</button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,33 @@
+@import './cards.css';
+
+/* Minimal base styles for scaffold */
+:root {
+  --bg: #f5f7fa;
+  --text: #111827;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-root {
+  min-height: 100vh
+}
+
+.layout {
+  display: flex
+}
+
+.main-content {
+  flex: 1;
+  padding: 16px
+}
