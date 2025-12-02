@@ -1,9 +1,45 @@
 @import './cards.css';
 
-/* Minimal base styles for scaffold */
+/* Design System Variables from DESIGN_SPECIFICATIONS.md */
 :root {
-  --bg: #f5f7fa;
-  --text: #111827;
+  /* Colors */
+  --color-primary: #0066CC;
+  --color-primary-hover: #004C99;
+  --color-draft: #FF9900;
+  --color-success: #00AA00;
+  --color-error: #CC0000;
+
+  /* Neutral Colors */
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --border-color: #CCCCCC;
+  --bg-hover: #F5F5F5;
+  --bg-page: #FFFFFF;
+  --text-disabled: #999999;
+  --bg-disabled: #CCCCCC;
+
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-weight-regular: 400;
+  --font-weight-bold: 600;
+  --line-height-base: 1.6;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Components */
+  --btn-height: 48px;
+  --input-height: 48px;
+  --border-radius: 4px;
+  --border-width: 2px;
 }
 
 html,
@@ -14,9 +50,11 @@ body,
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  background: var(--bg);
-  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  background: var(--bg-page);
+  color: var(--text-primary);
 }
 
 .app-root {
@@ -29,5 +67,201 @@ body {
 
 .main-content {
   flex: 1;
-  padding: 16px
+  padding: var(--spacing-md);
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: var(--spacing-lg);
+  }
+}
+
+.patient-item {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.patient-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.patient-item:last-child {
+  border-bottom: none;
+}
+
+.patient-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+/* UI Components */
+.btn {
+  height: var(--btn-height);
+  padding: 0 24px;
+  border-radius: var(--border-radius);
+  border: var(--border-width) solid transparent;
+  background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  background-color: var(--bg-disabled);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: white;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+}
+
+.input {
+  height: var(--input-height);
+  padding: 0 var(--spacing-md);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  width: 100%;
+  box-sizing: border-box;
+  background: white;
+  color: var(--text-primary);
+}
+
+.input:focus {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  border-color: var(--color-primary);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* No animation per spec */
+}
+
+.modal-header {
+  padding: var(--spacing-md);
+  border-bottom: var(--border-width) solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0 var(--spacing-sm);
+}
+
+.modal-body {
+  padding: var(--spacing-md);
+}
+
+/* Table Styles */
+.table-container {
+  overflow-x: auto;
+  margin-top: var(--spacing-md);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.patient-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base);
+}
+
+.patient-table th,
+.patient-table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.patient-table th {
+  background-color: var(--bg-hover);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.patient-table tr:last-child td {
+  border-bottom: none;
+}
+
+.patient-table tr:hover {
+  background-color: var(--bg-hover);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+
+.results-info {
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  /* Need to define this or use 14px */
 }

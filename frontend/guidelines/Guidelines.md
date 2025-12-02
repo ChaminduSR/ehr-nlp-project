@@ -1,61 +1,43 @@
-**Add your own guidelines here**
-<!--
+# Frontend Development Guidelines
 
-System Guidelines
+These guidelines are derived from `DESIGN_SPECIFICATIONS.md` and `ACCESSIBILITY_CHECKLIST.md`. All frontend code must adhere to these rules.
 
-Use this file to provide the AI with rules and guidelines you want it to follow.
-This template outlines a few examples of things you can add. You can add your own sections and format it to suit your needs
+## 1. Core Principles & Constraints
+*   **Performance First**: Target <150KB total bundle size. Load time <1 second on 3G.
+*   **Browser Support**: Must support **IE11** and **Windows 7**. Avoid modern JS features that require heavy polyfills unless necessary.
+*   **Offline-First**: The app must function without an internet connection (Service Workers, LocalStorage).
+*   **Accessibility**: WCAG AAA Compliance is mandatory.
 
-TIP: More context isn't always better. It can confuse the LLM. Try and add the most important rules you need
+## 2. Design & Styling
+*   **Fonts**: Use **System Fonts ONLY**. No web fonts (Google Fonts, etc.).
+    *   `font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;`
+*   **Animations**: **NO animations** or transitions, except for essential UI feedback (e.g., hover states).
+*   **Colors**:
+    *   Primary: `#0066CC`
+    *   Success: `#00AA00`
+    *   Error: `#CC0000`
+    *   Text: `#000000` (Primary), `#333333` (Secondary)
+*   **Contrast**: Minimum **7:1** contrast ratio for all text and interactive elements.
+*   **Touch Targets**: Minimum **48px** height for all interactive elements (buttons, inputs).
 
-# General guidelines
+## 3. Coding Standards
+*   **CSS**: Use CSS variables defined in `globals.css` (or `index.css`) for colors and spacing.
+*   **Components**: Keep components small and focused. Use functional React components.
+*   **State Management**: Use local state or Context API. Avoid heavy state libraries (Redux) to save bundle size.
+*   **HTML/JSX**: Use semantic HTML (`<main>`, `<nav>`, `<button>`, etc.).
+    *   Always provide `alt` text for images.
+    *   Always provide `aria-label` for icon-only buttons.
+*   **Frontend Integration**:
+    *   Reuse all existing files in the project.
+    *   Add relevant new files or functions into the existing project structure.
 
-Any general rules you want the AI to follow.
-For example:
+## 4. Accessibility Checklist (Quick Reference)
+*   [ ] All inputs have associated labels.
+*   [ ] Focus indicators are visible (3px solid `#0066CC`).
+*   [ ] Keyboard navigation works for all interactive elements.
+*   [ ] No keyboard traps.
+*   [ ] Color is not the only indicator of status.
 
-* Only use absolute positioning when necessary. Opt for responsive and well structured layouts that use flexbox and grid by default
-* Refactor code as you go to keep code clean
-* Keep file sizes small and put helper functions and components in their own files.
-
---------------
-
-# Design system guidelines
-Rules for how the AI should make generations look like your company's design system
-
-Additionally, if you select a design system to use in the prompt box, you can reference
-your design system's components, tokens, variables and components.
-For example:
-
-* Use a base font-size of 14px
-* Date formats should always be in the format “Jun 10”
-* The bottom toolbar should only ever have a maximum of 4 items
-* Never use the floating action button with the bottom toolbar
-* Chips should always come in sets of 3 or more
-* Don't use a dropdown if there are 2 or fewer options
-
-You can also create sub sections and add more specific details
-For example:
-
-
-## Button
-The Button component is a fundamental interactive element in our design system, designed to trigger actions or navigate
-users through the application. It provides visual feedback and clear affordances to enhance user experience.
-
-### Usage
-Buttons should be used for important actions that users need to take, such as form submissions, confirming choices,
-or initiating processes. They communicate interactivity and should have clear, action-oriented labels.
-
-### Variants
-* Primary Button
-  * Purpose : Used for the main action in a section or page
-  * Visual Style : Bold, filled with the primary brand color
-  * Usage : One primary button per section to guide users toward the most important action
-* Secondary Button
-  * Purpose : Used for alternative or supporting actions
-  * Visual Style : Outlined with the primary color, transparent background
-  * Usage : Can appear alongside a primary button for less important actions
-* Tertiary Button
-  * Purpose : Used for the least important actions
-  * Visual Style : Text-only with no border, using primary color
-  * Usage : For actions that should be available but not emphasized
--->
+## 5. Process
+*   If a guideline seems unrealistic or blocks progress, **ASK the user** for permission to modify it.
+*   Update this file if guidelines change.
