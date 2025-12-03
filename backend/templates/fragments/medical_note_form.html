@@ -1,13 +1,420 @@
 <div id="medical-note-fragment">
-  <h2>Medical Note</h2>
-  <form id="note-form" hx-post="{{ url_for('medical_notes.save_draft') }}" hx-swap="outerHTML">
-    <input type="hidden" name="visit_id" value="{{ note.visit_id if note }}" />
-    <label for="note-text">Note</label>
-    <textarea id="note-text" name="text" rows="8">{{ note.note_text if note }}</textarea>
-    <div style="margin-top:8px">
-      <button type="submit">Save Draft</button>
-      <button type="button"
-        onclick="fetch('{{ url_for('medical_notes.finalize_note') }}', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ note_id: {{ note.id if note }}, text: document.getElementById('note-text').value })}).then(r=>r.json()).then(console.log)">Finalize</button>
+  <style>
+    .note-section-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .status-indicator {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      transition: color 0.3s;
+    }
+
+    .status-saved {
+      color: var(--color-success);
+    }
+
+    .status-saving {
+      color: var(--color-warning);
+    }
+
+    .status-error {
+      color: var(--color-error);
+    }
+
+    /* Mode Switcher Styles */
+    .mode-switcher {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .mode-tab {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+    }
+
+    .mode-tab.active {
+      border-bottom-color: var(--color-primary);
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    .mode-content {
+      display: none;
+    }
+
+    .mode-content.active {
+      display: block;
+    }
+  </style>
+
+  <div
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+    <div id="save-status" class="status-indicator">Ready</div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button type="button" class="btn btn-secondary" onclick="window.saveDraft()">Save Draft</button>
+      <button type="button" class="btn btn-primary" onclick="window.finalizeNote()">Finalize Note</button>
+    </div>
+  </div>
+
+  <!-- Mode Switcher -->
+  <div class="mode-switcher">
+    <div class="mode-tab active" onclick="window.switchMode('structured')">Structured Input</div>
+    <div class="mode-tab" onclick="window.switchMode('dictation')">Free Dictation</div>
+  </div>
+
+  <form id="note-form" onsubmit="return false;">
+    <input type="hidden" name="visit_id" id="visit_id"
+      value="{{ note.visit_id if note else request.args.get('visit_id') }}" />
+    <input type="hidden" name="note_id" id="note_id" value="{{ note.id if note }}" />
+    <!-- The aggregated text blob -->
+    <textarea id="note-text" name="text" style="display: none;">{{ note.note_text if note }}</textarea>
+
+    <!-- Structured Mode -->
+    <div id="mode-structured" class="mode-content active">
+      <div class="note-section-container">
+        <div class="form-group">
+          <label>Chief Complaint</label>
+          <input type="text" class="form-control note-section" data-section="CHIEF COMPLAINT"
+            placeholder="Main reason for visit..." />
+        </div>
+
+        <div class="form-group">
+          <label>History of Present Illness (HPI)</label>
+          <textarea class="form-control note-section" data-section="HISTORY OF PRESENT ILLNESS" rows="4"
+            placeholder="Details of the complaint..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Physical Examination</label>
+          <textarea class="form-control note-section" data-section="PHYSICAL EXAMINATION" rows="4"
+            placeholder="Vital signs, general appearance, system findings..."></textarea>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Assessment</label>
+            <textarea class="form-control note-section" data-section="ASSESSMENT" rows="4"
+              placeholder="Diagnoses and clinical impressions..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Plan</label>
+            <textarea class="form-control note-section" data-section="PLAN" rows="4"
+              placeholder="Treatment plan, orders, referrals..."></textarea>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Medications</label>
+            <textarea class="form-control note-section" data-section="MEDICATIONS" rows="3"
+              placeholder="Current or new medications..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Follow-up</label>
+            <input type="text" class="form-control note-section" data-section="FOLLOW-UP"
+              placeholder="Next appointment or instructions..." />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dictation Mode -->
+    <div id="mode-dictation" class="mode-content">
+      <div class="form-group">
+        <label>Full Medical Note</label>
+        <div class="muted" style="margin-bottom: 0.5rem; font-size: 0.9em;">
+          Dictate or type the entire note here. The system will automatically extract sections when you finalize.
+        </div>
+        <textarea id="free-dictation-input" class="form-control" rows="20" placeholder="Start dictating..."></textarea>
+      </div>
     </div>
   </form>
+
+  <script>
+    (function () {
+      const SECTIONS = [
+        'CHIEF COMPLAINT',
+        'HISTORY OF PRESENT ILLNESS',
+        'PHYSICAL EXAMINATION',
+        'ASSESSMENT',
+        'PLAN',
+        'MEDICATIONS',
+        'FOLLOW-UP'
+      ];
+
+      const statusEl = document.getElementById('save-status');
+      const hiddenText = document.getElementById('note-text');
+      const inputs = document.querySelectorAll('.note-section');
+      const dictationInput = document.getElementById('free-dictation-input');
+
+      let isDirty = false;
+      let autoSaveTimer = null;
+      let currentMode = 'structured'; // 'structured' or 'dictation'
+
+      // --- 1. Parser: Text Blob -> Sections ---
+      function parseNoteText(text) {
+        if (!text) return {};
+
+        const sectionMap = {};
+        let currentSection = null;
+        let contentBuffer = [];
+
+        const lines = text.split('\n');
+        lines.forEach(line => {
+          const trimmed = line.trim();
+          // Check if line matches a section header (e.g., "CHIEF COMPLAINT:")
+          const matchedSection = SECTIONS.find(s => trimmed.toUpperCase() === s + ':');
+
+          if (matchedSection) {
+            // Save previous section buffer
+            if (currentSection) {
+              sectionMap[currentSection] = contentBuffer.join('\n').trim();
+            }
+            // Start new section
+            currentSection = matchedSection;
+            contentBuffer = [];
+          } else {
+            if (currentSection) {
+              contentBuffer.push(line);
+            } else {
+              // Content before any section header (preamble)
+              if (!sectionMap['PREAMBLE']) sectionMap['PREAMBLE'] = '';
+              sectionMap['PREAMBLE'] += line + '\n';
+            }
+          }
+        });
+
+        // Save last section
+        if (currentSection) {
+          sectionMap[currentSection] = contentBuffer.join('\n').trim();
+        }
+
+        return sectionMap;
+      }
+
+      // --- 2. Aggregator: Sections -> Text Blob ---
+      function aggregateNoteText() {
+        if (currentMode === 'dictation') {
+          return dictationInput.value.trim();
+        } else {
+          let fullText = '';
+          inputs.forEach(input => {
+            const sectionName = input.dataset.section;
+            const value = input.value.trim();
+            if (value) {
+              fullText += `${sectionName}:\n${value}\n\n`;
+            }
+          });
+          return fullText.trim();
+        }
+      }
+
+      // --- 3. Sync Logic ---
+      function syncToDictation() {
+        // Structured -> Dictation
+        dictationInput.value = aggregateNoteText();
+      }
+
+      function syncToStructured() {
+        // Dictation -> Structured
+        const text = dictationInput.value;
+        const data = parseNoteText(text);
+        inputs.forEach(input => {
+          const section = input.dataset.section;
+          if (data[section]) {
+            input.value = data[section];
+          } else {
+            input.value = '';
+          }
+        });
+      }
+
+      // --- 4. Initialization ---
+      function init() {
+        const initialText = hiddenText.value;
+
+        // Populate Structured Inputs
+        if (initialText) {
+          const data = parseNoteText(initialText);
+          inputs.forEach(input => {
+            const section = input.dataset.section;
+            if (data[section]) {
+              input.value = data[section];
+            }
+          });
+          // Populate Dictation Input
+          dictationInput.value = initialText;
+        }
+
+        // Attach listeners
+        inputs.forEach(input => {
+          input.addEventListener('input', () => {
+            isDirty = true;
+            statusEl.textContent = 'Unsaved changes...';
+            statusEl.className = 'status-indicator';
+          });
+        });
+
+        dictationInput.addEventListener('input', () => {
+          isDirty = true;
+          statusEl.textContent = 'Unsaved changes...';
+          statusEl.className = 'status-indicator';
+        });
+
+        // Start Auto-save timer (30s)
+        if (autoSaveTimer) clearInterval(autoSaveTimer);
+        autoSaveTimer = setInterval(() => {
+          if (isDirty) {
+            window.saveDraft();
+          }
+        }, 30000);
+      }
+
+      // --- 5. Global Actions ---
+      window.switchMode = function (mode) {
+        // Sync data before switching
+        if (currentMode === 'structured' && mode === 'dictation') {
+          syncToDictation();
+        } else if (currentMode === 'dictation' && mode === 'structured') {
+          syncToStructured();
+        }
+
+        currentMode = mode;
+
+        // Update UI
+        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+
+        const tabs = document.querySelectorAll('.mode-tab');
+        if (mode === 'structured') tabs[0].classList.add('active');
+        else tabs[1].classList.add('active');
+
+        document.getElementById(`mode-${mode}`).classList.add('active');
+      };
+
+      window.saveDraft = async function () {
+        const text = aggregateNoteText();
+        const visitId = document.getElementById('visit_id').value;
+
+        statusEl.textContent = 'Saving...';
+        statusEl.className = 'status-indicator status-saving';
+
+        try {
+          const res = await fetch('/api/v1/medical_notes/draft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              visit_id: visitId,
+              text: text
+            })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            statusEl.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+            statusEl.className = 'status-indicator status-saved';
+            isDirty = false;
+            // Update note_id if it was a new note
+            if (data.note_id) {
+              document.getElementById('note_id').value = data.note_id;
+            }
+          } else {
+            throw new Error(data.error || 'Save failed');
+          }
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = 'Error saving draft';
+          statusEl.className = 'status-indicator status-error';
+        }
+      };
+
+      window.finalizeNote = async function () {
+        if (isDirty) {
+          await window.saveDraft();
+        }
+
+        const noteId = document.getElementById('note_id').value;
+        const text = aggregateNoteText();
+
+        if (!noteId) {
+          alert('Please save a draft first.');
+          return;
+        }
+
+        if (!confirm('Are you sure you want to finalize this note? This will trigger NLP processing and cannot be undone.')) {
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/v1/medical_notes/finalize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              note_id: noteId,
+              text: text
+            })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            alert('Note finalized! Entities extracted: ' + data.entities_extracted);
+            // Optionally redirect or lock form
+            inputs.forEach(i => i.disabled = true);
+            dictationInput.disabled = true;
+            statusEl.textContent = 'Finalized';
+          } else {
+            alert('Error: ' + data.error);
+          }
+        } catch (err) {
+          alert('Error finalizing note');
+        }
+      };
+
+      // Expose function for React Voice Input
+      window.injectDictation = function (text) {
+        // Switch to dictation mode if not already
+        if (currentMode !== 'dictation') {
+          window.switchMode('dictation');
+        }
+
+        const currentVal = dictationInput.value;
+        // Append text
+        dictationInput.value = currentVal + (currentVal ? ' ' : '') + text;
+        isDirty = true;
+        statusEl.textContent = 'Unsaved changes...';
+      };
+
+      // Run init
+      init();
+    })();
+  </script>
 </div>
