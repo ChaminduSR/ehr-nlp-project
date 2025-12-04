@@ -1,4 +1,7 @@
 <div id="medical-note-fragment">
+  <input type="hidden" id="note-text" value="{{ note.note_text if note else '' }}">
+  <input type="hidden" id="visit_id" value="{{ visit_id }}">
+  <input type="hidden" id="note_id" value="{{ note.id if note else '' }}">
   <style>
     .note-section-container {
       display: flex;
@@ -57,7 +60,10 @@
     .mode-tab {
       padding: 0.5rem 1rem;
       cursor: pointer;
+      border: none;
       border-bottom: 2px solid transparent;
+      background: none;
+      font: inherit;
       color: var(--text-secondary);
     }
 
@@ -76,30 +82,28 @@
     }
   </style>
 
-  <div
-    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-    <div id="save-status" class="status-indicator">Ready</div>
-    <div style="display: flex; gap: 0.5rem;">
-      <button type="button" class="btn btn-secondary" onclick="window.saveDraft()">Save Draft</button>
-      <button type="button" class="btn btn-primary" onclick="window.finalizeNote()">Finalize Note</button>
+  <div x-data="{ currentTab: 'structured' }">
+    <div
+      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+      <div id="save-status" class="status-indicator">Ready</div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="window.saveDraft()">Save Draft</button>
+        <button type="button" class="btn btn-primary" onclick="window.finalizeNote()">Finalize Note</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Mode Switcher -->
-  <div class="mode-switcher">
-    <div class="mode-tab active" onclick="window.switchMode('structured')">Structured Input</div>
-    <div class="mode-tab" onclick="window.switchMode('dictation')">Free Dictation</div>
-  </div>
-
-  <form id="note-form" onsubmit="return false;">
-    <input type="hidden" name="visit_id" id="visit_id"
-      value="{{ note.visit_id if note else request.args.get('visit_id') }}" />
-    <input type="hidden" name="note_id" id="note_id" value="{{ note.id if note }}" />
-    <!-- The aggregated text blob -->
-    <textarea id="note-text" name="text" style="display: none;">{{ note.note_text if note }}</textarea>
+    <!-- Tab Switcher -->
+    <div class="mode-switcher" role="tablist">
+      <button type="button" class="mode-tab" :class="{ 'active': currentTab === 'structured' }"
+        @click="currentTab = 'structured'" role="tab" :aria-selected="currentTab === 'structured'">
+        Structured Note</button>
+      <button type="button" class="mode-tab" :class="{ 'active': currentTab === 'joint-map' }"
+        @click="currentTab = 'joint-map'" role="tab" :aria-selected="currentTab === 'joint-map'">Joint
+        Map (DAS28)</button>
+    </div>
 
     <!-- Structured Mode -->
-    <div id="mode-structured" class="mode-content active">
+    <div x-show="currentTab === 'structured'" class="mode-content active" style="display: block;">
       <div class="note-section-container">
         <div class="form-group">
           <label>Chief Complaint</label>
@@ -147,18 +151,16 @@
       </div>
     </div>
 
-    <!-- Dictation Mode -->
-    <div id="mode-dictation" class="mode-content">
-      <div class="form-group">
-        <label>Full Medical Note</label>
-        <div class="muted" style="margin-bottom: 0.5rem; font-size: 0.9em;">
-          Dictate or type the entire note here. The system will automatically extract sections when you finalize.
+    <!-- Joint Map Mode -->
+    <div x-show="currentTab === 'joint-map'" class="mode-content" style="padding: 1rem;">
+      <div hx-get="/api/v1/joint_assessments/fragment?visit_id={{ visit_id }}" hx-trigger="load" hx-swap="innerHTML">
+        <div class="flex items-center justify-center h-64 text-slate-400">
+          Loading Joint Map...
         </div>
-        <textarea id="free-dictation-input" class="form-control" rows="20" placeholder="Start dictating..."></textarea>
       </div>
     </div>
+  </div> <!-- Closing x-data root -->
   </form>
-
   <script>
     (function () {
       const SECTIONS = [
@@ -174,11 +176,9 @@
       const statusEl = document.getElementById('save-status');
       const hiddenText = document.getElementById('note-text');
       const inputs = document.querySelectorAll('.note-section');
-      const dictationInput = document.getElementById('free-dictation-input');
 
       let isDirty = false;
       let autoSaveTimer = null;
-      let currentMode = 'structured'; // 'structured' or 'dictation'
 
       // --- 1. Parser: Text Blob -> Sections ---
       function parseNoteText(text) {
@@ -223,58 +223,32 @@
 
       // --- 2. Aggregator: Sections -> Text Blob ---
       function aggregateNoteText() {
-        if (currentMode === 'dictation') {
-          return dictationInput.value.trim();
-        } else {
-          let fullText = '';
-          inputs.forEach(input => {
-            const sectionName = input.dataset.section;
-            const value = input.value.trim();
-            if (value) {
-              fullText += `${sectionName}:\n${value}\n\n`;
-            }
-          });
-          return fullText.trim();
-        }
-      }
-
-      // --- 3. Sync Logic ---
-      function syncToDictation() {
-        // Structured -> Dictation
-        dictationInput.value = aggregateNoteText();
-      }
-
-      function syncToStructured() {
-        // Dictation -> Structured
-        const text = dictationInput.value;
-        const data = parseNoteText(text);
+        let fullText = '';
         inputs.forEach(input => {
-          const section = input.dataset.section;
-          if (data[section]) {
-            input.value = data[section];
-          } else {
-            input.value = '';
+          const sectionName = input.dataset.section;
+          const value = input.value.trim();
+          if (value) {
+            fullText += `${sectionName}:\n${value}\n\n`;
           }
         });
+        return fullText.trim();
       }
 
-      // --- 4. Initialization ---
+      // --- 3. Initialization ---
       function init() {
         const initialText = hiddenText.value;
 
         // Populate Structured Inputs
         if (initialText) {
           const data = parseNoteText(initialText);
+
           inputs.forEach(input => {
             const section = input.dataset.section;
             if (data[section]) {
               input.value = data[section];
             }
           });
-          // Populate Dictation Input
-          dictationInput.value = initialText;
         }
-
         // Attach listeners
         inputs.forEach(input => {
           input.addEventListener('input', () => {
@@ -282,12 +256,6 @@
             statusEl.textContent = 'Unsaved changes...';
             statusEl.className = 'status-indicator';
           });
-        });
-
-        dictationInput.addEventListener('input', () => {
-          isDirty = true;
-          statusEl.textContent = 'Unsaved changes...';
-          statusEl.className = 'status-indicator';
         });
 
         // Start Auto-save timer (30s)
@@ -299,28 +267,7 @@
         }, 30000);
       }
 
-      // --- 5. Global Actions ---
-      window.switchMode = function (mode) {
-        // Sync data before switching
-        if (currentMode === 'structured' && mode === 'dictation') {
-          syncToDictation();
-        } else if (currentMode === 'dictation' && mode === 'structured') {
-          syncToStructured();
-        }
-
-        currentMode = mode;
-
-        // Update UI
-        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
-
-        const tabs = document.querySelectorAll('.mode-tab');
-        if (mode === 'structured') tabs[0].classList.add('active');
-        else tabs[1].classList.add('active');
-
-        document.getElementById(`mode-${mode}`).classList.add('active');
-      };
-
+      // --- 4. Global Actions ---
       window.saveDraft = async function () {
         const text = aggregateNoteText();
         const visitId = document.getElementById('visit_id').value;
@@ -389,7 +336,6 @@
             alert('Note finalized! Entities extracted: ' + data.entities_extracted);
             // Optionally redirect or lock form
             inputs.forEach(i => i.disabled = true);
-            dictationInput.disabled = true;
             statusEl.textContent = 'Finalized';
           } else {
             alert('Error: ' + data.error);
@@ -397,20 +343,6 @@
         } catch (err) {
           alert('Error finalizing note');
         }
-      };
-
-      // Expose function for React Voice Input
-      window.injectDictation = function (text) {
-        // Switch to dictation mode if not already
-        if (currentMode !== 'dictation') {
-          window.switchMode('dictation');
-        }
-
-        const currentVal = dictationInput.value;
-        // Append text
-        dictationInput.value = currentVal + (currentVal ? ' ' : '') + text;
-        isDirty = true;
-        statusEl.textContent = 'Unsaved changes...';
       };
 
       // Run init

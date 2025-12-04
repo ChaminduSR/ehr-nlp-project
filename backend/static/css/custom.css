@@ -37,3 +37,22 @@
     background: #6c757d;
     cursor: not-allowed;
 }
+
+/* Joint Assessment Tooltip */
+.joint-tooltip {
+    position: fixed;
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+    transform: translate(-50%, -100%);
+    margin-top: -10px;
+}
+
+[x-cloak] {
+    display: none !important;
+}

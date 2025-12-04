@@ -1,0 +1,96 @@
+{% extends layout %}
+
+{% block content %}
+<div x-data="patientsManager()">
+  <nav aria-label="breadcrumb">
+    <ul>
+      <li><a href="/" hx-get="/" hx-target="#main-content" hx-push-url="true">Dashboard</a></li>
+      <li>Patients</li>
+    </ul>
+  </nav>
+
+  <div class="grid">
+    <h1>Patients</h1>
+    <div style="text-align: right;">
+      <button @click="openAddModal()">+ Add Patient</button>
+    </div>
+  </div>
+
+  <article>
+    <header>
+      <input type="search" x-model="searchQuery" placeholder="Search by name or MRN..."
+        @input.debounce.300ms="filterPatients()">
+    </header>
+    <figure>
+      <table role="grid">
+        <thead>
+          <tr>
+            <th scope="col">MRN</th>
+            <th scope="col">Name</th>
+            <th scope="col">DOB</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="patient in filteredPatients" :key="patient.id">
+            <tr>
+              <td x-text="patient.mrn"></td>
+              <td x-text="patient.last_name + ', ' + patient.first_name"></td>
+              <td x-text="patient.date_of_birth"></td>
+              <td>
+                <div class="grid" style="grid-template-columns: auto auto auto; gap: 0.5rem;">
+                  <template x-if="patient.latest_visit_id">
+                    <a :href="'/medical-note?visit_id=' + patient.latest_visit_id" role="button"
+                      class="outline small">Last Visit</a>
+                  </template>
+                  <button class="primary small" @click="createNewVisit(patient.id)">New Visit</button>
+                  <button class="secondary outline small" @click="openEditModal(patient)">Edit</button>
+                </div>
+              </td>
+            </tr>
+          </template>
+          <tr x-show="filteredPatients.length === 0">
+            <td colspan="4" style="text-align: center;">No patients found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+  </article>
+
+  <!-- Add/Edit Modal -->
+  <dialog :open="isModalOpen">
+    <article>
+      <header>
+        <a href="#close" aria-label="Close" class="close" @click="closeModal()"></a>
+        <span x-text="isEditMode ? 'Edit Patient' : 'Add New Patient'"></span>
+      </header>
+      <form @submit.prevent="savePatient()">
+        <label for="mrn">MRN</label>
+        <input type="text" id="mrn" x-model="form.mrn" required :readonly="isEditMode">
+
+        <div class="grid">
+          <div>
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" x-model="form.first_name" required>
+          </div>
+          <div>
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" x-model="form.last_name" required>
+          </div>
+        </div>
+
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" x-model="form.date_of_birth" required>
+
+        <footer>
+          <button type="button" class="secondary" @click="closeModal()">Cancel</button>
+          <button type="submit" x-text="isEditMode ? 'Update' : 'Create'"></button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+</div>
+
+{% block scripts %}
+{% endblock %}
+{% endblock %}

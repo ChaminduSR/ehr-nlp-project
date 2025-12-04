@@ -28,26 +28,20 @@ A production-ready Electronic Health Record system designed for rheumatology cli
 
 ## 🛠️ Tech Stack
 
-### Backend
+### Backend & Frontend (Unified)
 - **Framework**: Flask 3.0.3 (Python 3.11+)
 - **Database**: SQLite3 with WAL mode (ACID compliance)
 - **NLP**: spaCy 3.7.5 + scispaCy 0.5.5 (`en_core_sci_md`)
 - **Speech**: VOSK 0.3.45 (offline voice recognition)
-- **API**: RESTful JSON API with CORS support
-
-### Frontend
-- **Framework**: React 18+ with TypeScript
-- **Styling**: Tailwind CSS v4 + Custom Design System
-- **UI**: Custom EHR components + shadcn/ui library
-- **Canvas**: Konva.js (joint assessment)
-- **Animation**: Framer Motion (minimal, optimized)
-- **Bundle**: <150KB target (old PC compatible)
+- **Frontend Logic**: HTMX (Server-Driven UI) + Alpine.js (Interactivity)
+- **Styling**: Pico.css (Minimal, Semantic)
+- **Canvas**: Konva.js (Vanilla JS for joint assessment)
+- **Bundle**: <150KB total (Optimized for old PCs)
 
 ### Development
 - **Testing**: pytest + pytest-flask
 - **Linting**: Ruff + Black + mypy
-- **Commits**: Conventional commits encouraged (no Husky/Commitizen hooks required)
-- **Editor**: VS Code with Python + TypeScript extensions
+- **Editor**: VS Code with Python extensions
 
 ---
 
@@ -103,9 +97,6 @@ A production-ready Electronic Health Record system designed for rheumatology cli
 # Python 3.11 or higher
 python --version
 
-# Node.js 18 or higher
-node --version
-
 # Git
 git --version
 ```
@@ -116,9 +107,9 @@ git clone https://github.com/ChaminduSR/ehr-nlp-project.git
 cd ehr-nlp-project
 ```
 
-### 2. Backend Setup
+### 2. Setup & Run
 
-#### Install Python Dependencies
+#### Install Dependencies
 ```powershell
 # Create virtual environment
 python -m venv venv
@@ -147,47 +138,18 @@ cd backend
 python -c "from utils.database import get_db; conn = get_db(); conn.executescript(open('database/init_schema.sql').read())"
 ```
 
-#### Configure Environment
-```powershell
-# Copy example env
-cp .env.example .env
-
-# Edit .env (optional, defaults work fine)
-# ENVIRONMENT=development
-# API_PORT=8000
-# SPACY_MODEL=en_core_sci_md
-```
-
-#### Run Backend Server
+#### Run Application
 ```powershell
 cd backend
 python app.py
 
-# Server starts at: http://localhost:8000
-# Health check: http://localhost:8000/api/v1/health
+# Application starts at: http://localhost:5000
 ```
 
-### 3. Frontend Setup (Coming Soon)
+### 3. Verify Installation
 ```powershell
-# Navigate to frontend
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
-
-# Opens at: http://localhost:3000
-```
-
-### 4. Verify Installation
-```powershell
-# Test backend health
-curl http://localhost:8000/api/v1/health
-
-# Expected response:
-# {"status": "healthy", "environment": "development", "version": "3.1"}
+# Open browser to:
+http://localhost:5000
 ```
 
 ---
@@ -196,17 +158,20 @@ curl http://localhost:8000/api/v1/health
 
 ### System Overview
 ```
-┌─────────────────┐      HTTP/JSON     ┌──────────────────┐
-│  React Frontend │ ◄─────────────────► │  Flask Backend   │
-│  (TypeScript)   │      REST API      │  (Python 3.11)   │
-└─────────────────┘                     └──────────────────┘
-                                               │
-                        ┌──────────────────────┼──────────────────────┐
-                        │                      │                      │
-                   ┌────▼────┐          ┌─────▼──────┐        ┌──────▼──────┐
-                   │ SQLite  │          │   spaCy    │        │    VOSK     │
-                   │   DB    │          │  NLP Engine│        │   Speech    │
-                   └─────────┘          └────────────┘        └─────────────┘
+┌───────────────────────────────────────────┐
+│              Flask Backend                │
+│  (Serves HTML + API + NLP + Voice Logic)  │
+└─────────────────────┬─────────────────────┘
+                      │
+          ┌───────────▼───────────┐
+          │   Browser (Client)    │
+          │  HTMX + Alpine.js     │
+          └───────────────────────┘
+                      │
+          ┌───────────▼───────────┐
+          │   Offline Services    │
+          │  (SQLite, spaCy, VOSK)│
+          └───────────────────────┘
 ```
 
 ### Backend Architecture

@@ -1,11 +1,79 @@
 """
 Medical notes endpoints - Auto-save and finalize pattern
 """
+import re
 from flask import Blueprint, request, jsonify, render_template
 from datetime import datetime
 from utils.database import get_db
+from services.nlp_engine import NLPEngine
 
 medical_notes_bp = Blueprint('medical_notes', __name__)
+nlp_engine = NLPEngine()
+
+@medical_notes_bp.route('/extract', methods=['POST'])
+def extract_entities():
+    """Extract medical entities from text"""
+    data = request.get_json()
+    text = data.get('text', '')
+
+    if not text:
+        return jsonify({'error': 'No text provided'}), 400
+
+    try:
+        # 1. Run NLP Entity Extraction
+        result = nlp_engine.process_note(text)
+
+        # 2. Initialize Structured Data
+        structured = {
+            'chief_complaint': '',
+            'hpi': '',
+            'physical_exam': '',
+            'assessment': '',
+            'plan': '',
+            'medications': [],
+            'conditions': [],
+            'allergies': [],
+            'follow_up': ''
+        }
+
+        # 3. Heuristic Section Extraction (Regex)
+        # Simple sentence-based extraction for the demo
+        text_lower = text.lower()
+
+        # Chief Complaint: "complains of X" or "cc: X"
+        cc_match = re.search(r'(?:patient\s+)?complains\s+of\s+(.*?)(?:\.|$)|(?:cc|chief\s+complaint)[:\s]+(.*?)(?:\.|$)', text_lower, re.IGNORECASE)
+        if cc_match:
+            structured['chief_complaint'] = (cc_match.group(1) or cc_match.group(2)).strip()
+
+        # Assessment: "assessment is X" or "diagnosis: X"
+        assess_match = re.search(r'(?:assessment|diagnosis|impression)(?:\s+is)?[:\s]+(.*?)(?:\.|$)', text_lower, re.IGNORECASE)
+        if assess_match:
+            structured['assessment'] = assess_match.group(1).strip()
+
+        # Plan: "plan is X" or "plan: X"
+        plan_match = re.search(r'(?:plan|recommendation)(?:\s+is)?[:\s]+(.*?)(?:\.|$)', text_lower, re.IGNORECASE)
+        if plan_match:
+            structured['plan'] = plan_match.group(1).strip()
+
+        # 4. Map NLP Entities to Fields
+        for ent in result['entities']:
+            label = ent['type'].upper()
+            if label in ['CHEMICAL', 'DRUG']:
+                structured['medications'].append(ent['text'])
+            elif label in ['DISEASE', 'SYNDROME', 'DISORDER']:
+                structured['conditions'].append(ent['text'])
+                # Fallback: If assessment is empty, use the first condition found
+                if not structured['assessment']:
+                     structured['assessment'] = ent['text']
+
+        return jsonify({
+            'success': True,
+            'raw_entities': result['entities'],
+            'structured': structured
+        })
+    except Exception as e:
+        print(f"NLP Error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @medical_notes_bp.route('/draft', methods=['POST'])
 def save_draft():
@@ -144,4 +212,4 @@ def medical_note_fragment():
 
     conn.close()
 
-    return render_template('fragments/medical_note_form.html', note=note)
+    return render_template('fragments/medical_note_form.html', note=note, visit_id=visit_id)

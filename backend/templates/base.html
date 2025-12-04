@@ -1,28 +1,66 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EHR-NLP System</title>
-    
+
     <!-- Pico.css (11.3KB) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
-    
+
     <!-- HTMX (14KB) -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    
+
     <!-- Alpine.js (15KB) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
+    <!-- Konva.js (Core) -->
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 </head>
+
 <body>
-    <main class="container">
+    <nav class="container-fluid">
+        <ul>
+            <li><strong>EHR-NLP</strong></li>
+        </ul>
+        <ul>
+            <li><a href="/" hx-get="/" hx-target="#main-content" hx-push-url="true">Dashboard</a></li>
+            <li><a href="/patients" hx-get="/patients" hx-target="#main-content" hx-push-url="true">Patients</a></li>
+            <li><a href="/medical-note" hx-get="/medical-note" hx-target="#main-content" hx-push-url="true">Medical
+                    Note</a></li>
+            <li><a href="/joint-assessment" hx-get="/joint-assessment" hx-target="#main-content"
+                    hx-push-url="true">Joints</a></li>
+        </ul>
+    </nav>
+    <main class="container" id="main-content">
         {% block content %}{% endblock %}
     </main>
-    
+
     <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+
+    <!-- App Logic Scripts (Loaded globally to support HTMX/Alpine) -->
+    <script src="{{ url_for('static', filename='js/joint_diagram.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/joint_assessment_logic.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/voice_recorder.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/medical_note_logic.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/patients_logic.js') }}"></script>
+
+    <script>
+        // Persist visit_id across navigation
+        document.body.addEventListener('htmx:configRequest', function (evt) {
+            const visitId = new URLSearchParams(window.location.search).get('visit_id');
+            // Only add if not already present in the path
+            if (visitId && !evt.detail.path.includes('visit_id=')) {
+                evt.detail.parameters['visit_id'] = visitId;
+            }
+        });
+    </script>
+
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

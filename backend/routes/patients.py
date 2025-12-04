@@ -17,6 +17,35 @@ def calculate_age(dob_str):
     except ValueError:
         return None
 
+@patients_bp.route('', methods=['GET'])
+def get_patients():
+    """Get all patients (JSON)"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM patients ORDER BY last_name, first_name')
+    rows = cursor.fetchall()
+    conn.close()
+
+    patients = []
+    for r in rows:
+        # Get latest visit
+        conn = get_db()
+        v_cursor = conn.cursor()
+        v_cursor.execute('SELECT id FROM visits WHERE patient_id = ? ORDER BY visit_date DESC LIMIT 1', (r['id'],))
+        latest_visit = v_cursor.fetchone()
+        v_cursor.close()
+        conn.close()
+
+        patients.append({
+            'id': r['id'],
+            'mrn': r['mrn'],
+            'first_name': r['first_name'],
+            'last_name': r['last_name'],
+            'date_of_birth': r['date_of_birth'],
+            'latest_visit_id': latest_visit['id'] if latest_visit else None
+        })
+    return jsonify(patients)
+
 @patients_bp.route('', methods=['POST'])
 def create_patient():
     """Create new patient"""

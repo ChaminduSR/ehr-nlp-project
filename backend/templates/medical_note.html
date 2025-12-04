@@ -1,0 +1,79 @@
+{% extends layout %}
+
+{% block content %}
+<div x-data="medicalNote()">
+  <nav aria-label="breadcrumb">
+    <ul>
+      <li><a href="/" hx-get="/" hx-target="#main-content" hx-push-url="true">Dashboard</a></li>
+      <li>Medical Note</li>
+    </ul>
+  </nav>
+
+  <h1>Medical Note</h1>
+
+  <!-- Error Banner -->
+  <div x-show="error" class="p-4 mb-4 text-red-700 bg-red-100 rounded-lg" role="alert" style="display: none;">
+    <span x-text="error"></span>
+  </div>
+
+  <!-- Smart Dictation Section -->
+  <article>
+    <header>Smart Dictation & Extraction (Reverse Template)</header>
+    <div class="grid">
+      <div>
+        <label for="dictation-input" class="sr-only">Dictation Input</label>
+        <textarea id="dictation-input" x-model="smartText" rows="6"
+          placeholder="Dictate or type clinical note here..."></textarea>
+      </div>
+      <div style="max-width: 200px;">
+        <button @click="toggleRecording()" :class="isRecording ? 'secondary outline' : 'primary'">
+          <span x-text="isRecording ? 'Stop ⏹️' : 'Record 🎤'"></span>
+        </button>
+        <small x-show="isRecording">Recording...</small>
+      </div>
+    </div>
+    <footer>
+      <button @click="extractEntities()" :aria-busy="isExtracting" :disabled="!smartText">
+        Extract Entities ✨
+      </button>
+    </footer>
+  </article>
+
+  <!-- Review Modal -->
+  <dialog :open="showReview">
+    <article>
+      <header>
+        <a href="#close" aria-label="Close" class="close" @click="showReview = false"></a>
+        Review Extracted Data
+      </header>
+      <div id="review-content">
+        <p>Please review the extracted information before saving.</p>
+        <div class="grid">
+          <template x-for="(value, key) in reviewData" :key="key">
+            <div class="mb-2">
+              <strong x-text="formatKey(key)" style="text-transform: capitalize;"></strong>
+              <input type="text" x-model="reviewData[key]">
+            </div>
+          </template>
+        </div>
+      </div>
+      <footer>
+        <button class="secondary" @click="showReview = false">Cancel</button>
+        <button @click="acceptExtraction()">Accept & Apply</button>
+      </footer>
+    </article>
+  </dialog>
+
+  <!-- Structured Report (HTMX) -->
+  <article>
+    <header>Structured Report (Final Output)</header>
+    <div id="structured-report" hx-get="/api/v1/medical_notes/fragment?visit_id={{ request.args.get('visit_id', '') }}"
+      hx-trigger="load, refreshReport from:body">
+      <div aria-busy="true">Loading report...</div>
+    </div>
+  </article>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

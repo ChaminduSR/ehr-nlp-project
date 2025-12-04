@@ -1,0 +1,14 @@
+{% extends layout %}
+
+{% block content %}
+<div class="grid">
+  <article>
+    <header>Welcome to EHR-NLP</header>
+    <p>Select an action to begin.</p>
+    <div class="grid">
+      <a href="/patients" role="button">Manage Patients</a>
+      <a href="/reports" role="button" class="secondary">View Reports</a>
+    </div>
+  </article>
+</div>
+{% endblock %}
