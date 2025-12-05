@@ -32,5 +32,9 @@ def health_check():
 def service_worker():
     return send_from_directory(app.static_folder, 'serviceworker.js')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(app.static_folder, 'img/favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 if __name__ == '__main__':
     app.run(host=config.API_HOST, port=config.API_PORT, debug=config.DEBUG)

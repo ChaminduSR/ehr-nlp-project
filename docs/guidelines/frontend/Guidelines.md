@@ -48,5 +48,24 @@ These guidelines are derived from `DESIGN_SPECIFICATIONS.md` and `ACCESSIBILITY_
 *   [ ] Color is not the only indicator of status.
 
 ## 5. Process
+*   **Step 1**: Check `DESIGN_SPECIFICATIONS.md` for UI requirements.
+*   **Step 2**: Check `ACCESSIBILITY_CHECKLIST.md` for compliance.
+*   **Step 3**: Implement using existing patterns (HTMX + Alpine).
+*   **Step 4**: Verify on a low-end device or throttled browser.
+
+## 6. File Organization & Reuse
+*   **Reuse First**: Before creating a new file, check if an existing template or script can be extended.
+*   **Templates**:
+    *   Pages: `backend/templates/` (e.g., `dashboard.html`)
+    *   Fragments (HTMX): `backend/templates/fragments/` (e.g., `patient_row.html`)
+    *   **Do not duplicate layouts**. Use `{% extends "base.html" %}`.
+*   **Styles**:
+    *   SCSS: `backend/static/scss/`
+    *   Theme overrides: `backend/static/scss/custom-theme.scss`
+    *   **Do not write inline CSS**.
+*   **Scripts**:
+    *   Logic: `backend/static/js/` (e.g., `patients_logic.js`)
+    *   Libraries: `backend/static/js/libs/`
+
 *   If a guideline seems unrealistic or blocks progress, **ASK the user** for permission to modify it.
 *   Update this file if guidelines change.

@@ -23,6 +23,20 @@ These guidelines are specific to the Rheumatology EHR project and derived from `
 
 ---
 
+## 📂 File Organization & Reuse
+
+*   **Structure**: Follow the established Flask Blueprint pattern.
+    *   **Routes**: `backend/routes/` (One file per domain, e.g., `patients.py`)
+    *   **Services**: `backend/services/` (Business logic, e.g., `nlp_engine.py`)
+    *   **Models**: `backend/models/` (Database models)
+    *   **Utils**: `backend/utils/` (Shared helpers)
+*   **New Features**:
+    *   **Do not create new top-level folders** in `backend/` without approval.
+    *   Add new routes to existing Blueprints if they fit the domain.
+    *   Create a new Blueprint in `backend/routes/` only for distinct new modules.
+
+---
+
 ## ✅ Implemented Features
 
 | Feature | Status | Location |

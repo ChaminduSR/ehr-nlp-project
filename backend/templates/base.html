@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>EHR-NLP System</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
 
     <!-- Pico CSS (Custom Theme) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
@@ -45,13 +46,13 @@
     <script src="{{ url_for('static', filename='js/config.js') }}"></script>
 
     <!-- App Logic Scripts (Loaded globally to support HTMX/Alpine) -->
-    <script src="{{ url_for('static', filename='js/joint_diagram.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/joint_assessment_logic.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/voice_recorder.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/medical_note_logic.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/patients_logic.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/reports_logic.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/dashboard_logic.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/joint_diagram.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='js/joint_assessment_logic.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='js/voice_recorder.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='js/medical_note_logic.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='js/patients_logic.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='js/reports_logic.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='js/dashboard_logic.js') }}?v=2"></script>
 
     <script>
         // Persist visit_id across navigation
