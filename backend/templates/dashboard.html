@@ -1,14 +1,76 @@
 {% extends layout %}
 
 {% block content %}
-<div class="grid">
+<div class="container" x-data="dashboardData" x-init="init()">
+
+  <!-- Header -->
+  <div class="grid">
+    <div>
+      <h1>Clinic Dashboard</h1>
+      <p x-text="'Last updated: ' + new Date().toLocaleTimeString()"></p>
+    </div>
+  </div>
+
+  <!-- KPI Stats (Always visible) -->
+  <div class="grid">
+    <article class="stat-card">
+      <header>Patients Today</header>
+      <h2 x-text="stats.patientsToday">0</h2>
+    </article>
+
+    <article class="stat-card">
+      <header>Avg DAS28</header>
+      <h2 x-text="(stats.avgDAS28).toFixed(1)">0.0</h2>
+    </article>
+
+    <article class="stat-card">
+      <header>In Remission</header>
+      <h2 x-text="stats.remissionPercent + '%'">0%</h2>
+    </article>
+
+    <article class="stat-card">
+      <header>Pending Reviews</header>
+      <h2 x-text="stats.pendingReviews">0</h2>
+    </article>
+  </div>
+
+  <!-- Charts Section (Lazy-loaded) -->
+  <div class="grid">
+
+    <!-- Distribution Chart -->
+    <article>
+      <header>Disease Activity Distribution</header>
+      <button @click="loadChart('distribution')" class="secondary outline" x-show="!charts.distribution">
+        📊 Load Chart
+      </button>
+      <div id="chart-distribution" style="height: 350px; width: 100%;" x-show="charts.distribution"></div>
+    </article>
+
+    <!-- Trend Chart -->
+    <article>
+      <header>DAS28 Trend (Last 30 Days)</header>
+      <button @click="loadChart('trend')" class="secondary outline" x-show="!charts.trend">
+        📈 Load Chart
+      </button>
+      <div id="chart-trend" style="height: 350px; width: 100%;" x-show="charts.trend"></div>
+    </article>
+  </div>
+
+  <!-- Recent Visits Table -->
   <article>
-    <header>Welcome to EHR-NLP</header>
-    <p>Select an action to begin.</p>
-    <div class="grid">
-      <a href="/patients" role="button">Manage Patients</a>
-      <a href="/reports" role="button" class="secondary">View Reports</a>
+    <header><strong>Recent Visits</strong></header>
+    <div hx-get="/api/dashboard/recent-visits" hx-trigger="load" hx-swap="innerHTML" hx-target="this">
+      <div aria-busy="true">Loading visits...</div>
     </div>
   </article>
+
 </div>
+
+<style>
+  .stat-card header {
+    font-size: 0.9rem;
+    color: var(--muted-color);
+    margin-bottom: 0.5rem;
+  }
+</style>
 {% endblock %}

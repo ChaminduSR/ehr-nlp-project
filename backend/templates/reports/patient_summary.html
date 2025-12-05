@@ -1,0 +1,81 @@
+<div class="report-preview">
+  <div class="report-header"
+    style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+    <h1>Patient Summary Report</h1>
+    <p>Generated on {{ now().strftime('%m/%d/%Y %H:%M:%S') }}</p>
+  </div>
+
+  <div class="report-section">
+    <h2>Patient Information</h2>
+    <table class="stats-table" style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">Name</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{{ patient.first_name }} {{ patient.last_name
+            }}</strong></td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">MRN</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ patient.mrn }}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">Date of Birth</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ patient.dob.strftime('%m/%d/%Y') }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="report-section">
+    <h2>Latest Visit</h2>
+    {% if visits %}
+    {% set latest = visits[0] %}
+    <table class="stats-table" style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">Visit Date</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ latest.visit_date.strftime('%m/%d/%Y') }}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">DAS28 Score</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">
+          <strong>{{ "%.1f" % latest.das28_score }}</strong>
+          {% if latest.das28_score < 2.6 %} <span style="color: var(--ins-color);">(Remission ✓)</span>
+            {% elif latest.das28_score < 3.2 %} <span style="color: #f59f00;">(Low Activity ⚠)</span>
+              {% elif latest.das28_score <= 5.1 %} <span style="color: #ff9800;">(Moderate ●)</span>
+                {% else %}
+                <span style="color: var(--del-color);">(High ●)</span>
+                {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">Tender Joints (TJC)</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ latest.tjc }}/28</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">Swollen Joints (SJC)</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ latest.sjc }}/28</td>
+      </tr>
+    </table>
+    {% else %}
+    <p>No visits recorded.</p>
+    {% endif %}
+  </div>
+
+  <div class="report-section">
+    <h2>Current Medications</h2>
+    {% if medications %}
+    <ul>
+      {% for med in medications %}
+      <li><strong>{{ med.name }}</strong> {{ med.dose }} - {{ med.frequency }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p><em>No medications recorded</em></p>
+    {% endif %}
+  </div>
+
+  <!-- Export Options -->
+  <div class="export-options" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+    <button onclick="window.print()" class="secondary outline">🖨️ Print Report</button>
+    <a href="/api/reports/export-pdf" role="button" class="secondary outline">📄 Export as PDF</a>
+    <a href="/api/reports/export-csv" role="button" class="secondary outline">📊 Export as CSV</a>
+  </div>
+</div>

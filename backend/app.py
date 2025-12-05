@@ -3,7 +3,7 @@ from flask_cors import CORS
 from config import get_config
 
 # Import blueprints
-from routes import patients_bp, visits_bp, medical_notes_bp,joint_assessments_bp, voice_bp
+from routes import patients_bp, visits_bp, medical_notes_bp,joint_assessments_bp, voice_bp, analytics_bp
 from routes.frontend import frontend_bp
 
 app = Flask(__name__)
@@ -12,6 +12,7 @@ config = get_config()
 
 # Register blueprints
 app.register_blueprint(frontend_bp, url_prefix='/')
+app.register_blueprint(analytics_bp, url_prefix='')
 app.register_blueprint(patients_bp, url_prefix='/api/v1/patients')
 app.register_blueprint(visits_bp, url_prefix='/api/v1/visits')
 app.register_blueprint(medical_notes_bp, url_prefix='/api/v1/medical_notes')

@@ -22,7 +22,6 @@ def load_nlp_model():
     config = get_config()
     try:
         nlp = spacy.load(config.SPACY_MODEL)
-        print(f"Loaded NLP model: {config.SPACY_MODEL}")
         return nlp
     except OSError:
         print(f"Model {config.SPACY_MODEL} not found")

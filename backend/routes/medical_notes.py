@@ -72,7 +72,6 @@ def extract_entities():
             'structured': structured
         })
     except Exception as e:
-        print(f"NLP Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @medical_notes_bp.route('/draft', methods=['POST'])

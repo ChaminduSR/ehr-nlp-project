@@ -4,5 +4,6 @@ from .visits import visits_bp
 from .medical_notes import medical_notes_bp
 from .joint_assessments import joint_assessments_bp
 from .voice import voice_bp
+from .analytics import analytics_bp
 
-__all__ = ['patients_bp', 'visits_bp', 'medical_notes_bp', 'joint_assessments_bp', 'voice_bp']
+__all__ = ['patients_bp', 'visits_bp', 'medical_notes_bp', 'joint_assessments_bp', 'voice_bp', 'analytics_bp']

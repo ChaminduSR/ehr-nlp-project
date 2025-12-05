@@ -34,6 +34,7 @@
                     Note</a></li>
             <li><a href="/joint-assessment" hx-get="/joint-assessment" hx-target="#main-content"
                     hx-push-url="true">Joints</a></li>
+            <li><a href="/reports" hx-get="/reports" hx-target="#main-content" hx-push-url="true">Reports</a></li>
         </ul>
     </nav>
     <main class="container" id="main-content">
@@ -48,6 +49,8 @@
     <script src="{{ url_for('static', filename='js/voice_recorder.js') }}"></script>
     <script src="{{ url_for('static', filename='js/medical_note_logic.js') }}"></script>
     <script src="{{ url_for('static', filename='js/patients_logic.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/reports_logic.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard_logic.js') }}"></script>
 
     <script>
         // Persist visit_id across navigation

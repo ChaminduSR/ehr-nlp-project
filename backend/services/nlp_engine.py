@@ -8,15 +8,13 @@ class NLPEngine:
     def __init__(self):
         self.nlp = None
         self.model_version = "en_core_sci_md"
-        
+
     def load_model(self):
         """Load spaCy model (lazy loading)"""
         if self.nlp is None:
-            print(f"Loading NLP model: {self.model_version}...")
             self.nlp = spacy.load(self.model_version)
-            print("NLP model loaded successfully!")
         return self.nlp
-    
+
     def process_note(self, note_text):
         """
         Extract medical entities from clinical note
@@ -24,11 +22,11 @@ class NLPEngine:
         """
         if self.nlp is None:
             self.load_model()
-        
+
         start_time = datetime.now()
         doc = self.nlp(note_text)
         processing_time = (datetime.now() - start_time).total_seconds() * 1000
-        
+
         entities = []
         for ent in doc.ents:
             entities.append({
@@ -38,7 +36,7 @@ class NLPEngine:
                 'end': ent.end_char,
                 'is_negated': False  # TODO: Add negation detection
             })
-        
+
         return {
             'success': True,
             'entities': entities,
@@ -46,7 +44,7 @@ class NLPEngine:
             'processing_time_ms': processing_time,
             'model_version': self.model_version
         }
-    
+
     def get_model_info(self):
         """Get current model information"""
         return {

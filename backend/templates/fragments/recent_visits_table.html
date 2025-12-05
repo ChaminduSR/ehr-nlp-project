@@ -1,0 +1,38 @@
+<figure>
+  <table role="grid">
+    <thead>
+      <tr>
+        <th scope="col">Patient Name</th>
+        <th scope="col">Date</th>
+        <th scope="col">DAS28</th>
+        <th scope="col">TJC</th>
+        <th scope="col">SJC</th>
+        <th scope="col">Status</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for visit in visits %}
+      <tr>
+        <td>{{ visit.patient_name }}</td>
+        <td>{{ visit.date }}</td>
+        <td><strong>{{ "%.1f" % visit.das28 }}</strong></td>
+        <td>{{ visit.tjc }}</td>
+        <td>{{ visit.sjc }}</td>
+        <td>
+          {% if visit.das28 < 2.6 %} <span style="color: var(--ins-color);">✓ Remission</span>
+            {% elif visit.das28 < 3.2 %} <span style="color: #f59f00;">⚠ Low Activity</span>
+              {% elif visit.das28 <= 5.1 %} <span style="color: #ff9800;">● Moderate</span>
+                {% else %}
+                <span style="color: var(--del-color);">● High</span>
+                {% endif %}
+        </td>
+        <td>
+          <a href="/visit/{{ visit.id }}" role="button" class="outline secondary"
+            style="padding: 2px 8px; font-size: 0.8em;">View</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</figure>
