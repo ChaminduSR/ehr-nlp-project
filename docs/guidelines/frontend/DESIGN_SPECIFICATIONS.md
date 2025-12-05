@@ -17,9 +17,10 @@
 
 ## Frontend Stack
 *   **HTMX** (14KB): Server-driven UI updates.
-*   **Pico.css** (11.3KB): Minimal CSS framework.
+*   **Pico.css 2.0** (7.7KB): Minimal CSS framework (Custom SASS Build).
 *   **Konva.js** (80KB): Canvas library for Joint Diagrams.
 *   **Alpine.js** (15KB): Lightweight JavaScript framework for state.
+*   **ECharts** (87KB): Lazy-loaded charting library.
 *   **VOSK** (50MB): Offline speech recognition model.
 
 ---
@@ -38,7 +39,7 @@
 
 ❌ **Not Allowed**:
 - Web fonts (use system fonts only)
-- Animations or transitions
+- Animations or transitions (disabled in SASS)
 - Complex visual effects
 - Libraries that increase bundle size significantly
 - Features requiring constant internet connection
@@ -46,8 +47,9 @@
 ✅ **Required**:
 - System fonts
 - High contrast (7:1 minimum)
-- 48px minimum button height
+- 48px minimum touch target (Mobile optimized)
 - Keyboard accessibility
+
 - Offline functionality
 - Auto-save (every 30 seconds)
 
@@ -60,18 +62,18 @@
 | Color Name | Hex Code | Usage | Contrast Ratio |
 |------------|----------|-------|----------------|
 | Primary Blue | `#0066CC` | Primary actions, branding, links | 7.0:1 on white |
-| Draft Orange | `#FF9900` | Draft status, warning states | 3.8:1 on white |
-| Success Green | `#00AA00` | Success states, finalized notes | 7.5:1 on white |
-| Error Red | `#CC0000` | Error states, required fields | 8.2:1 on white |
+| Draft Orange | `#EF6C00` | Draft status, warning states | 4.5:1 on white |
+| Success Green | `#2E7D32` | Success states, finalized notes | 5.5:1 on white |
+| Error Red | `#C62828` | Error states, required fields | 7.0:1 on white |
 
 ### DAS28 Disease Activity Colors
 
 | Score Range | Color | Hex Code | Label |
 |-------------|-------|----------|-------|
-| < 2.6 | Green | `#00AA00` | Remission |
-| 2.6 - 3.2 | Yellow | `#FFCC00` | Low Activity |
-| 3.2 - 5.1 | Orange | `#FF9900` | Moderate Activity |
-| > 5.1 | Red | `#CC0000` | High Activity |
+| < 2.6 | Green | `#2E7D32` | Remission |
+| 2.6 - 3.2 | Amber | `#F57F17` | Low Activity |
+| 3.2 - 5.1 | Orange | `#EF6C00` | Moderate Activity |
+| > 5.1 | Red | `#C62828` | High Activity |
 
 ### Neutral Colors
 

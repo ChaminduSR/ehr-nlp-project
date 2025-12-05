@@ -4,16 +4,30 @@ This document covers building the frontend for production, serving pre-compresse
 
 ## Build
 
-On your build server or locally:
+### 1. Frontend Assets (SASS)
 
+The project uses a custom SASS build of Pico CSS 2.0.
+
+**Prerequisites:**
+- Node.js & npm installed
+
+**Build Command:**
 ```powershell
-cd frontend
-npm ci
-npm run build
-npm run verify-bundle
+# Install dependencies
+npm install
+
+# Compile SASS to CSS (Compressed)
+npm run sass:build
 ```
 
-- `vite build` will generate `frontend/dist/` with a `manifest.json`. The `vite-plugin-compression` plugin emits `.br` and `.gz` alongside assets.
+This generates `backend/static/css/theme.css`.
+
+### 2. Python Backend
+
+Ensure all dependencies are installed:
+```powershell
+pip install -r requirements.txt
+```
 
 ## Serve pre-compressed assets (nginx)
 
@@ -24,30 +38,21 @@ server {
   listen 80;
   server_name example.com;
 
-  root /var/www/ehr-nlp-project/frontend/dist;
+  root /var/www/ehr-nlp-project/backend/static;
 
   location / {
-    try_files $uri $uri/ /index.html;
+    proxy_pass http://localhost:5000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
   }
 
-  # Serve precompressed Brotli if client supports it
-  location ~* \.(js|css|html|svg)$ {
-    add_header Vary Accept-Encoding;
-    # Brotli
-    if ($http_accept_encoding ~* "br") {
-      try_files $uri.br $uri =404;
-      add_header Content-Encoding br;
-    }
-    # Gzip fallback
-    if ($http_accept_encoding ~* "gzip") {
-      try_files $uri.gz $uri =404;
-      add_header Content-Encoding gzip;
-    }
-    # If neither, serve normal file
-    try_files $uri =404;
+  # Serve static assets directly
+  location /static {
+    alias /var/www/ehr-nlp-project/backend/static;
+    expires 30d;
+    add_header Cache-Control "public, no-transform";
   }
 
-  # Cache static assets strongly
   location ~* \.(?:js|css|png|jpg|jpeg|gif|svg|ico)$ {
     add_header Cache-Control "public, max-age=31536000, immutable";
     try_files $uri $uri/ =404;

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from config import get_config
 
@@ -27,6 +27,10 @@ def health_check():
         'environment': config.ENVIRONMENT,
         'version': '3.1'
     })
+
+@app.route('/serviceworker.js')
+def service_worker():
+    return send_from_directory(app.static_folder, 'serviceworker.js')
 
 if __name__ == '__main__':
     app.run(host=config.API_HOST, port=config.API_PORT, debug=config.DEBUG)

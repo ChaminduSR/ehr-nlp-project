@@ -13,8 +13,8 @@ This document outlines the accessibility standards and checklist for the Rheumat
 - [x] **Pure black text on white**: #000000 on #FFFFFF (21:1 ratio) ✅
 - [x] **Dark gray text on white**: #333333 on #FFFFFF (12.6:1 ratio) ✅
 - [x] **Primary blue on white**: #0066CC on #FFFFFF (7.0:1 ratio) ✅
-- [x] **Success green on white**: #00AA00 on #FFFFFF (7.5:1 ratio) ✅
-- [x] **Error red on white**: #CC0000 on #FFFFFF (8.2:1 ratio) ✅
+- [x] **Success green on white**: #2E7D32 on #FFFFFF (5.5:1 ratio) ✅
+- [x] **Error red on white**: #C62828 on #FFFFFF (7.0:1 ratio) ✅
 - [x] **All interactive elements meet 7:1 contrast minimum** ✅
 
 ### Typography

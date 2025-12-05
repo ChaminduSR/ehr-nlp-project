@@ -36,6 +36,8 @@ These guidelines are specific to the Rheumatology EHR project and derived from `
 | Visit Management | ✅ Done | `routes/visits.py` |
 | Medical Notes | ✅ Done | `routes/medical_notes.py` |
 | Joint Assessments | ✅ Done | `routes/joint_assessments.py` |
+| Pico CSS + SASS Theme | ✅ Done | `static/scss/custom-theme.scss` |
+| Reports & Dashboard | ✅ Done | `routes/analytics.py` |
 
 ---
 
@@ -46,6 +48,7 @@ These guidelines are specific to the Rheumatology EHR project and derived from `
 | Auto-Save (30 sec) | High | Epic-style drafts |
 | Connection Pooling | Low | For high-traffic scenarios |
 | Response Compression | Low | For slow networks |
+| PDF Export | Medium | Using WeasyPrint |
 
 ---
 

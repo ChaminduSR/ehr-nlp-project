@@ -13,24 +13,24 @@
 
   <!-- KPI Stats (Always visible) -->
   <div class="grid">
-    <article class="stat-card">
-      <header>Patients Today</header>
-      <h2 x-text="stats.patientsToday">0</h2>
+    <article class="kpi-card">
+      <h3>Patients Today</h3>
+      <div class="value" x-text="stats.patientsToday">0</div>
     </article>
 
-    <article class="stat-card">
-      <header>Avg DAS28</header>
-      <h2 x-text="(stats.avgDAS28).toFixed(1)">0.0</h2>
+    <article class="kpi-card">
+      <h3>Avg DAS28</h3>
+      <div class="value" x-text="(stats.avgDAS28).toFixed(1)">0.0</div>
     </article>
 
-    <article class="stat-card">
-      <header>In Remission</header>
-      <h2 x-text="stats.remissionPercent + '%'">0%</h2>
+    <article class="kpi-card">
+      <h3>In Remission</h3>
+      <div class="value" x-text="stats.remissionPercent + '%'">0%</div>
     </article>
 
-    <article class="stat-card">
-      <header>Pending Reviews</header>
-      <h2 x-text="stats.pendingReviews">0</h2>
+    <article class="kpi-card">
+      <h3>Pending Reviews</h3>
+      <div class="value" x-text="stats.pendingReviews">0</div>
     </article>
   </div>
 
@@ -66,11 +66,4 @@
 
 </div>
 
-<style>
-  .stat-card header {
-    font-size: 0.9rem;
-    color: var(--muted-color);
-    margin-bottom: 0.5rem;
-  }
-</style>
 {% endblock %}

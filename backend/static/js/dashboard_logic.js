@@ -64,6 +64,13 @@ document.addEventListener('alpine:init', () => {
             const response = await fetch('/api/dashboard/distribution');
             const data = await response.json();
 
+            // Get colors from CSS variables
+            const style = getComputedStyle(document.body);
+            const colorRemission = style.getPropertyValue('--color-remission').trim();
+            const colorLow = style.getPropertyValue('--color-low-activity').trim();
+            const colorModerate = style.getPropertyValue('--color-moderate').trim();
+            const colorHigh = style.getPropertyValue('--color-high').trim();
+
             const chartDom = document.getElementById('chart-distribution');
             const chart = echarts.init(chartDom);
             const option = {
@@ -80,10 +87,10 @@ document.addEventListener('alpine:init', () => {
                     type: 'pie',
                     radius: '60%',
                     data: [
-                        { value: data.remission, name: 'Remission', itemStyle: { color: '#4CAF50' } },
-                        { value: data.low_activity, name: 'Low Activity', itemStyle: { color: '#FFC107' } },
-                        { value: data.moderate, name: 'Moderate', itemStyle: { color: '#FF9800' } },
-                        { value: data.high, name: 'High', itemStyle: { color: '#F44336' } }
+                        { value: data.remission, name: 'Remission', itemStyle: { color: colorRemission } },
+                        { value: data.low_activity, name: 'Low Activity', itemStyle: { color: colorLow } },
+                        { value: data.moderate, name: 'Moderate', itemStyle: { color: colorModerate } },
+                        { value: data.high, name: 'High', itemStyle: { color: colorHigh } }
                     ],
                     emphasis: {
                         itemStyle: {
@@ -102,6 +109,13 @@ document.addEventListener('alpine:init', () => {
         async renderTrendChart() {
             const response = await fetch('/api/dashboard/trend');
             const data = await response.json();
+
+            // Get colors from CSS variables
+            const style = getComputedStyle(document.body);
+            const colorRemission = style.getPropertyValue('--color-remission').trim();
+            const colorLow = style.getPropertyValue('--color-low-activity').trim();
+            const colorHigh = style.getPropertyValue('--color-high').trim();
+            const colorPrimary = style.getPropertyValue('--pico-primary').trim() || '#2180B0';
 
             const chartDom = document.getElementById('chart-trend');
             const chart = echarts.init(chartDom);
@@ -130,13 +144,13 @@ document.addEventListener('alpine:init', () => {
                     type: 'line',
                     data: data.scores,
                     smooth: true,
-                    itemStyle: { color: '#2180B0' },
+                    itemStyle: { color: colorPrimary },
                     lineStyle: { width: 2 },
                     markLine: {
                         data: [
-                            { yAxis: 2.6, name: 'Remission', lineStyle: { color: '#4CAF50' } },
-                            { yAxis: 3.2, name: 'Low Activity', lineStyle: { color: '#FFC107' } },
-                            { yAxis: 5.1, name: 'High Activity', lineStyle: { color: '#F44336' } }
+                            { yAxis: 2.6, name: 'Remission', lineStyle: { color: colorRemission } },
+                            { yAxis: 3.2, name: 'Low Activity', lineStyle: { color: colorLow } },
+                            { yAxis: 5.1, name: 'High Activity', lineStyle: { color: colorHigh } }
                         ]
                     }
                 }]

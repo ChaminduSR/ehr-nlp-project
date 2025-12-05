@@ -29,11 +29,12 @@
 ├─ DAS28 automation
 └─ Joint assessment (3-parameter)
 
-✅ Frontend Stack (120KB)
+✅ Frontend Stack (35KB Initial Load)
 ├─ HTMX (14KB) - Server-driven
-├─ Pico.css (11.3KB) - Minimal Apple UI
+├─ Pico.css 2.0 (7.7KB) - Custom SASS Build
 ├─ Konva.js (80KB) - Joint diagrams
 ├─ Alpine.js (15KB) - Form state
+├─ ECharts (87KB) - Lazy-loaded
 └─ VOSK (50MB) - Offline speech
 
 ✅ Works on Old PCs
@@ -80,25 +81,25 @@ vosk_model = None  # Don't load on startup!
 def load_vosk_model():
     """Load VOSK model on first voice use"""
     global vosk_model
-    
+
     if vosk_model is None:
         print("Loading VOSK model... (first use only)")
         from vosk import Model
         vosk_model = Model(lang="en-us")
         print("VOSK ready!")
-    
+
     return jsonify({'status': 'ready'})
 
 @app.route('/api/v1/transcribe-audio', methods=['POST'])
 def transcribe_audio():
     """Transcribe audio using pre-loaded model"""
     from vosk import KaldiRecognizer
-    
+
     audio_data = request.files['audio'].read()
     rec = KaldiRecognizer(vosk_model, 16000)
     rec.AcceptWaveform(audio_data)
     result = json.loads(rec.FinalResult())
-    
+
     return jsonify({'text': result.get('text', '')})
 ```
 
@@ -110,7 +111,7 @@ function voiceInput() {
   return {
     modelLoaded: false,
     isLoading: false,
-    
+
     async initVoice() {
       if (!this.modelLoaded) {
         this.isLoading = true;
@@ -120,10 +121,10 @@ function voiceInput() {
         this.modelLoaded = true;
         this.isLoading = false;
       }
-      
+
       this.recordAudio();
     },
-    
+
     async recordAudio() {
       // Recording code...
     }
@@ -196,7 +197,7 @@ def transcribe_audio():
     rec = KaldiRecognizer(vosk_model, 16000)
     rec.AcceptWaveform(audio_data)
     result = json.loads(rec.FinalResult())
-    
+
     return jsonify({'text': result.get('text', '')})
 
 if __name__ == '__main__':
@@ -209,13 +210,13 @@ if __name__ == '__main__':
 // Old PC only records and sends to server
 async function recordAndTranscribe() {
   const audioBlob = await recordAudio();
-  
+
   // Send to clinic SERVER (not cloud)
   const response = await fetch('http://192.168.1.100:5000/api/v1/transcribe-audio', {
     method: 'POST',
     body: new FormData().append('audio', audioBlob)
   });
-  
+
   const result = await response.json();
   console.log("Transcribed:", result.text);
 }
@@ -435,7 +436,7 @@ CREATE TABLE joint_assessments (
     has_pain BOOLEAN DEFAULT 0,
     swelling_grade INTEGER DEFAULT 0 CHECK(swelling_grade BETWEEN 0 AND 3),
     assessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (visit_id) REFERENCES visits(id)
 );
 
@@ -447,7 +448,7 @@ CREATE TABLE voice_transcriptions (
     confidence_score REAL,
     model_used TEXT DEFAULT 'vosk-en-us',
     transcribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (medical_note_id) REFERENCES medical_notes(id)
 );
 ```
@@ -505,5 +506,5 @@ unzip vosk-model-small-en-us-0.15.zip -d static/models/
 
 **VERSION 3.1 - COMPLETE AND PRODUCTION-READY** ✅
 
-*Includes: Frontend + Voice Recognition + Old PC Compatibility*  
+*Includes: Frontend + Voice Recognition + Old PC Compatibility*
 *Updated: November 16, 2025*

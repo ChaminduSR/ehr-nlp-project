@@ -1,0 +1,253 @@
+// ==========================================================================
+// 1. PICO CSS CONFIGURATION (Must be before @use)
+// ==========================================================================
+
+// Primary Color: Healthcare Blue (Calm, Professional, Trustworthy)
+$theme-color: "blue";
+
+// Optimize for Healthcare Forms
+$enable-semantic-container: true;
+$enable-classes: true;
+$enable-responsive-spacings: true;
+$enable-responsive-typography: true;
+$enable-transitions: false; // Disable animations for max performance on old PCs
+
+// Module Selection (Tree-shaking unused features)
+@use "pico" with ($theme-color: $theme-color,
+  $enable-semantic-container: $enable-semantic-container,
+  $enable-classes: $enable-classes,
+  $enable-responsive-spacings: $enable-responsive-spacings,
+  $enable-responsive-typography: $enable-responsive-typography,
+  $enable-transitions: $enable-transitions,
+
+  $modules: ( // Core Layout
+    "themes/default": true,
+    "layout/document": true,
+    "layout/container": true,
+    "layout/grid": true,
+    "layout/section": true,
+
+    // Content
+    "content/typography": true,
+    "content/button": true,
+    "content/table": true,
+    "content/link": true,
+
+    // Forms (Critical)
+    "forms/basics": true,
+    "forms/checkbox-radio-switch": true,
+    "forms/input-range": true, // For DAS28 sliders
+
+    // Components
+    "components/card": true,
+    "components/modal": true,
+    "components/group": true, // Input groups
+    "components/nav": true,
+
+    // Utilities
+    "utilities/accessibility": true,
+
+    // DISABLED (Save ~12KB)
+    "content/code": false,
+    "content/figure": false,
+    "forms/input-color": false,
+    "forms/input-date": false,
+    "forms/input-file": false,
+    "forms/input-search": false,
+    "components/accordion": false,
+    "components/dropdown": false,
+    "components/loading": false,
+    "components/progress": false,
+    "components/tooltip": false));
+
+// ==========================================================================
+// 2. CUSTOM HEALTHCARE VARIABLES
+// ==========================================================================
+
+:root {
+  // DAS28 Severity Colors (WCAG AA Compliant)
+  --color-remission: #2E7D32; // Dark Green
+  --color-low-activity: #F57F17; // Dark Amber
+  --color-moderate: #EF6C00; // Dark Orange
+  --color-high: #C62828; // Dark Red
+
+  // Joint Status Colors
+  --joint-normal: #E0E0E0;
+  --joint-tender: #FFF176;
+  --joint-swollen: #EF5350;
+  --joint-both: #FF7043;
+
+  // Typography overrides for readability
+  --pico-font-family: system-ui, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --pico-line-height: 1.6;
+
+  // Form spacing adjustment
+  --pico-form-element-spacing-vertical: 0.5rem;
+  --pico-form-element-spacing-horizontal: 1rem;
+
+  // Border radius for softer feel
+  --pico-border-radius: 0.5rem;
+}
+
+// ==========================================================================
+// 3. CUSTOM COMPONENT STYLES
+// ==========================================================================
+
+// A. Status Badges (DAS28)
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &.remission {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: var(--color-remission);
+    border: 1px solid var(--color-remission);
+  }
+
+  &.low {
+    background-color: rgba(245, 127, 23, 0.1);
+    color: var(--color-low-activity);
+    border: 1px solid var(--color-low-activity);
+  }
+
+  &.moderate {
+    background-color: rgba(239, 108, 0, 0.1);
+    color: var(--color-moderate);
+    border: 1px solid var(--color-moderate);
+  }
+
+  &.high {
+    background-color: rgba(198, 40, 40, 0.1);
+    color: var(--color-high);
+    border: 1px solid var(--color-high);
+  }
+}
+
+// B. KPI Dashboard Card
+.kpi-card {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-card-border-color);
+  border-radius: var(--pico-border-radius);
+  box-shadow: var(--pico-card-box-shadow);
+
+  h3 {
+    font-size: 0.875rem;
+    color: var(--pico-muted-color);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--pico-primary);
+    line-height: 1.1;
+  }
+
+  .trend {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+
+    &.up {
+      color: var(--color-high);
+    }
+
+    &.down {
+      color: var(--color-remission);
+    }
+  }
+}
+
+// C. Medical Form Grid
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  align-items: end;
+}
+
+// D. Print Optimization
+@media print {
+  body {
+    font-size: 12pt;
+  }
+
+  nav,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  .kpi-card,
+  article {
+    border: 1px solid #000;
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+
+  a[href]:after {
+    content: none !important;
+  }
+
+  // Clean links
+}
+
+// E. Mobile Optimization
+// Minimum tap target size (48px - WCAG AAA)
+button,
+input[type="checkbox"],
+input[type="radio"],
+select,
+a.role-button {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+// G. Focus Visibility (Accessibility)
+:focus-visible {
+  outline: 3px solid #0066CC;
+  outline-offset: 2px;
+}
+
+// Increase spacing on mobile
+@media (max-width: 576px) {
+  :root {
+    --pico-form-element-spacing-vertical: 0.75rem; // More vertical padding
+    --pico-font-size: 18px; // Larger base font
+  }
+
+  // Stack grids vertically
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  // Hide non-essential columns in tables
+  td.hide-mobile,
+  th.hide-mobile {
+    display: none;
+  }
+}
+
+// F. Accessibility
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--pico-primary);
+  color: white;
+  padding: 8px;
+  z-index: 100;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}

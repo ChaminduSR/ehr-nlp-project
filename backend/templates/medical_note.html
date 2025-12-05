@@ -1,7 +1,7 @@
 {% extends layout %}
 
 {% block content %}
-<div x-data="medicalNote()">
+<div x-data="medicalNote()" x-init="init()">
   <nav aria-label="breadcrumb">
     <ul>
       <li><a href="/" hx-get="/" hx-target="#main-content" hx-push-url="true">Dashboard</a></li>
@@ -9,7 +9,10 @@
     </ul>
   </nav>
 
-  <h1>Medical Note</h1>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>Medical Note</h1>
+    <span x-text="saveStatus" style="color: var(--pico-muted-color); font-size: 0.9rem; font-weight: bold;"></span>
+  </div>
 
   <!-- Error Banner -->
   <div x-show="error" class="p-4 mb-4 text-red-700 bg-red-100 rounded-lg" role="alert" style="display: none;">
@@ -17,7 +20,7 @@
   </div>
 
   <!-- Smart Dictation Section -->
-  <article>
+  <article class="medical-form">
     <header>Smart Dictation & Extraction (Reverse Template)</header>
     <div class="grid">
       <div>

@@ -7,6 +7,44 @@ function medicalNote() {
       reviewData: {},
       error: null,
       visitId: new URLSearchParams(window.location.search).get('visit_id'),
+      lastSavedText: '',
+      saveStatus: '', // 'Saving...', 'Saved', 'Error'
+
+      init() {
+        // Auto-save every 30 seconds
+        setInterval(() => {
+          this.autoSave();
+        }, 30000);
+      },
+
+      async autoSave() {
+        if (!this.visitId || !this.smartText || this.smartText === this.lastSavedText) {
+          return;
+        }
+
+        this.saveStatus = 'Saving...';
+        try {
+          const res = await fetch('/api/v1/medical_notes/draft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              visit_id: this.visitId,
+              text: this.smartText
+            })
+          });
+
+          if (res.ok) {
+            this.lastSavedText = this.smartText;
+            this.saveStatus = 'Saved';
+            setTimeout(() => { this.saveStatus = ''; }, 3000);
+          } else {
+            this.saveStatus = 'Error saving draft';
+          }
+        } catch (e) {
+          console.error(e);
+          this.saveStatus = 'Error saving draft';
+        }
+      },
 
       formatKey(key) {
         return key.replace(/_/g, ' ');
