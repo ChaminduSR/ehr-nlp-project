@@ -16,7 +16,7 @@ These guidelines are specific to the Rheumatology EHR project and derived from `
 
 ## 🎯 Core Principles
 
-1.  **Old PC Compatibility**: Target 2GB RAM, Pentium 4, Windows 7.
+1.  **Old PC Compatibility**: Target 2GB RAM, Pentium 4, Windows 7 (Requires Modern Browser).
 2.  **Offline-First**: All features must work without internet.
 3.  **Reuse Existing Files**: Modify existing code, don't duplicate.
 4.  **Performance First**: Fast startup, minimal memory footprint.

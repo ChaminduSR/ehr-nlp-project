@@ -1,6 +1,6 @@
 // Voice Recorder for VOSK (Vanilla JS)
 
-const VoiceRecorder = {
+export const VoiceRecorder = {
     isRecording: false,
     mediaRecorder: null,
     chunks: [],

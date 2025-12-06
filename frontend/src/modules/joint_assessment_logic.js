@@ -1,4 +1,4 @@
-function jointAssessment() {
+export function jointAssessment() {
     return {
       tjc: 0,
       sjc: 0,

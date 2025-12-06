@@ -42,22 +42,24 @@ def get_patient(patient_id):
 
 **Example**:
 ```python
-@patients_bp.route('/fragment', methods=['GET'])
-def patients_fragment():
-    # ... fetch patients ...
-    return render_template('fragments/patients_list.html', patients=patients)
+@joint_assessments_bp.route('/fragment', methods=['GET'])
+def joint_assessment_fragment():
+    # ... fetch data ...
+    return render_template('fragments/joint_assessment.html', visit_id=visit_id)
 ```
 
 ---
 
 ## 2. URL Conventions
 
+All API endpoints should be prefixed with `/api/v1`.
+
 | Pattern | Example | Usage |
 |---------|---------|-------|
-| `/<resource>` | `/patients` | List/Create |
-| `/<resource>/<id>` | `/patients/1` | Get/Update/Delete single |
-| `/<resource>/fragment` | `/patients/fragment` | HTMX HTML fragment |
-| `/<resource>/<id>/<sub>` | `/visits/1/notes` | Nested resources |
+| `/api/v1/<resource>` | `/api/v1/patients` | List/Create |
+| `/api/v1/<resource>/<id>` | `/api/v1/patients/1` | Get/Update/Delete single |
+| `/api/v1/<resource>/fragment` | `/api/v1/joint_assessments/fragment` | HTMX HTML fragment |
+| `/api/v1/<resource>/<id>/<sub>` | `/api/v1/visits/1/notes` | Nested resources |
 
 ---
 

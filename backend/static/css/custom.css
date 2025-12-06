@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Custom styling for EHR-NLP System */
 
 /* Auto-save status indicators */

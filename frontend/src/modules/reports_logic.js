@@ -1,4 +1,4 @@
-document.addEventListener('alpine:init', () => {
+export function initReports(Alpine) {
     Alpine.data('reportsLogic', () => ({
         reportType: 'summary',
         selectedPatient: null,
@@ -37,7 +37,7 @@ document.addEventListener('alpine:init', () => {
                 const response = await fetch(`/api/v1/patients/search?q=${encodeURIComponent(query)}`);
                 if (response.ok) {
                     const data = await response.json();
-                    this.patientResults = data.patients;
+                    this.patientResults = data;
                 } else {
                     // Fallback mock
                     this.patientResults = [
@@ -103,4 +103,4 @@ document.addEventListener('alpine:init', () => {
             }
         }
     }));
-});
+}

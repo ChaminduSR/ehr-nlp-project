@@ -10,13 +10,13 @@ These guidelines define the structure and patterns for the Flask backend.
 backend/
 ├── app.py                 # Application entry point
 ├── config.py              # Configuration management
-├── main.py                # Alternative entry point
+├── schemas.py             # Pydantic models
 ├── database/
 │   ├── init_db.py         # Database initialization
 │   └── init_schema.sql    # SQL schema
 ├── routes/
 │   ├── __init__.py        # Blueprint exports
-│   ├── patients.py        # Patient CRUD + fragments
+│   ├── patients.py        # Patient CRUD
 │   ├── visits.py          # Visit management
 │   ├── medical_notes.py   # Medical notes + auto-save
 │   ├── joint_assessments.py # Joint assessment data
@@ -58,10 +58,6 @@ def create_patient():
 
 @patients_bp.route('/<int:patient_id>', methods=['GET'])
 def get_patient(patient_id):
-    ...
-
-@patients_bp.route('/fragment', methods=['GET'])
-def patients_fragment():
     ...
 ```
 

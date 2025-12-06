@@ -1,4 +1,4 @@
-function medicalNote() {
+export function medicalNote() {
     return {
       smartText: '',
       isRecording: false,

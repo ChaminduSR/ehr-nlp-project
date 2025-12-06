@@ -7,7 +7,7 @@
 ## 📋 TABLE OF CONTENTS
 
 1. **PROJECT OVERVIEW v3.1** - Complete system
-2. **FRONTEND STACK** - HTMX + Pico.css + Konva.js + Alpine.js + VOSK
+2. **FRONTEND STACK** - React + TypeScript + HTMX + Pico.css + Konva.js + VOSK
 3. **CLINICAL IMPROVEMENTS** - 3-Parameter Joint + Voice Recognition
 4. **SPEECH RECOGNITION FOR OLD PCs** - Hardware Compatibility Guide (NEW)
 5. **BACKEND ARCHITECTURE** - Flask + spaCy NLP + Auto-Save
@@ -29,18 +29,19 @@
 ├─ DAS28 automation
 └─ Joint assessment (3-parameter)
 
-✅ Frontend Stack (35KB Initial Load)
-├─ HTMX (14KB) - Server-driven
-├─ Pico.css 2.0 (7.7KB) - Custom SASS Build
-├─ Konva.js (80KB) - Joint diagrams
-├─ Alpine.js (15KB) - Form state
-├─ ECharts (87KB) - Lazy-loaded
-└─ VOSK (50MB) - Offline speech
+✅ Frontend Stack (Modernized)
+├─ React 19 + TypeScript - Complex UI
+├─ HTMX - Server-driven updates
+├─ Pico.css 2.0 + Tailwind - Styling
+├─ Konva.js - Joint diagrams
+├─ Alpine.js - Lightweight state
+├─ TanStack Query - Data fetching
+└─ VOSK - Offline speech
 
 ✅ Works on Old PCs
 ├─ 2GB RAM minimum ✅
 ├─ Pentium 4 or Core 2 ✅
-├─ Windows 7 ✅
+├─ Windows 7 (Chrome/Firefox) ✅
 ├─ USB microphone ($20-60)
 └─ No GPU needed ✅
 ```
@@ -58,6 +59,7 @@ Old clinic computers (Windows 7, 2008-2012):
 ├─ No GPU (no CUDA acceleration)
 ├─ Possibly broken sound card
 └─ USB 2.0 ports (usually work fine)
+**NOTE:** IE11 is NOT supported. Use Chrome/Firefox.
 
 VOSK Requirements:
 ├─ 2GB RAM minimum ✓

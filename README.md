@@ -9,7 +9,7 @@ A production-ready Electronic Health Record system designed for rheumatology cli
 - 🧠 **Medical NLP** (spaCy + scispaCy) - Automated entity extraction
 - 🖐️ **Interactive Joint Assessment** - Canvas-based 28-joint tracking
 - 💾 **Auto-save** - Epic-style real-time saving
-- ♿ **WCAG AAA Accessible** - Works on 10+ year old PCs
+- ♿ **WCAG AAA Accessible** - Works on 10+ year old PCs (Modern Browser)
 - 📡 **Offline-First** - Full functionality without connectivity
 
 ---
@@ -29,14 +29,17 @@ A production-ready Electronic Health Record system designed for rheumatology cli
 ## 🛠️ Tech Stack
 
 ### Backend & Frontend (Unified)
-- **Framework**: Flask 3.0.3 (Python 3.11+)
+- **Framework**: Flask 3.0.3 (Python 3.11+) + Async Support
 - **Database**: SQLite3 with WAL mode (ACID compliance)
 - **NLP**: spaCy 3.7.5 + scispaCy 0.5.5 (`en_core_sci_md`)
 - **Speech**: VOSK 0.3.45 (offline voice recognition)
-- **Frontend Logic**: HTMX (Server-Driven UI) + Alpine.js (Interactivity)
-- **Styling**: Pico.css (Minimal, Semantic)
-- **Canvas**: Konva.js (Vanilla JS for joint assessment)
-- **Bundle**: <150KB total (Optimized for old PCs)
+- **Frontend Logic**: React 19 + Alpine.js + TypeScript
+- **State Management**: TanStack Query (for complex data)
+- **Validation**: Zod (Frontend) + Pydantic (Backend)
+- **Styling**: Pico.css + Tailwind CSS (Utility)
+- **Canvas**: Konva.js (Lazy-loaded)
+- **Build Tool**: Vite (Dev) + Webpack (Prod)
+- **Bundle**: <150KB total (ES2020 Target, Modern Browsers)
 
 ### Development
 - **Testing**: pytest + pytest-flask
@@ -86,7 +89,7 @@ A production-ready Electronic Health Record system designed for rheumatology cli
 - Full keyboard navigation
 - Screen reader compatible
 - 48px touch targets
-- IE11+ support (Windows 7)
+- Modern Browser support (Chrome, Firefox, Edge)
 
 ---
 

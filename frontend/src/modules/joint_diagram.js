@@ -1,12 +1,13 @@
 // Joint Assessment Diagram (Konva.js)
 // Implements 28-joint DAS28 visualization with interactive states
 
-window.JointDiagram = {
+export const JointDiagram = {
     stage: null,
     layer: null,
     joints: {}, // id -> { group, circle, text, state }
     onHoverCallback: null,
     onClickCallback: null,
+    Konva: null, // Store Konva reference
 
     // Joint Coordinates
     // 28 Joints: Shoulders(2), Elbows(2), Wrists(2), Knees(2), MCP(10), PIP(10)
@@ -53,7 +54,14 @@ window.JointDiagram = {
         { id: 'r_pip5', x: 250, y: 260, label: 'R PIP5' }
     ],
 
-    init(containerId, onClickCallback, onHoverCallback, onRightClickCallback) {
+    async init(containerId, onClickCallback, onHoverCallback, onRightClickCallback) {
+        // Dynamic Import
+        if (!this.Konva) {
+            const module = await import('konva');
+            this.Konva = module.default;
+        }
+        const Konva = this.Konva;
+
         this.onClickCallback = onClickCallback;
         this.onHoverCallback = onHoverCallback;
         this.onRightClickCallback = onRightClickCallback;
@@ -78,6 +86,7 @@ window.JointDiagram = {
     },
 
     drawSkeleton() {
+        const Konva = this.Konva;
         // Helper to find joint position
         const getPos = (id) => this.jointData.find(j => j.id === id);
 
@@ -142,6 +151,7 @@ window.JointDiagram = {
     },
 
     createLine(x1, y1, x2, y2) {
+        const Konva = this.Konva;
         const line = new Konva.Line({
             points: [x1, y1, x2, y2],
             stroke: '#ccc',
@@ -153,6 +163,7 @@ window.JointDiagram = {
     },
 
     createJoint(data) {
+        const Konva = this.Konva;
         const group = new Konva.Group({
             x: data.x,
             y: data.y

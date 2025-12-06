@@ -10,15 +10,6 @@
     <!-- Pico CSS (Custom Theme) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
 
-    <!-- HTMX (14KB) -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-
-    <!-- Alpine.js (15KB) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- Konva.js (Core) -->
-    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
-
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 </head>
@@ -43,16 +34,14 @@
         {% block content %}{% endblock %}
     </main>
 
-    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
-
-    <!-- App Logic Scripts (Loaded globally to support HTMX/Alpine) -->
-    <script src="{{ url_for('static', filename='js/joint_diagram.js') }}?v=2"></script>
-    <script src="{{ url_for('static', filename='js/joint_assessment_logic.js') }}?v=2"></script>
-    <script src="{{ url_for('static', filename='js/voice_recorder.js') }}?v=2"></script>
-    <script src="{{ url_for('static', filename='js/medical_note_logic.js') }}?v=2"></script>
-    <script src="{{ url_for('static', filename='js/patients_logic.js') }}?v=2"></script>
-    <script src="{{ url_for('static', filename='js/reports_logic.js') }}?v=2"></script>
-    <script src="{{ url_for('static', filename='js/dashboard_logic.js') }}?v=2"></script>
+    <!-- App Bundle -->
+    {% if config.USE_VITE %}
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="http://localhost:5173/index.tsx"></script>
+    {% else %}
+    <script src="{{ url_for('static', filename='dist/vendors.bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='dist/main.bundle.js') }}"></script>
+    {% endif %}
 
     <script>
         // Persist visit_id across navigation

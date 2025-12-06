@@ -1,4 +1,4 @@
-function patientsManager() {
+export function patientsManager() {
     return {
       patients: [],
       filteredPatients: [],

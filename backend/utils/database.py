@@ -2,9 +2,12 @@
 Database connection utilities
 """
 import sqlite3
+import os
 from contextlib import contextmanager
 
-DATABASE_PATH = 'database/clinical_ehr.db'
+# Get the path relative to this file's location
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATABASE_PATH = os.path.join(BASE_DIR, 'database', 'clinical_ehr.db')
 
 def get_db():
     """Connect to database with Row factory and WAL mode"""

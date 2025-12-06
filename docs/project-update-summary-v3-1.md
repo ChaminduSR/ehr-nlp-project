@@ -48,6 +48,7 @@ Result:
 ├─ Alpine.js (15KB) - Form state
 └─ VOSK (50MB) - Offline speech
 = 120KB total (60% smaller than React)
+**NOTE:** Target ES2020+ (No IE11 Support)
 ```
 
 ### Hardware Requirements (Old PC)
@@ -311,14 +312,14 @@ Performance:
 
 **You now have:**
 
-✅ **Complete EHR system** ready for rural deployment  
-✅ **Frontend stack** optimized for old PCs (120KB)  
-✅ **Voice recognition** working on 2GB RAM  
-✅ **3-parameter joint assessment** tracking clinical data  
-✅ **Two deployment strategies** (lazy load or server)  
-✅ **Complete hardware guide** for old computers  
-✅ **Cost breakdown** ($100-300 total)  
-✅ **Implementation timeline** (4 weeks to MVP)  
+✅ **Complete EHR system** ready for rural deployment
+✅ **Frontend stack** optimized for old PCs (120KB)
+✅ **Voice recognition** working on 2GB RAM
+✅ **3-parameter joint assessment** tracking clinical data
+✅ **Two deployment strategies** (lazy load or server)
+✅ **Complete hardware guide** for old computers
+✅ **Cost breakdown** ($100-300 total)
+✅ **Implementation timeline** (4 weeks to MVP)
 
 ---
 
@@ -334,7 +335,7 @@ All documents in repo:
 
 **READY FOR DEPLOYMENT** ✅
 
-*All documentation complete*  
-*Hardware compatibility verified*  
-*Old PC support implemented*  
+*All documentation complete*
+*Hardware compatibility verified*
+*Old PC support implemented*
 *Version 3.1 - November 16, 2025*

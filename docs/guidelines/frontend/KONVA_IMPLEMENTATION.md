@@ -56,6 +56,7 @@ Each joint tracks three properties:
 
 ### Data Flow
 1. User clicks a joint circle on the canvas.
-2. `JointCanvas` component updates its internal state.
-3. `JointCanvas` fires `onChange` callback with updated counts (TJC, SJC) and full joint data.
-4. Parent component (`JointAssessment.jsx`) updates DAS28 calculation.
+2. `jointAssessmentFragment` (Alpine.js module) updates its internal state.
+3. Visual feedback is updated immediately on the canvas.
+4. `save()` method is triggered automatically (debounced or immediate) to persist state to backend.
+5. Backend receives JSON payload with joint status.

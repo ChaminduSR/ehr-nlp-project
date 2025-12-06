@@ -6,7 +6,7 @@
 **Target Users**: Rheumatology doctors, clinicians, nurses, hospital administrators in rural India and low-resource countries
 **Primary Goal**: Fast, accessible, offline-capable electronic health record system
 **Performance Target**: <150KB total bundle size, <1 second load on 3G
-**Platform Support**: Windows 7, IE11+, 10+ year old computers
+**Platform Support**: Windows 7 (Chrome/Firefox), 10+ year old computers (IE11 NOT Supported)
 
 ## Core Features
 *   **Patient Management**: CRUD operations for patient data.

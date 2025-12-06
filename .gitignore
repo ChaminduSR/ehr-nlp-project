@@ -72,6 +72,11 @@ frontend/out/
 .cache/
 .parcel-cache/
 
+# TypeScript generated files (in src)
+frontend/src/**/*.d.ts
+frontend/src/**/*.d.ts.map
+dist/
+
 # =========================
 # Database Files
 # =========================

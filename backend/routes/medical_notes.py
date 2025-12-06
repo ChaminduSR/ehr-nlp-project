@@ -169,30 +169,6 @@ def finalize_note():
     finally:
         conn.close()
 
-@medical_notes_bp.route('/<int:note_id>', methods=['GET'])
-def get_note(note_id):
-    """Retrieve medical note by ID"""
-    conn = get_db()
-    cursor = conn.cursor()
-
-    cursor.execute('SELECT * FROM medical_notes WHERE id = ?', (note_id,))
-    note = cursor.fetchone()
-    conn.close()
-
-    if not note:
-        return jsonify({'error': 'Note not found'}), 404
-
-    return jsonify({
-        'id': note['id'],
-        'visit_id': note['visit_id'],
-        'note_text': note['note_text'],
-        'status': note['status'],
-        'draft_saved_at': note['draft_saved_at'],
-        'signed_at': note['signed_at'],
-        'signed_by': note['signed_by'],
-        'created_at': note['created_at']
-    }), 200
-
 
 @medical_notes_bp.route('/fragment', methods=['GET'])
 def medical_note_fragment():

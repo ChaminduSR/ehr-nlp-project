@@ -1,4 +1,4 @@
-document.addEventListener('alpine:init', () => {
+export function initDashboard(Alpine) {
     Alpine.data('dashboardData', () => ({
         stats: {
             patientsToday: 0,
@@ -49,11 +49,6 @@ document.addEventListener('alpine:init', () => {
             return new Promise((resolve) => {
                 const script = document.createElement('script');
                 // Use local file if available, fallback to CDN or just use CDN for now as per plan
-                // The plan says "Download echarts.min.js to backend/static/js/libs/"
-                // I will assume it's there or I will use CDN for now and user can download later
-                // But the plan says "Integrate ECharts: Download echarts.min.js"
-                // I will try to use the local path, but I haven't downloaded it yet.
-                // I will use CDN for now in the script, but comment about local.
                 script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js';
                 script.onload = resolve;
                 document.head.appendChild(script);
@@ -160,4 +155,4 @@ document.addEventListener('alpine:init', () => {
             window.addEventListener('resize', () => chart.resize());
         }
     }));
-});
+}

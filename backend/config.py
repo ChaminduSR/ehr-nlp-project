@@ -22,8 +22,11 @@ class Config:
     MIN_CONFIDENCE = float(os.getenv("MIN_CONFIDENCE", "0.7"))
 
     # API Settings
-    API_PORT = int(os.getenv("API_PORT", "8000"))
+    API_PORT = int(os.getenv("API_PORT", "5000"))
     API_HOST = os.getenv("API_HOST", "localhost")
+
+    # Frontend Settings
+    USE_VITE = os.getenv("USE_VITE", "False").lower() == "true"
 
 
 class DevelopmentConfig(Config):
