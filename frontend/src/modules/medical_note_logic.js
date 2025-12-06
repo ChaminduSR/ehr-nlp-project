@@ -120,7 +120,11 @@ export function medicalNote() {
           for (const [key, value] of Object.entries(this.reviewData)) {
             const header = SECTION_MAPPING[key];
             if (header && value) {
-              noteText += `${header}:\n${value}\n\n`;
+              // Handle both strings and arrays (arrays were converted to comma-separated strings in the UI)
+              const textValue = Array.isArray(value) ? value.join(', ') : value;
+              if (textValue.trim()) {
+                noteText += `${header}:\n${textValue}\n\n`;
+              }
             }
           }
 

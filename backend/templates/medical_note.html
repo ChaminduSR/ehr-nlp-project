@@ -55,11 +55,18 @@
           </header>
           <div id="review-content">
             <p>Please review the extracted information before saving.</p>
-            <div class="grid">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
               <template x-for="(value, key) in reviewData" :key="key">
-                <div class="mb-2">
-                  <strong x-text="formatKey(key)" style="text-transform: capitalize;"></strong>
-                  <input type="text" x-model="reviewData[key]">
+                <div>
+                  <label x-text="formatKey(key)"
+                    style="text-transform: capitalize; font-weight: bold; display: block; margin-bottom: 0.5rem;"></label>
+                  <template x-if="Array.isArray(value)">
+                    <textarea x-model="reviewData[key]" rows="2" style="width: 100%;"
+                      x-init="if (Array.isArray(reviewData[key])) reviewData[key] = reviewData[key].join(', ')"></textarea>
+                  </template>
+                  <template x-if="!Array.isArray(value)">
+                    <input type="text" x-model="reviewData[key]" style="width: 100%;">
+                  </template>
                 </div>
               </template>
             </div>
@@ -82,91 +89,7 @@
       </article>
     </div>
 
-    <!-- RIGHT COLUMN: Joint Assessment Panel -->
-    <aside class="joint-assessment-panel" x-data="jointAssessment()" x-init="init()">
-      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>Joint Assessment</h3>
-        <span x-text="saveStatus" style="color: var(--pico-muted-color); font-size: 0.8rem; font-weight: bold;"></span>
-      </div>
-
-      <div class="panel-content"
-        style="display: grid; grid-template-columns: 400px 1fr; gap: 1rem; align-items: start;">
-        <!-- Left Column: Joint Map & Legend -->
-        <div>
-          <!-- Joint Map -->
-          <div id="joint-canvas"
-            style="background: #f0f0f0; border: 1px solid #ccc; position: relative; margin-bottom: 1rem; width: 400px; height: 600px;">
-          </div>
-
-          <!-- Legend -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.8rem; margin-bottom: 1rem;">
-            <div><span
-                style="display:inline-block;width:10px;height:10px;background:white;border:1px solid #333;"></span>
-              Normal</div>
-            <div><span
-                style="display:inline-block;width:10px;height:10px;background:#FFEB3B;border:1px solid #333;"></span>
-              Tender</div>
-            <div><span
-                style="display:inline-block;width:10px;height:10px;background:#FF4444;border:1px solid #333;"></span>
-              Swollen</div>
-            <div><span
-                style="display:inline-block;width:10px;height:10px;background:#FF8C00;border:1px solid #333;"></span>
-              Both
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: Controls & Stats -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <!-- Stats -->
-          <div class="grid" style="gap: 10px;">
-            <div>
-              <label style="font-size: 0.8rem;">TJC</label>
-              <input type="number" x-model="tjc" readonly style="padding: 5px; height: auto;">
-            </div>
-            <div>
-              <label style="font-size: 0.8rem;">SJC</label>
-              <input type="number" x-model="sjc" readonly style="padding: 5px; height: auto;">
-            </div>
-          </div>
-          <div class="grid" style="gap: 10px;">
-            <div>
-              <label style="font-size: 0.8rem;">ESR</label>
-              <input type="number" x-model="esr" @input="calculateDAS28()" style="padding: 5px; height: auto;">
-            </div>
-            <div>
-              <label style="font-size: 0.8rem;">PGA</label>
-              <input type="number" x-model="pga" @input="calculateDAS28()" style="padding: 5px; height: auto;">
-            </div>
-          </div>
-
-          <hr>
-
-          <!-- DAS28 Score -->
-          <div
-            style="text-align: center; background: var(--pico-card-background-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--pico-card-border-color);">
-            <h3 style="margin-bottom: 0.5rem;">DAS28</h3>
-            <div style="font-size: 2rem; font-weight: bold; color: var(--pico-primary);" x-text="score"></div>
-            <div style="margin-top: 0.5rem; font-weight: bold;">
-              <small x-show="score < 2.6" style="color: green;">Remission</small>
-              <small x-show="score >= 2.6 && score <= 3.2" style="color: orange;">Low Activity</small>
-              <small x-show="score > 3.2 && score <= 5.1" style="color: darkorange;">Moderate</small>
-              <small x-show="score > 5.1" style="color: red;">High Activity</small>
-            </div>
-          </div>
-
-          <button class="contrast outline" @click="saveAssessment()" style="width: 100%;">Save Assessment</button>
-        </div>
-      </div>
-
-      <!-- Tooltip (Scoped to this component) -->
-      <div id="joint-tooltip" class="joint-tooltip" x-show="hoveredJoint"
-        :style="`left: ${tooltipX}px; top: ${tooltipY}px; position: fixed; z-index: 1000; background: white; color: black; padding: 5px; border: 1px solid black; pointer-events: none;`"
-        x-cloak>
-        <span x-text="hoveredJoint && hoveredJoint.label"></span>
-      </div>
-    </aside>
-
+    <!-- RIGHT COLUMN: Joint Assessment Panel - REMOVED -->
   </div>
 </div>
 {% endblock %}

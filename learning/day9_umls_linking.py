@@ -1,6 +1,4 @@
 import spacy
-import scispacy
-from scispacy.linking import EntityLinker
 import warnings
 
 warnings.filterwarnings('ignore', category=UserWarning)
@@ -47,15 +45,15 @@ for ent in doc.ents:
         # Get top linked concept
         umls_cui = ent._.kb_ents[0][0]  # (CUI, score) tuple
         score = ent._.kb_ents[0][1]
-        
+
         # Get entity linker to access knowledge base
         linker = nlp.get_pipe("scispacy_linker")
         kb = linker.kb
-        
+
         # Get definition from knowledge base with error handling
         if umls_cui in kb.cui_to_entity:
             entity_obj = kb.cui_to_entity[umls_cui]
-            
+
             # Safely handle None definition
             if entity_obj.definition:
                 definition = entity_obj.definition[:60] + "..." if len(entity_obj.definition) > 60 else entity_obj.definition
@@ -63,7 +61,7 @@ for ent in doc.ents:
                 definition = "No definition available"
         else:
             definition = "CUI not in knowledge base"
-        
+
         print(f"{ent.text:<30} {umls_cui:<15} {score:<10.3f} {definition}")
     else:
         print(f"{ent.text:<30} {'No CUI found':<15} {'N/A':<10} N/A")
@@ -85,25 +83,25 @@ print("-"*80)
 
 for ent in doc.ents:
     print(f"\nEntity: {ent.text}")
-    
+
     if ent._.kb_ents:
         print("  Top UMLS matches:")
-        
+
         # Show top 3 candidates
         for cui, score in ent._.kb_ents[:3]:
             linker = nlp.get_pipe("scispacy_linker")
             kb = linker.kb
-            
+
             if cui in kb.cui_to_entity:
                 entity_obj = kb.cui_to_entity[cui]
                 canonical_name = entity_obj.canonical_name if entity_obj.canonical_name else "Unknown"
-                
+
                 # Safely handle None definition
                 if entity_obj.definition:
                     definition = entity_obj.definition[:50] + "..." if len(entity_obj.definition) > 50 else entity_obj.definition
                 else:
                     definition = "No definition available"
-                
+
                 print(f"    CUI: {cui} (score: {score:.3f})")
                 print(f"      Name: {canonical_name}")
                 print(f"      Def: {definition}")
@@ -129,17 +127,17 @@ for note_num, note in enumerate(notes, 1):
     doc = nlp(note)
     print(f"Note {note_num}: {note}")
     print("  Concepts:")
-    
+
     for ent in doc.ents:
         if ent._.kb_ents:
             top_cui = ent._.kb_ents[0][0]
             entity_to_cui[ent.text] = top_cui
-            
+
             # Store CUI information
             if top_cui not in cui_to_info:
                 linker = nlp.get_pipe("scispacy_linker")
                 kb = linker.kb
-                
+
                 if top_cui in kb.cui_to_entity:
                     cui_obj = kb.cui_to_entity[top_cui]
                     cui_to_info[top_cui] = {
@@ -147,7 +145,7 @@ for note_num, note in enumerate(notes, 1):
                         'definition': cui_obj.definition if cui_obj.definition else "No definition",
                         'aliases': cui_obj.aliases[:3] if cui_obj.aliases else []
                     }
-            
+
             print(f"    - {ent.text} → {top_cui}")
     print()
 
@@ -259,7 +257,7 @@ for note in sample_notes:
         if ent._.kb_ents:
             cui = ent._.kb_ents[0][0]
             score = ent._.kb_ents[0][1]
-            
+
             if ent.text not in mappings:
                 mappings[ent.text] = {
                     'cui': cui,

@@ -160,6 +160,8 @@ class EntityItem(BaseModel):
 
 
 class NLPExtractionResponse(BaseModel):
+    model_config = {'protected_namespaces': ()}
+
     success: bool
     entities: List[EntityItem]
     entity_count: int

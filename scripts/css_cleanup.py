@@ -1,4 +1,3 @@
-import re
 import os
 
 def clean_css(file_path):

@@ -1,7 +1,7 @@
 """Patient management endpoints
 """
 from datetime import datetime, date
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 from utils.database import get_db
 try:

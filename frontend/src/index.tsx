@@ -36,6 +36,14 @@ initReports(Alpine);
 // Start Alpine
 Alpine.start();
 
+// HTMX + Alpine Integration: Initialize Alpine on new HTMX content
+document.body.addEventListener('htmx:afterSwap', (event: Event) => {
+  const target = (event as CustomEvent).detail?.target;
+  if (target) {
+    Alpine.initTree(target);
+  }
+});
+
 // React Mount
 const queryClient = new QueryClient();
 const patientListRoot = document.getElementById('react-patient-list');

@@ -74,15 +74,46 @@
     }
 
     .mode-content {
-      display: none;
-    }
-
-    .mode-content.active {
       display: block;
     }
   </style>
 
-  <div x-data="{ currentTab: 'structured' }">
+  <div x-data="{
+    currentTab: 'structured',
+    jointMapLoaded: false,
+    switchTab(tab) {
+      this.currentTab = tab;
+      if (tab === 'joint-map' && !this.jointMapLoaded) {
+        this.jointMapLoaded = true;
+        const container = document.getElementById('joint-map-container');
+        if (container) {
+          container.innerHTML = '<div style=\'display: flex; align-items: center; justify-content: center; height: 400px; color: #94a3b8;\'>Loading Joint Map...</div>';
+          fetch('/api/v1/joint_assessments/fragment?visit_id={{ visit_id }}')
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+              }
+              return response.text();
+            })
+            .then(html => {
+              container.innerHTML = html;
+              console.log('[JointMap] Fragment loaded successfully');
+              if (window.Alpine) {
+                console.log('[JointMap] Initializing Alpine for fragment');
+                window.Alpine.mutateDom(() => {
+                  window.Alpine.initTree(container);
+                });
+              }
+            })
+            .catch(err => {
+              console.error('[JointMap] Error loading joint map:', err);
+              container.innerHTML = '<div style=\'color: red; padding: 2rem; text-align: center;\'>Error loading map. Please try again.</div>';
+              this.jointMapLoaded = false;
+            });
+        }
+      }
+    }
+  }">
     <div
       style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
       <div id="save-status" class="status-indicator">Ready</div>
@@ -95,15 +126,15 @@
     <!-- Tab Switcher -->
     <div class="mode-switcher" role="tablist">
       <button type="button" class="mode-tab" :class="{ 'active': currentTab === 'structured' }"
-        @click="currentTab = 'structured'" role="tab" :aria-selected="currentTab === 'structured'">
+        @click="switchTab('structured')" role="tab" :aria-selected="currentTab === 'structured'">
         Structured Note</button>
       <button type="button" class="mode-tab" :class="{ 'active': currentTab === 'joint-map' }"
-        @click="currentTab = 'joint-map'" role="tab" :aria-selected="currentTab === 'joint-map'">Joint
+        @click="switchTab('joint-map')" role="tab" :aria-selected="currentTab === 'joint-map'">Joint
         Map (DAS28)</button>
     </div>
 
     <!-- Structured Mode -->
-    <div x-show="currentTab === 'structured'" class="mode-content active" style="display: block;">
+    <div x-show="currentTab === 'structured'" class="mode-content active">
       <div class="note-section-container">
         <div style="margin-bottom: 1rem;">
           <label>Chief Complaint</label>
@@ -153,9 +184,9 @@
 
     <!-- Joint Map Mode -->
     <div x-show="currentTab === 'joint-map'" class="mode-content" style="padding: 1rem;">
-      <div hx-get="/api/v1/joint_assessments/fragment?visit_id={{ visit_id }}" hx-trigger="load" hx-swap="innerHTML">
-        <div class="flex items-center justify-center h-64 text-slate-400">
-          Loading Joint Map...
+      <div id="joint-map-container" style="min-height: 400px;">
+        <div style="display: flex; align-items: center; justify-content: center; height: 400px; color: #94a3b8;">
+          Click Joint Map tab to load...
         </div>
       </div>
     </div>

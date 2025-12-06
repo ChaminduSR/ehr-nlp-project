@@ -253,14 +253,11 @@ a.role-button {
 }
 
 // ==========================================================================
-// 5. JOINT ASSESSMENT SIDE PANEL (Option 2)
+// 5. MEDICAL NOTE LAYOUT
 // ==========================================================================
 
 .medical-note-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 680px;
-  gap: var(--pico-spacing);
-  max-width: 1800px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -270,58 +267,111 @@ a.role-button {
   gap: var(--pico-spacing);
 }
 
-.joint-assessment-panel {
-  position: sticky;
-  top: 20px;
-  height: fit-content;
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
+// ==========================================================================
+// 6. JOINT MAP TAB
+// ==========================================================================
 
-  background: var(--pico-card-background-color);
-  border: 1px solid var(--pico-card-border-color);
-  border-radius: var(--pico-border-radius);
-  padding: var(--pico-spacing);
-  box-shadow: var(--pico-card-box-shadow);
-  transition: all 0.3s ease;
+.joint-map-fragment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pico-spacing);
 }
 
-.panel-header {
+.joint-map-fragment .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--pico-spacing);
-  padding-bottom: calc(var(--pico-spacing) / 2);
   border-bottom: 1px solid var(--pico-muted-border-color);
-
-  h3 {
-    margin: 0;
-    font-size: 1.1rem;
-  }
+  padding-bottom: calc(var(--pico-spacing) / 2);
 }
 
-.collapse-btn {
-  background: none;
-  border: none;
-  padding: 0;
+.joint-map-fragment .panel-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.joint-map-fragment .save-status {
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--pico-muted-color);
-  cursor: pointer;
-  transition: transform 0.3s;
-
-  &:hover {
-    color: var(--pico-primary);
-  }
 }
 
-// Responsive
-@media (max-width: 1199px) {
-  .medical-note-wrapper {
-    display: flex;
-    flex-direction: column;
-  }
 
-  .joint-assessment-panel {
-    position: relative;
-    top: auto;
-    max-height: none;
+
+/* Small label for assistive text (hidden visually but available to screen readers) */
+.tip-swatch .sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.joint-map-legend .legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid #475569;
+  margin-right: 0.35rem;
+}
+
+.legend-swatch.normal {
+  background: #ffffff;
+}
+
+.legend-swatch.tender {
+  background: #eab308;
+}
+
+.legend-swatch.swollen {
+  background: #ef4444;
+}
+
+.legend-swatch.both {
+  background: #f97316;
+}
+
+.das28-card {
+  text-align: center;
+}
+
+.das28-card .bands {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.das28-card .bands .remission {
+  color: var(--color-remission);
+}
+
+.das28-card .bands .low {
+  color: var(--color-low-activity);
+}
+
+.das28-card .bands .moderate {
+  color: var(--color-moderate);
+}
+
+.das28-card .bands .high {
+  color: var(--color-high);
+}
+
+.save-button {
+  width: 100%;
+  padding: 0.75rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .joint-map-canvas {
+    width: 100%;
+    height: 500px;
   }
 }

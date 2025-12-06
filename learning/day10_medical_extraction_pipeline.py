@@ -1,7 +1,4 @@
 import spacy
-import scispacy
-from scispacy.abbreviation import AbbreviationDetector
-from scispacy.linking import EntityLinker
 import json
 import warnings
 from collections import Counter, defaultdict
@@ -55,7 +52,7 @@ HPI: Patient with history of coronary artery disease (CAD) s/p CABG in 2018
 presents to ED with acute onset chest pain radiating to left arm. Associated
 with dyspnea and diaphoresis. Denies nausea or vomiting.
 
-PMH: 
+PMH:
 - Type 2 diabetes mellitus (DM2) - diagnosed 2015
 - Hypertension (HTN) - on medications
 - Hyperlipidemia - well controlled
@@ -63,7 +60,7 @@ PMH:
 
 MEDICATIONS:
 - Metformin 1000mg PO BID
-- Lisinopril 10mg PO daily  
+- Lisinopril 10mg PO daily
 - Atorvastatin 40mg PO HS
 - Aspirin (ASA) 81mg PO daily
 
@@ -75,7 +72,7 @@ Resp: Bilateral crackles, decreased breath sounds at bases
 
 LABS:
 - Troponin: 2.5 (elevated)
-- BNP: 850 (elevated) 
+- BNP: 850 (elevated)
 - BUN/Cr: 45/2.1 (elevated)
 - HbA1c: 8.2% (poor control)
 
@@ -144,10 +141,10 @@ for ent in doc.ents[:15]:  # Show first 15
         linked_count += 1
         cui = ent._.kb_ents[0][0]
         score = ent._.kb_ents[0][1]
-        
+
         linker = nlp.get_pipe("scispacy_linker")
         kb = linker.kb
-        
+
         if cui in kb.cui_to_entity:
             concept_name = kb.cui_to_entity[cui].canonical_name
             if concept_name:
@@ -156,7 +153,7 @@ for ent in doc.ents[:15]:  # Show first 15
                 concept_name = "N/A"
         else:
             concept_name = "N/A"
-        
+
         print(f"{ent.text:<35} {cui:<15} {score:<8.3f} {concept_name}")
         umls_links.append({'entity': ent.text, 'cui': cui, 'score': score, 'concept': concept_name})
 
@@ -261,13 +258,13 @@ batch_results = []
 
 for note_num, note in enumerate(clinical_notes, 1):
     doc = nlp(note)
-    
+
     # Extract key info
     diseases = [ent.text for ent in doc.ents if ent.label_ == "DISEASE"]
     meds = [ent.text for ent in doc.ents if ent.label_ == "CHEMICAL"]
     abbrs = len(doc._.abbreviations) if doc._.abbreviations else 0
     linked = sum(1 for ent in doc.ents if ent._.kb_ents)
-    
+
     result = {
         'note_id': f'N{note_num:03d}',
         'text': note,
@@ -277,9 +274,9 @@ for note_num, note in enumerate(clinical_notes, 1):
         'abbreviations': abbrs,
         'linked_entities': linked,
     }
-    
+
     batch_results.append(result)
-    
+
     print(f"\nNote {note_num}:")
     print(f"  Text: {note[:60]}...")
     print(f"  Entities: {len(doc.ents)} | Diseases: {len(diseases)} | Meds: {len(meds)} | Linked: {linked}")
@@ -370,7 +367,7 @@ print("="*80)
 summary = f"""
 ✅ PIPELINE COMPONENTS:
    1. Biomedical Named Entity Recognition (NER)
-   2. Abbreviation Detection & Resolution  
+   2. Abbreviation Detection & Resolution
    3. UMLS Entity Linking & Normalization
 
 📊 PROCESSING STATISTICS:

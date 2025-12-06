@@ -1,5 +1,4 @@
 import spacy
-from scispacy.abbreviation import AbbreviationDetector
 
 print("="*80)
 print("DAY 8: ABBREVIATION DETECTION & RESOLUTION")
@@ -39,10 +38,10 @@ print("\n\nPart 2: Detailed Abbreviation Information")
 print("-"*80)
 
 clinical_note = """
-The patient has a history of congestive heart failure (CHF) and 
-chronic obstructive pulmonary disease (COPD). Recent labs show 
-elevated brain natriuretic peptide (BNP) and decreased estimated 
-glomerular filtration rate (eGFR). The electrocardiogram (ECG) 
+The patient has a history of congestive heart failure (CHF) and
+chronic obstructive pulmonary disease (COPD). Recent labs show
+elevated brain natriuretic peptide (BNP) and decreased estimated
+glomerular filtration rate (eGFR). The electrocardiogram (ECG)
 demonstrates atrial fibrillation (AFib).
 """
 
@@ -64,7 +63,7 @@ print("\n\nPart 3: Extract Abbreviation Pairs")
 print("-"*80)
 
 text_with_abbrs = """
-Patient diagnosed with acute myocardial infarction (AMI) and transferred to 
+Patient diagnosed with acute myocardial infarction (AMI) and transferred to
 cardiac intensive care unit (CICU). Started on tissue plasminogen activator (tPA).
 Follow-up with percutaneous coronary intervention (PCI) scheduled.
 """
@@ -127,7 +126,7 @@ abbreviation_database = {}
 for note_num, note in enumerate(notes_with_definitions, 1):
     doc = nlp(note)
     print(f"Note {note_num}: {note}")
-    
+
     if doc._.abbreviations:
         print("  Found:")
         for abbr in doc._.abbreviations:
@@ -175,7 +174,7 @@ for word in text_words:
     clean_word = word.strip('.,;:')
     if clean_word in abbreviation_database:
         resolved_abbrs.append(f"{clean_word} ({abbreviation_database[clean_word]})")
-    
+
 if resolved_abbrs:
     for resolved in resolved_abbrs:
         print(f"  {resolved}")
