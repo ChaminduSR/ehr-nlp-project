@@ -7,13 +7,13 @@
 ## 📋 TABLE OF CONTENTS
 
 1. **PROJECT OVERVIEW v3.1** - Complete system
-2. **FRONTEND STACK** - React + TypeScript + HTMX + Pico.css + Konva.js + VOSK
-3. **CLINICAL IMPROVEMENTS** - 3-Parameter Joint + Voice Recognition
-4. **SPEECH RECOGNITION FOR OLD PCs** - Hardware Compatibility Guide (NEW)
-5. **BACKEND ARCHITECTURE** - Flask + spaCy NLP + Auto-Save
-6. **DATABASE SCHEMA v3.0** - Voice notes + joint assessment
-7. **DEPLOYMENT GUIDE** - Rural clinic ready
-8. **IMPLEMENTATION TIMELINE** - 12-week plan
+2. **MODERN TECH STACK** - Vite + TypeScript + React 19
+3. **SPEECH RECOGNITION FOR OLD PCs** - Hardware Compatibility Guide (NEW)
+4. **CLINICAL IMPROVEMENTS** - 3-Parameter Joint + Voice Recognition
+5. **IMPLEMENTATION TIMELINE** - 12-week plan
+6. **RECOMMENDED SETUP** - Clinic hardware guide
+7. **DATABASE SCHEMA v3.0** - Voice notes + joint assessment
+8. **DEPLOYMENT CHECKLIST** - Rural clinic ready
 
 ---
 
@@ -41,14 +41,37 @@
 ✅ Works on Old PCs
 ├─ 2GB RAM minimum ✅
 ├─ Pentium 4 or Core 2 ✅
-├─ Windows 7 (Chrome/Firefox) ✅
+├─ Windows 7/10+ (Modern Chrome/Firefox) ✅
 ├─ USB microphone ($20-60)
 └─ No GPU needed ✅
 ```
 
 ---
 
-## SECTION 2: SPEECH RECOGNITION FOR OLD PCs (NEW!)
+## SECTION 2: MODERN TECH STACK (NEW!)
+
+### Build Tools & Configuration
+
+**Vite (Development & Build)**
+- **Dev Server**: Instant start (<300ms)
+- **HMR**: Hot Module Replacement
+- **Build**: Optimized Rollup build for production
+- **Config**: `vite.config.js`
+
+**TypeScript**
+- **Target**: ES2020
+- **Strict Mode**: Enabled
+- **Types**: Full type safety for API responses
+- **Config**: `tsconfig.json`
+
+**State Management & Data Fetching**
+- **TanStack Query**: Server state management, caching, background updates
+- **Zod**: Runtime schema validation for forms and API responses
+- **Date-fns**: Modern, lightweight date manipulation (replaces Moment.js)
+
+---
+
+## SECTION 3: SPEECH RECOGNITION FOR OLD PCs (NEW!)
 
 ### The Challenge: Old PC Limitations
 
@@ -318,7 +341,7 @@ Server Approach (All PCs):
 
 ---
 
-## SECTION 3: CLINICAL IMPROVEMENTS
+## SECTION 4: CLINICAL IMPROVEMENTS
 
 ### 3-Parameter Joint Assessment
 
@@ -352,7 +375,7 @@ Doctor workflow:
 
 ---
 
-## SECTION 4: IMPLEMENTATION TIMELINE
+## SECTION 5: IMPLEMENTATION TIMELINE
 
 ### 12-Week Plan
 
@@ -388,7 +411,7 @@ Doctor workflow:
 
 ---
 
-## SECTION 5: RECOMMENDED SETUP FOR YOUR CLINIC
+## SECTION 6: RECOMMENDED SETUP FOR YOUR CLINIC
 
 ### Best Option: Central Server
 
@@ -425,7 +448,7 @@ Result:
 
 ---
 
-## SECTION 6: DATABASE SCHEMA v3.0
+## SECTION 7: DATABASE SCHEMA v3.0
 
 ```sql
 -- New Tables for Voice + 3-Param Joints
@@ -457,7 +480,7 @@ CREATE TABLE voice_transcriptions (
 
 ---
 
-## SECTION 7: DEPLOYMENT CHECKLIST
+## SECTION 8: DEPLOYMENT CHECKLIST
 
 ```bash
 # 1. Install Python dependencies

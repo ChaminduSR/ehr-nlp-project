@@ -5,8 +5,8 @@
 **Application Name**: Rheumatology EHR
 **Target Users**: Rheumatology doctors, clinicians, nurses, hospital administrators in rural India and low-resource countries
 **Primary Goal**: Fast, accessible, offline-capable electronic health record system
-**Performance Target**: <150KB total bundle size, <1 second load on 3G
-**Platform Support**: Windows 7 (Chrome/Firefox), 10+ year old computers (IE11 NOT Supported)
+**Performance Target**: <95KB total bundle size, <300ms load on 3G
+**Platform Support**: Modern Browsers (Chrome 90+, Firefox 88+, Edge 90+), Windows 10+ preferred (IE11 NOT Supported)
 
 ## Core Features
 *   **Patient Management**: CRUD operations for patient data.
@@ -506,18 +506,18 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-
 
 ### Minimum Requirements
 
-- **IE11+** (Windows 7)
-- **Chrome 60+**
-- **Firefox 60+**
-- **Safari 11+**
-- **Edge 79+**
+- **Chrome 90+**
+- **Firefox 88+**
+- **Safari 14+**
+- **Edge 90+**
+- **IE11 is NOT Supported**
 
-### Progressive Enhancement
+### Modernization Strategy
 
-- Core functionality works in all browsers
-- Enhanced features in modern browsers
-- Graceful degradation for old browsers
-- No breaking features in legacy environments
+- Target ES2020+ features
+- No polyfills required
+- Modern CSS (Flexbox/Grid) without fallbacks
+- Optimized for modern engines
 
 ---
 
@@ -594,8 +594,8 @@ backend/templates/fragments/         # Core Business Logic (HTMX + Alpine)
 
 ### Visual Testing
 
-- [ ] Test on Windows 7 with IE11
-- [ ] Test on 10+ year old hardware
+- [ ] Test on Modern Browsers (Chrome, Firefox, Edge)
+- [ ] Test on 10+ year old hardware (with modern browser)
 - [ ] Test at 100%, 125%, 150%, 200% zoom
 - [ ] Test with high contrast mode
 - [ ] Test on mobile devices

@@ -1,27 +1,49 @@
 """
-Medical notes endpoints - Auto-save and finalize pattern
+Medical notes endpoints - Auto-save and finalize pattern (async NLP)
 """
 import re
+import asyncio
 from flask import Blueprint, request, jsonify, render_template
 from datetime import datetime
+from pydantic import ValidationError
 from utils.database import get_db
 from services.nlp_engine import NLPEngine
+try:
+    from schemas import MedicalNoteExtractRequest, MedicalNoteDraftRequest, MedicalNoteFinalizeRequest
+except ImportError:
+    from backend.schemas import MedicalNoteExtractRequest, MedicalNoteDraftRequest, MedicalNoteFinalizeRequest
 
 medical_notes_bp = Blueprint('medical_notes', __name__)
 nlp_engine = NLPEngine()
 
-@medical_notes_bp.route('/extract', methods=['POST'])
-def extract_entities():
-    """Extract medical entities from text"""
-    data = request.get_json()
-    text = data.get('text', '')
 
-    if not text:
-        return jsonify({'error': 'No text provided'}), 400
+def _run_nlp_extraction(text, engine):
+    """Synchronous NLP processing (runs in executor)"""
+    return engine.process_note(text)
+
+
+@medical_notes_bp.route('/extract', methods=['POST'])
+async def extract_entities():
+    """Extract medical entities from text (async)"""
+    data = request.get_json()
+
+    # Validate with Pydantic
+    try:
+        extract_data = MedicalNoteExtractRequest(**data)
+    except ValidationError as e:
+        return jsonify({'detail': e.errors()}), 422
+
+    text = extract_data.text
 
     try:
-        # 1. Run NLP Entity Extraction
-        result = nlp_engine.process_note(text)
+        # 1. Run NLP Entity Extraction in executor (CPU-bound)
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None,
+            _run_nlp_extraction,
+            text,
+            nlp_engine
+        )
 
         # 2. Initialize Structured Data
         structured = {
@@ -78,6 +100,17 @@ def extract_entities():
 def save_draft():
     """Auto-save draft note every 30 seconds"""
     data = request.get_json()
+
+    # Validate with Pydantic
+    try:
+        draft_data = MedicalNoteDraftRequest(**data)
+    except ValidationError as e:
+        return jsonify({'detail': e.errors()}), 422
+
+    raw_text = draft_data.get_text()
+    if not raw_text:
+        return jsonify({'detail': [{'loc': ['text'], 'msg': 'text or raw_text is required', 'type': 'value_error'}]}), 422
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -85,7 +118,7 @@ def save_draft():
     cursor.execute('''
         SELECT id FROM medical_notes
         WHERE visit_id = ? AND status = 'draft'
-    ''', (data['visit_id'],))
+    ''', (draft_data.visit_id,))
 
     existing_draft = cursor.fetchone()
 
@@ -95,14 +128,14 @@ def save_draft():
             UPDATE medical_notes
             SET note_text = ?, draft_saved_at = ?
             WHERE id = ?
-        ''', (data['text'], datetime.utcnow().isoformat(), existing_draft['id']))
+        ''', (raw_text, datetime.utcnow().isoformat(), existing_draft['id']))
         note_id = existing_draft['id']
     else:
         # Create new draft
         cursor.execute('''
             INSERT INTO medical_notes (visit_id, note_text, status, draft_saved_at)
             VALUES (?, ?, 'draft', ?)
-        ''', (data['visit_id'], data['text'], datetime.utcnow().isoformat()))
+        ''', (draft_data.visit_id, raw_text, datetime.utcnow().isoformat()))
         note_id = cursor.lastrowid
 
     conn.commit()
@@ -120,6 +153,15 @@ def save_draft():
 def finalize_note():
     """Finalize and sign note - triggers NLP"""
     data = request.get_json()
+
+    # Validate with Pydantic
+    try:
+        finalize_data = MedicalNoteFinalizeRequest(**data)
+    except ValidationError as e:
+        return jsonify({'detail': e.errors()}), 422
+
+    final_text = finalize_data.get_text()
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -132,13 +174,13 @@ def finalize_note():
                 signed_at = ?,
                 signed_by = 1
             WHERE id = ?
-        ''', (data['text'], datetime.utcnow().isoformat(), data['note_id']))
+        ''', (final_text, datetime.utcnow().isoformat(), finalize_data.note_id))
 
         conn.commit()
 
         # Trigger NLP processing
         from services.nlp_engine import nlp_engine
-        nlp_result = nlp_engine.process_note(data['text'])
+        nlp_result = nlp_engine.process_note(final_text)
 
         if nlp_result['success']:
             # Store entities count and processing time
@@ -147,13 +189,13 @@ def finalize_note():
                 SET entity_count = ?,
                     processing_time_ms = ?
                 WHERE id = ?
-            ''', (nlp_result['entity_count'], nlp_result['processing_time_ms'], data['note_id']))
+            ''', (nlp_result['entity_count'], nlp_result['processing_time_ms'], finalize_data.note_id))
 
             conn.commit()
 
         return jsonify({
             'success': True,
-            'note_id': data['note_id'],
+            'note_id': finalize_data.note_id,
             'status': 'finalized',
             'signed_at': datetime.utcnow().isoformat(),
             'entities_extracted': nlp_result['entity_count'],

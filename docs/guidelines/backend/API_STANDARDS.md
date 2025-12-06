@@ -223,7 +223,44 @@ def health_check():
 
 ---
 
-## 11. Reference
+## 11. Type Safety & Validation (NEW)
+
+### 11.1 Frontend Validation (Zod)
+
+All API responses should be validated on the client side using Zod schemas.
+
+```typescript
+// frontend/src/schemas/patient.ts
+import { z } from 'zod';
+
+export const PatientSchema = z.object({
+  id: z.number(),
+  mrn: z.string(),
+  first_name: z.string(),
+  last_name: z.string(),
+  date_of_birth: z.string(), // ISO date
+});
+
+export type Patient = z.infer<typeof PatientSchema>;
+```
+
+### 11.2 Backend Validation (Pydantic - Recommended)
+
+For new endpoints, use Pydantic models for request validation.
+
+```python
+from pydantic import BaseModel
+
+class PatientCreate(BaseModel):
+    mrn: str
+    first_name: str
+    last_name: str
+    date_of_birth: str
+```
+
+---
+
+## 12. Reference
 
 *   `routes/patients.py` - Example of REST + Fragment endpoints
 *   `routes/visits.py` - Example of nested resource

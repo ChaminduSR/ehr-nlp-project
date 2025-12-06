@@ -1,8 +1,13 @@
-"""
-Joint assessment endpoints - 3-parameter tracking (tenderness, pain, swelling)
+
+"""Joint assessment endpoints - 3-parameter tracking (tenderness, pain, swelling)
 """
 from flask import Blueprint, request, jsonify, render_template
+from pydantic import ValidationError
 from utils.database import get_db
+try:
+    from schemas import JointAssessmentCreate
+except ImportError:
+    from backend.schemas import JointAssessmentCreate
 
 joint_assessments_bp = Blueprint('joint_assessments', __name__)
 
@@ -33,11 +38,15 @@ def joint_assessment_fragment():
 def save_joint_assessment():
     """Save multiple joint assessments for a visit"""
     data = request.get_json()
-    visit_id = data.get('visit_id')
-    joints = data.get('joints', [])
 
-    if not visit_id or not joints:
-        return jsonify({'error': 'visit_id and joints are required'}), 400
+    # Validate with Pydantic
+    try:
+        assessment_data = JointAssessmentCreate(**data)
+    except ValidationError as e:
+        return jsonify({'detail': e.errors()}), 422
+
+    visit_id = assessment_data.visit_id
+    joints = assessment_data.joints
 
     conn = get_db()
     cursor = conn.cursor()
@@ -55,10 +64,10 @@ def save_joint_assessment():
                 VALUES (?, ?, ?, ?, ?)
             ''', (
                 visit_id,
-                joint['joint_id'],
-                joint.get('has_tenderness', False),
-                joint.get('has_pain', False),
-                joint.get('swelling_grade', 0)
+                joint.joint_id,
+                joint.get_tenderness() > 0,
+                joint.get_pain() > 0,
+                joint.get_swelling()
             ))
             saved_count += 1
 

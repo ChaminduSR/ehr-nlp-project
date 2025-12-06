@@ -40,14 +40,16 @@ Result:
 
 ## 📊 COMPLETE SYSTEM OVERVIEW
 
-### Frontend Stack
+### Frontend Stack (Modernized)
 ```
-├─ HTMX (14KB) - Server-driven HTML
-├─ Pico.css (11.3KB) - Minimal Apple design
-├─ Konva.js (80KB) - Joint diagrams
-├─ Alpine.js (15KB) - Form state
-└─ VOSK (50MB) - Offline speech
-= 120KB total (60% smaller than React)
+├─ React 19 + TypeScript - Complex UI
+├─ HTMX - Server-driven updates
+├─ Pico.css 2.0 + Tailwind - Styling
+├─ Konva.js - Joint diagrams
+├─ Alpine.js - Lightweight state
+├─ TanStack Query - Data fetching
+└─ VOSK - Offline speech
+= ~95KB total (Optimized Build)
 **NOTE:** Target ES2020+ (No IE11 Support)
 ```
 
@@ -58,7 +60,7 @@ Result:
 ├─ Core 2 Duo (2008+) - Acceptable
 ├─ Core i3 (2010+) - Good
 ├─ 2GB RAM minimum - Works!
-├─ Windows 7 - Fully supported
+├─ Windows 7/10+ (Modern Browser Required)
 └─ USB microphone ($20-60) - Plug and play
 ```
 

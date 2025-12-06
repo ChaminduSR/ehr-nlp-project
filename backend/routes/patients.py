@@ -1,13 +1,13 @@
-"""
-Patient management endpoints
+"""Patient management endpoints
 """
 from datetime import datetime, date
 from flask import Blueprint, request, jsonify, render_template
+from pydantic import ValidationError
 from utils.database import get_db
 try:
-    from schemas import PatientResponse
+    from schemas import PatientResponse, PatientCreate, PatientUpdate
 except ImportError:
-    from backend.schemas import PatientResponse
+    from backend.schemas import PatientResponse, PatientCreate, PatientUpdate
 
 patients_bp = Blueprint('patients', __name__)
 
@@ -93,13 +93,20 @@ def get_patients():
 def create_patient():
     """Create new patient"""
     data = request.get_json()
+
+    # Validate with Pydantic
+    try:
+        patient_data = PatientCreate(**data)
+    except ValidationError as e:
+        return jsonify({'detail': e.errors()}), 422
+
     conn = get_db()
     cursor = conn.cursor()
 
     cursor.execute('''
         INSERT INTO patients (mrn, first_name, last_name, date_of_birth)
         VALUES (?, ?, ?, ?)
-    ''', (data['mrn'], data['first_name'], data['last_name'], data.get('date_of_birth')))
+    ''', (patient_data.mrn, patient_data.first_name, patient_data.last_name, patient_data.date_of_birth))
 
     conn.commit()
     patient_id = cursor.lastrowid
@@ -136,6 +143,13 @@ def get_patient(patient_id):
 def update_patient(patient_id):
     """Update patient details"""
     data = request.get_json()
+
+    # Validate with Pydantic
+    try:
+        patient_data = PatientUpdate(**data)
+    except ValidationError as e:
+        return jsonify({'detail': e.errors()}), 422
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -143,7 +157,7 @@ def update_patient(patient_id):
         UPDATE patients
         SET first_name = ?, last_name = ?, date_of_birth = ?
         WHERE id = ?
-    ''', (data['first_name'], data['last_name'], data.get('date_of_birth'), patient_id))
+    ''', (patient_data.first_name, patient_data.last_name, patient_data.date_of_birth, patient_id))
 
     if cursor.rowcount == 0:
         conn.close()

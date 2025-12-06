@@ -84,6 +84,26 @@ def get_nlp():
 
 ---
 
+## 2.4 Async Support (NEW)
+
+Flask 3.0+ enables native async endpoints.
+Old sync code continues working unchanged.
+New endpoints can use async/await for I/O ops.
+
+**Implementation**:
+```python
+# Example: backend/routes/patients.py
+@patients_bp.route('/api/v1/patients/bulk-load', methods=['POST'])
+async def load_multiple():
+    # Async database or API calls
+    results = await some_async_service()
+    return jsonify(results)
+```
+
+**Rule**: Use `async def` for I/O bound operations (external APIs, heavy DB queries).
+
+---
+
 ## 3. To Be Implemented
 
 ### 3.1 Connection Pooling (Future)
