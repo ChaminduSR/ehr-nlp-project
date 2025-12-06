@@ -251,3 +251,77 @@ a.role-button {
 .skip-link:focus {
   top: 0;
 }
+
+// ==========================================================================
+// 5. JOINT ASSESSMENT SIDE PANEL (Option 2)
+// ==========================================================================
+
+.medical-note-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 680px;
+  gap: var(--pico-spacing);
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.dictation-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pico-spacing);
+}
+
+.joint-assessment-panel {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-card-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: var(--pico-spacing);
+  box-shadow: var(--pico-card-box-shadow);
+  transition: all 0.3s ease;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--pico-spacing);
+  padding-bottom: calc(var(--pico-spacing) / 2);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  transition: transform 0.3s;
+
+  &:hover {
+    color: var(--pico-primary);
+  }
+}
+
+// Responsive
+@media (max-width: 1199px) {
+  .medical-note-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .joint-assessment-panel {
+    position: relative;
+    top: auto;
+    max-height: none;
+  }
+}

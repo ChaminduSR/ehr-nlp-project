@@ -8,6 +8,8 @@ export function jointAssessment() {
 
       // State
       joints: {}, // id -> { tenderness: bool, pain: bool, swelling: int }
+      lastSavedJson: '',
+      saveStatus: '',
 
       // Tooltip
       hoveredJoint: null,
@@ -28,11 +30,15 @@ export function jointAssessment() {
           this.joints[j.id] = { tenderness: false, pain: false, swelling: 0 };
         });
 
-        // Load existing data if any (passed from server via template variable if needed,
-        // but for now we assume fresh or fetch via API)
+        // Load existing data
         this.loadExistingData();
 
         this.calculateDAS28();
+
+        // Auto-save every 30 seconds
+        setInterval(() => {
+          this.autoSave();
+        }, 30000);
       },
 
       handleHover(data, x, y) {
@@ -117,10 +123,17 @@ export function jointAssessment() {
         this.score = (t + s + e + p).toFixed(2);
       },
 
-      async saveAssessment() {
+      async autoSave() {
+        const currentJson = JSON.stringify(this.joints);
+        if (currentJson === this.lastSavedJson) return;
+
+        await this.saveAssessment(true);
+      },
+
+      async saveAssessment(silent = false) {
         const visitId = new URLSearchParams(window.location.search).get('visit_id');
         if (!visitId) {
-          alert('No Visit ID found!');
+          if (!silent) alert('No Visit ID found!');
           return;
         }
 
@@ -134,6 +147,8 @@ export function jointAssessment() {
           }))
         };
 
+        this.saveStatus = 'Saving...';
+
         try {
           const res = await fetch('/api/v1/joint_assessments', {
             method: 'POST',
@@ -142,13 +157,18 @@ export function jointAssessment() {
           });
 
           if (res.ok) {
-            alert('Assessment saved successfully!');
+            this.lastSavedJson = JSON.stringify(this.joints);
+            this.saveStatus = 'Saved';
+            setTimeout(() => { this.saveStatus = ''; }, 3000);
+            if (!silent) alert('Assessment saved successfully!');
           } else {
-            alert('Error saving assessment');
+            this.saveStatus = 'Error';
+            if (!silent) alert('Error saving assessment');
           }
         } catch (err) {
           console.error(err);
-          alert('Network error');
+          this.saveStatus = 'Error';
+          if (!silent) alert('Network error');
         }
       },
 
