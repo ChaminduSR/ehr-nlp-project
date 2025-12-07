@@ -1,6 +1,4 @@
-"""Patient management endpoints
-"""
-from datetime import datetime, date
+"""Patient management endpoints"""
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 from utils.database import get_db
@@ -11,15 +9,6 @@ except ImportError:
 
 patients_bp = Blueprint('patients', __name__)
 
-def calculate_age(dob_str):
-    if not dob_str:
-        return None
-    try:
-        born = datetime.strptime(dob_str, '%Y-%m-%d').date()
-        today = date.today()
-        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
-    except ValueError:
-        return None
 
 @patients_bp.route('/search', methods=['GET'])
 def search_patients():
@@ -62,7 +51,7 @@ def get_patients():
     """Get all patients (JSON)"""
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM patients ORDER BY last_name, first_name')
+    cursor.execute('SELECT * FROM patients')
     rows = cursor.fetchall()
     conn.close()
 
@@ -87,7 +76,18 @@ def get_patients():
         }
         patients.append(PatientResponse(**patient_data).model_dump())
 
-    return jsonify(patients)
+    # Sort patients by MRN descending (try numeric inside MRN, otherwise string desc)
+    def mrn_sort_key(p):
+        mrn = p.get('mrn') or ''
+        # Extract digits for numeric comparison
+        digits = ''.join(ch for ch in str(mrn) if ch.isdigit())
+        try:
+            return (0, -int(digits)) if digits else (1, str(mrn))
+        except Exception:
+            return (1, str(mrn))
+
+    patients_sorted = sorted(patients, key=mrn_sort_key)
+    return jsonify(patients_sorted)
 
 @patients_bp.route('', methods=['POST'])
 def create_patient():

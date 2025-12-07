@@ -3,7 +3,7 @@ export function jointAssessment() {
       tjc: 0,
       sjc: 0,
       esr: 20,
-      pga: 50,
+      pg_scale: 5,
       score: 0,
 
       // State
@@ -16,9 +16,12 @@ export function jointAssessment() {
       tooltipX: 0,
       tooltipY: 0,
 
-      init() {
+      async init() {
+        // Lazy-load JointDiagram (includes Konva) - only downloads when joint map tab is opened
+        const JointDiagram = await window.loadJointDiagram();
+
         // Initialize Konva
-        window.JointDiagram.init(
+        await JointDiagram.init(
           'joint-canvas',
           (id, x, y) => this.handleJointClick(id), // Click
           (data, x, y) => this.handleHover(data, x, y), // Hover
@@ -26,19 +29,37 @@ export function jointAssessment() {
         );
 
         // Initialize joints state
-        window.JointDiagram.jointData.forEach(j => {
+        JointDiagram.jointData.forEach(j => {
           this.joints[j.id] = { tenderness: false, pain: false, swelling: 0 };
         });
 
         // Load existing data
-        this.loadExistingData();
+        await this.loadExistingData();
 
         this.calculateDAS28();
 
-        // Auto-save every 30 seconds
-        setInterval(() => {
-          this.autoSave();
-        }, 30000);
+        // Note: Auto-save is handled by medical_note_form.html fragment (30s interval)
+        // This module exposes getJointData/getJointSummary for coordinatedSave to use
+
+        // Expose joint data getter for coordinated save and other callers
+        try {
+          window.getJointData = () => JSON.parse(JSON.stringify(this.joints || {}));
+          window.getJointSummary = () => ({
+            tjc: this.tjc,
+            sjc: this.sjc,
+            esr: this.esr,
+            // expose both pg_scale (1-10) and pga (0-100) for backwards compatibility
+            pg_scale: this.pg_scale,
+            pga: (Number(this.pg_scale) || 0) * 10,
+            das28: parseFloat(this.score) || 0
+          });
+          window.__jointAssessment_initialized = true;
+        } catch (e) {
+          console.warn('Failed to register getJointData', e);
+        }
+
+        // Mark component as initialized so later user interactions can mark the fragment dirty
+        this._initialized = true;
       },
 
       handleHover(data, x, y) {
@@ -89,6 +110,8 @@ export function jointAssessment() {
         window.JointDiagram.updateJointState(id, joint);
         // Update Counts
         this.updateCounts();
+        // Mark the outer fragment as dirty so coordinated save picks this up
+        try { if (window._markDirty) window._markDirty(); } catch (e) {}
       },
 
       handleJointRightClick(id) {
@@ -99,6 +122,7 @@ export function jointAssessment() {
         window.JointDiagram.updateJointState(id, joint);
         // Update Counts
         this.updateCounts();
+        try { if (window._markDirty) window._markDirty(); } catch (e) {}
       },
 
       updateCounts() {
@@ -111,6 +135,8 @@ export function jointAssessment() {
         this.tjc = t;
         this.sjc = s;
         this.calculateDAS28();
+        // Mark dirty when counts change via user interaction
+        try { if (this._initialized && window._markDirty) window._markDirty(); } catch (e) {}
       },
 
       calculateDAS28() {
@@ -119,18 +145,45 @@ export function jointAssessment() {
         const t = Math.sqrt(this.tjc) * 0.56;
         const s = Math.sqrt(this.sjc) * 0.28;
         const e = Math.log(Math.max(1, this.esr)) * 0.70; // Ensure log(>0)
-        const p = this.pga * 0.014;
+        // convert pg_scale (1-10) to pga 0-100 for formula: PGA_effect = 0.014 * Pga
+        const pgaVal = (Number(this.pg_scale) || 0) * 10;
+        const p = pgaVal * 0.014;
         this.score = (t + s + e + p).toFixed(2);
+        // If user interactions drove this recalculation, mark fragment dirty
+        try { if (this._initialized && window._markDirty) window._markDirty(); } catch (e) {}
       },
 
       async autoSave() {
+        // Auto-save is handled by the fragment's coordinatedSave
+        // This is kept as a fallback only if the fragment isn't loaded
+        if (window.coordinatedSave && typeof window.coordinatedSave === 'function') {
+          // Let the fragment handle it - don't duplicate saves
+          return;
+        }
+
+        // Fallback: direct save only if fragment not loaded
         const currentJson = JSON.stringify(this.joints);
         if (currentJson === this.lastSavedJson) return;
 
-        await this.saveAssessment(true);
+        await this.saveJointsDirect(true);
       },
 
       async saveAssessment(silent = false) {
+        // If coordinatedSave available, use it (saves note + joints together)
+        if (window.coordinatedSave && typeof window.coordinatedSave === 'function') {
+          try {
+            await window.coordinatedSave();
+            return;
+          } catch (e) {
+            console.warn('coordinatedSave failed, falling back to individual joint save', e);
+          }
+        }
+
+        await this.saveJointsDirect(silent);
+      },
+
+      async saveJointsDirect(silent = false) {
+        // Direct save to joint_assessments endpoint (fallback when coordinatedSave unavailable)
         const visitId = new URLSearchParams(window.location.search).get('visit_id');
         if (!visitId) {
           if (!silent) alert('No Visit ID found!');

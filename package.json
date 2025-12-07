@@ -8,25 +8,19 @@
     "sass:build": "sass backend/static/scss/custom-theme.scss backend/static/css/theme.css --load-path=node_modules/@picocss/pico/scss/ --style compressed && python scripts/css_cleanup.py",
     "sass:dev": "sass backend/static/scss/custom-theme.scss backend/static/css/theme.css --load-path=node_modules/@picocss/pico/scss/ --source-map",
     "build:js": "webpack --mode production",
+    "analyze": "set ANALYZE=true && webpack --mode production",
     "dev": "vite",
     "build": "npm run sass:build && npm run build:js"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.12",
     "alpinejs": "^3.15.2",
-    "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",
     "htmx.org": "^2.0.8",
-    "konva": "^10.0.12",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "zod": "^3.24.1"
+    "konva": "^10.0.12"
   },
   "devDependencies": {
     "@picocss/pico": "^2.0.6",
     "@types/alpinejs": "^3.13.11",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "sass": "^1.83.0",
@@ -35,6 +29,7 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "webpack": "^5.97.1",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4"
   }
 }

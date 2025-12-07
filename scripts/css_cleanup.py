@@ -20,7 +20,6 @@ def clean_css(file_path):
         # -moz-box-shadow -> box-shadow
         new_content = new_content.replace(prefix, '')
 
-    # Special handling for IE hacks if any
     # e.g. display: -ms-grid; -> display: grid; (handled above)
 
     if content != new_content:

@@ -27,17 +27,30 @@ export function patientsManager() {
         }
       },
 
+      // Ensure patients list is presented with MRN descending order.
+      sortByMrnDesc(list) {
+        if (!Array.isArray(list)) return list;
+        return list.slice().sort((a, b) => {
+          const am = a && a.mrn != null ? String(a.mrn).trim() : '';
+          const bm = b && b.mrn != null ? String(b.mrn).trim() : '';
+          const an = parseInt(am.replace(/[^0-9-]/g, ''), 10);
+          const bn = parseInt(bm.replace(/[^0-9-]/g, ''), 10);
+          if (!isNaN(an) && !isNaN(bn)) return bn - an; // numeric desc
+          if (am < bm) return 1; if (am > bm) return -1; return 0; // string desc
+        });
+      },
+
       filterPatients() {
         if (!this.searchQuery) {
-          this.filteredPatients = this.patients;
+          this.filteredPatients = this.sortByMrnDesc(this.patients);
           return;
         }
         const q = this.searchQuery.toLowerCase();
-        this.filteredPatients = this.patients.filter(p =>
-          p.mrn.toLowerCase().includes(q) ||
-          p.first_name.toLowerCase().includes(q) ||
-          p.last_name.toLowerCase().includes(q)
-        );
+        this.filteredPatients = this.sortByMrnDesc(this.patients.filter(p =>
+          (p.mrn && String(p.mrn).toLowerCase().includes(q)) ||
+          (p.first_name && p.first_name.toLowerCase().includes(q)) ||
+          (p.last_name && p.last_name.toLowerCase().includes(q))
+        ));
       },
 
       openAddModal() {

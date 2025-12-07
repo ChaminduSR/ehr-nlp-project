@@ -405,23 +405,6 @@ print("\n" + "="*80)
 print("DAY 10 COMPLETE! 🎉")
 print("="*80)
 
-completion_message = """
-Congratulations! You've built a complete medical information extraction pipeline!
-
-WHAT YOU'VE LEARNED IN WEEK 2:
-✅ Day 6: Introduction to scispaCy for biomedical NLP
-✅ Day 7: Biomedical entity recognition and organization
-✅ Day 8: Abbreviation detection and resolution
-✅ Day 9: UMLS entity linking and terminology normalization
-✅ Day 10: Complete integrated extraction pipeline
-
-NEXT STEPS:
-- Review the generated JSON files
-- Experiment with your own clinical notes
-- Commit your code to Git
-- Get ready for Week 3: Advanced Medical NLP!
-
-Week 3 Preview: medspaCy for clinical context (negation, temporality, sections)
-"""
+completion_message = 
 
 print(completion_message)

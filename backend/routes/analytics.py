@@ -55,7 +55,6 @@ def dashboard_recent_visits():
         {'patient_name': 'Michael Wilson', 'date': '2023-10-22', 'das28': 4.1, 'tjc': 6, 'sjc': 4, 'id': 5},
     ]
 
-    # Render a fragment template
     return render_template('fragments/recent_visits_table.html', visits=visits)
 
 # --- Reports API ---

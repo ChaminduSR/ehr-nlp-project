@@ -52,3 +52,17 @@ CREATE TABLE voice_transcriptions (
     transcribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (medical_note_id) REFERENCES medical_notes(id)
 );
+
+-- Joint assessment summary metrics (DAS28 + PGA 1-10)
+CREATE TABLE IF NOT EXISTS joint_assessment_summaries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    visit_id INTEGER NOT NULL,
+    tjc INTEGER,
+    sjc INTEGER,
+    esr REAL,
+    pga REAL,
+    pg_scale_1_10 INTEGER,
+    das28_score REAL,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (visit_id) REFERENCES visits(id)
+);

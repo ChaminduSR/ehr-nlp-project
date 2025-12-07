@@ -25,7 +25,7 @@
     <div x-show="reportType === 'summary'">
       <label>
         Patient
-        <input type="text" @input.debounce.500ms="searchPatients($event)" placeholder="Search by name or MRN..."
+        <input type="text" @input.debounce.800ms="searchPatients($event)" placeholder="Search by name or MRN..."
           autocomplete="off">
       </label>
       <ul x-show="patientResults.length > 0"

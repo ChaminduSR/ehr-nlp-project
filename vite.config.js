@@ -27,7 +27,7 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
-      input: 'frontend/src/index.js'
+      input: 'frontend/src/index.ts'
     }
   },
   resolve: {

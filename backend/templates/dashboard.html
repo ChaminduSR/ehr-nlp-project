@@ -64,8 +64,66 @@
     </div>
   </article>
 
-  <!-- React Component Mount Point -->
-  <div id="react-patient-list" class="mt-4"></div>
+  <!-- Patient List (Alpine) -->
+  <article x-data="patientsManager()" x-init="init()">
+    <header>
+      <div class="grid">
+        <div><strong>Patients</strong></div>
+        <div style="text-align: right;">
+          <input type="search" x-model="searchQuery" @input="filterPatients()" placeholder="Search patients..." style="display: inline-block; width: auto; margin: 0;">
+        </div>
+      </div>
+    </header>
+
+    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+      <template x-for="patient in filteredPatients" :key="patient.id">
+        <div class="card" style="padding: 1rem; border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius);">
+          <div style="font-weight: bold;" x-text="patient.last_name + ', ' + patient.first_name"></div>
+          <div class="small muted" x-text="'MRN: ' + patient.mrn"></div>
+          <div class="small muted" x-text="'DOB: ' + patient.date_of_birth"></div>
+          <template x-if="patient.latest_visit_id">
+            <span class="badge" style="background: var(--pico-ins-color); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-top: 0.5rem; display: inline-block;">Active</span>
+          </template>
+          <div style="margin-top: 0.75rem;">
+            <button class="outline secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" @click="openEditModal(patient)">Edit</button>
+            <button class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" @click="createNewVisit(patient.id)">New Visit</button>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <template x-if="filteredPatients.length === 0">
+      <p class="muted" style="text-align: center; padding: 2rem;">No patients found.</p>
+    </template>
+
+    <!-- Add/Edit Patient Modal -->
+    <dialog :open="isModalOpen" @click.self="closeModal()">
+      <article>
+        <header>
+          <button aria-label="Close" rel="prev" @click="closeModal()"></button>
+          <p><strong x-text="isEditMode ? 'Edit Patient' : 'Add Patient'"></strong></p>
+        </header>
+        <form @submit.prevent="savePatient()">
+          <label>MRN
+            <input type="text" x-model="form.mrn" required>
+          </label>
+          <label>First Name
+            <input type="text" x-model="form.first_name" required>
+          </label>
+          <label>Last Name
+            <input type="text" x-model="form.last_name" required>
+          </label>
+          <label>Date of Birth
+            <input type="date" x-model="form.date_of_birth" required>
+          </label>
+          <footer>
+            <button type="button" class="secondary" @click="closeModal()">Cancel</button>
+            <button type="submit" x-text="isEditMode ? 'Update' : 'Create'">Save</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+  </article>
 
 </div>
 

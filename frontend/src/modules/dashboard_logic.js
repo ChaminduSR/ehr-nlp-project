@@ -1,3 +1,21 @@
+// Simple cache with TTL (10 minutes)
+const CACHE_TTL = 10 * 60 * 1000;
+const cache = {
+    get(key) {
+        const item = sessionStorage.getItem(`dashboard_${key}`);
+        if (!item) return null;
+        const { data, timestamp } = JSON.parse(item);
+        if (Date.now() - timestamp > CACHE_TTL) {
+            sessionStorage.removeItem(`dashboard_${key}`);
+            return null;
+        }
+        return data;
+    },
+    set(key, data) {
+        sessionStorage.setItem(`dashboard_${key}`, JSON.stringify({ data, timestamp: Date.now() }));
+    }
+};
+
 export function initDashboard(Alpine) {
     Alpine.data('dashboardData', () => ({
         stats: {
@@ -10,19 +28,37 @@ export function initDashboard(Alpine) {
             distribution: false,
             trend: false
         },
+        isLoading: false,
 
         async init() {
             await this.loadStats();
         },
 
-        async loadStats() {
+        async loadStats(forceRefresh = false) {
+            // Check cache first
+            if (!forceRefresh) {
+                const cached = cache.get('stats');
+                if (cached) {
+                    this.stats = cached;
+                    return;
+                }
+            }
+
+            this.isLoading = true;
             try {
                 const response = await fetch('/api/dashboard/stats');
                 const data = await response.json();
                 this.stats = data;
+                cache.set('stats', data);
             } catch (error) {
                 console.error('Error loading stats:', error);
+            } finally {
+                this.isLoading = false;
             }
+        },
+
+        refreshStats() {
+            return this.loadStats(true);
         },
 
         async loadChart(type) {
@@ -56,8 +92,13 @@ export function initDashboard(Alpine) {
         },
 
         async renderDistributionChart() {
-            const response = await fetch('/api/dashboard/distribution');
-            const data = await response.json();
+            // Check cache first
+            let data = cache.get('distribution');
+            if (!data) {
+                const response = await fetch('/api/dashboard/distribution');
+                data = await response.json();
+                cache.set('distribution', data);
+            }
 
             // Get colors from CSS variables
             const style = getComputedStyle(document.body);
@@ -102,8 +143,13 @@ export function initDashboard(Alpine) {
         },
 
         async renderTrendChart() {
-            const response = await fetch('/api/dashboard/trend');
-            const data = await response.json();
+            // Check cache first
+            let data = cache.get('trend');
+            if (!data) {
+                const response = await fetch('/api/dashboard/trend');
+                data = await response.json();
+                cache.set('trend', data);
+            }
 
             // Get colors from CSS variables
             const style = getComputedStyle(document.body);

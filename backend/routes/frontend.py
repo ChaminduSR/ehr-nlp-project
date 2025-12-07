@@ -19,10 +19,6 @@ def medical_note():
 def patients():
     return render_template('patients.html', layout=get_layout())
 
-@frontend_bp.route('/joint-assessment')
-def joint_assessment():
-    return render_template('joint_assessment.html', layout=get_layout())
-
 @frontend_bp.route('/reports')
 def reports():
     return render_template('reports.html', layout=get_layout())

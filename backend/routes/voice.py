@@ -1,10 +1,9 @@
-"""
-Voice recognition endpoints - VOSK transcription (async)
-"""
-from flask import Blueprint, request, jsonify
+"""Voice recognition endpoints - VOSK transcription (async)"""
+import asyncio
 import json
 import os
-import asyncio
+
+from flask import Blueprint, request, jsonify
 
 voice_bp = Blueprint('voice', __name__)
 

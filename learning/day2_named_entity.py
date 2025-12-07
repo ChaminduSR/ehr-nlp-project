@@ -2,13 +2,7 @@ import spacy
 
 nlp = spacy.load("en_core_web_sm")
 
-clinical_note = """
-Patient presents with fever and cough lasting 2 weeks.
-No chest pain or shortness of breath.
-Past medical history includes diabetes and hypertension.
-Currently on lisinopril and metformin.
-Physical exam: temperature 101.5 F, lungs clear bilaterally.
-"""
+clinical_note = 
 
 doc = nlp(clinical_note)
 

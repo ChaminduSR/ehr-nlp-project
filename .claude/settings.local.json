@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(xargs ls:*)",
+      "Bash(cat:*)",
+      "Bash(rm:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run analyze:*)",
+      "Bash(powershell -Command \"Get-ChildItem backend/static/dist/*.js | ForEach-Object { ''{0}: {1:N2} KB'' -f $_Name, ($_Length/1KB) }\")",
+      "Bash(ls:*)",
+      "Bash(ANALYZE=true npx webpack:*)",
+      "Bash(npx jq:*)",
+      "Bash(npx webpack:*)",
+      "Bash(npm run build:js:*)",
+      "Bash(gzip:*)",
+      "Bash(du:*)",
+      "Bash(npm uninstall:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

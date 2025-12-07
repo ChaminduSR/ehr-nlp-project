@@ -36,7 +36,13 @@ def joint_assessment_fragment():
 
 @joint_assessments_bp.route('', methods=['POST'])
 def save_joint_assessment():
-    """Save multiple joint assessments for a visit"""
+    """Save joint assessments and optional summary metrics in a single request.
+
+    Accepts:
+    - visit_id: required
+    - joints: list of joint data
+    - summary: optional dict with tjc, sjc, esr, pga, pg_scale, das28
+    """
     data = request.get_json()
 
     # Validate with Pydantic
@@ -47,6 +53,7 @@ def save_joint_assessment():
 
     visit_id = assessment_data.visit_id
     joints = assessment_data.joints
+    summary = data.get('summary')  # Optional summary data
 
     conn = get_db()
     cursor = conn.cursor()
@@ -71,13 +78,30 @@ def save_joint_assessment():
             ))
             saved_count += 1
 
+        # Save summary if provided (batched with joint data)
+        summary_saved = False
+        if summary:
+            tjc = summary.get('tjc')
+            sjc = summary.get('sjc')
+            esr = summary.get('esr')
+            pga = summary.get('pga')
+            das28 = summary.get('das28')
+            pg_scale = summary.get('pg_scale')
+
+            cursor.execute('''
+                INSERT INTO joint_assessment_summaries (visit_id, tjc, sjc, esr, pga, pg_scale_1_10, das28_score)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (visit_id, tjc, sjc, esr, pga, pg_scale, das28))
+            summary_saved = True
+
         conn.commit()
 
         return jsonify({
             'success': True,
             'visit_id': visit_id,
             'joints_saved': saved_count,
-            'message': f'✅ Saved {saved_count} joint assessments'
+            'summary_saved': summary_saved,
+            'message': f'Saved {saved_count} joint assessments'
         }), 201
 
     except Exception as e:
@@ -125,3 +149,57 @@ def get_joint_assessment_by_visit(visit_id):
         'joints': joints_data,
         'total_joints': len(joints_data)
     }), 200
+
+
+@joint_assessments_bp.route('/summary', methods=['POST'])
+def save_joint_summary():
+    """Save joint summary metrics (TJC, SJC, ESR, PGA, DAS28) for a visit"""
+    data = request.get_json() or {}
+    visit_id = data.get('visit_id')
+    if not visit_id:
+        return jsonify({'error': 'visit_id required'}), 400
+
+    tjc = data.get('tjc')
+    sjc = data.get('sjc')
+    esr = data.get('esr')
+    pga = data.get('pga')
+    das28 = data.get('das28')
+    # Optional Patient Global (1-10)
+    pg_scale = data.get('pg_scale')
+    try:
+        if pg_scale is not None:
+            pg_scale = int(pg_scale)
+            if pg_scale < 1 or pg_scale > 10:
+                return jsonify({'error': 'pg_scale must be 1-10'}), 400
+    except Exception:
+        return jsonify({'error': 'pg_scale must be an integer between 1 and 10'}), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        # Ensure summary table exists
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS joint_assessment_summaries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                visit_id INTEGER NOT NULL,
+                tjc INTEGER,
+                sjc INTEGER,
+                esr REAL,
+                pga REAL,
+                pg_scale_1_10 INTEGER,
+                das28_score REAL,
+                recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        cursor.execute('''
+            INSERT INTO joint_assessment_summaries (visit_id, tjc, sjc, esr, pga, pg_scale_1_10, das28_score)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (visit_id, tjc, sjc, esr, pga, pg_scale, das28))
+        conn.commit()
+        return jsonify({'success': True, 'visit_id': visit_id}), 201
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()

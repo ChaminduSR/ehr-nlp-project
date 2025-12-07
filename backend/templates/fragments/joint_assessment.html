@@ -4,32 +4,42 @@
         <span class="save-status" x-text="saveStatus"></span>
     </div>
 
-    <div class="grid" style="grid-template-columns: 420px 1fr; gap: 1rem; align-items: start;">
+    <div class="grid" style="grid-template-columns: 480px 1fr; gap: 1rem; align-items: start;">
         <!-- Left Column: Joint Map -->
         <article class="joint-card" style="padding: 1rem; margin: 0;">
             <header style="margin-bottom: 1rem;">Joint Map</header>
             <div id="joint-canvas" class="joint-map-canvas"
-                style="width: 100%; height: 600px; background: #f8fafc; border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius);">
+                style="width: 100%; height: 600px; background: #f8fafc; border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); overflow: hidden; box-sizing: border-box;">
             </div>
 
             <!-- Legend -->
-            <footer class="grid">
-                <div><span
+            <footer class="grid legend"
+                style="grid-template-columns: repeat(2, max-content); gap:0.5rem 1rem; align-items: center;">
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <span
                         style="display:inline-block;width:12px;height:12px;background:white;border:1px solid #333;"></span>
-                    Normal</div>
-                <div><span
+                    <span style="white-space:nowrap;">Normal</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <span
                         style="display:inline-block;width:12px;height:12px;background:#FFEB3B;border:1px solid #333;"></span>
-                    Tenderness</div>
-                <div><span
+                    <span style="white-space:nowrap;">Tenderness</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <span
                         style="display:inline-block;width:12px;height:12px;background:#FF4444;border:1px solid #333;"></span>
-                    Swelling</div>
-                <div><span
+                    <span style="white-space:nowrap;">Swelling</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <span
                         style="display:inline-block;width:12px;height:12px;background:#FF8C00;border:1px solid #333;"></span>
-                    Both</div>
-                <div><span
+                    <span style="white-space:nowrap;">Both</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <span
                         style="display:inline-block;width:12px;height:12px;background:white;border:2px solid #2196F3;"></span>
-                    Pain
-                    (Right Click)</div>
+                    <span style="white-space:nowrap;">Pain (Right Click)</span>
+                </div>
             </footer>
         </article>
 
@@ -50,8 +60,19 @@
                     <input type="number" x-model.number="esr" @input="calculateDAS28()">
                 </div>
                 <div>
-                    <label>Patient Global (0-100)</label>
-                    <input type="number" x-model.number="pga" @input="calculateDAS28()">
+                    <label>Patient Global (VAS 1-10)</label>
+                    <div class="vas-scale" role="radiogroup" aria-label="Patient Global VAS"
+                        style="display:flex; gap:0.25rem; flex-wrap:wrap;">
+                        <template x-for="n in Array.from({length:10}, (_,i)=>i+1)" :key="n">
+                            <button type="button" class="vas-button"
+                                :class="{ 'vas-button--selected': $data.pg_scale === n }"
+                                :aria-checked="$data.pg_scale === n" :data-value="n"
+                                @click="pg_scale = n; calculateDAS28(); try{ if(window._markDirty) window._markDirty(); }catch(e){}">
+                                <span x-text="n"></span>
+                            </button>
+                        </template>
+                        <input type="hidden" name="pg_scale" x-model.number="$data.pg_scale">
+                    </div>
                 </div>
             </div>
 
@@ -79,3 +100,79 @@
         <span x-text="hoveredJoint && hoveredJoint.label"></span>
     </div>
 </div>
+
+<script>
+    // Expose joint state getter so coordinated save can include joint data.
+    (function () {
+        // Wait for Alpine to initialize the fragment
+        function getJointData() {
+            try {
+                const root = document.querySelector('.joint-map-fragment');
+                if (!root) return null;
+                const alpine = root.__x || root._x_dataStack && root._x_dataStack[0];
+                const data = alpine && (alpine.$data || alpine);
+                if (!data) return null;
+                // Return a shallow copy of joints
+                return JSON.parse(JSON.stringify(data.joints || {}));
+            } catch (e) {
+                console.warn('getJointData failed', e);
+                return null;
+            }
+        }
+
+        window.getJointData = getJointData;
+    })();
+
+    // Delegated keyboard handling for the VAS button grid.
+    (function () {
+        // Run after HTMX/Alpine have swapped the fragment into the DOM
+        document.addEventListener('htmx:afterSwap', function (evt) {
+            try {
+                var root = evt.detail.target && evt.detail.target.querySelector && evt.detail.target.querySelector('.joint-map-fragment') || document.querySelector('.joint-map-fragment');
+                if (!root) return;
+                var container = root.querySelector('.vas-scale');
+                if (!container || container._vasDelegated) return;
+                container._vasDelegated = true;
+                container.addEventListener('keydown', function (e) {
+                    var btn = e.target.closest && e.target.closest('.vas-button');
+                    if (!btn) return;
+                    var key = e.key;
+                    var current = Number(btn.getAttribute('data-value')) || 1;
+                    var next = current;
+                    if (key === 'ArrowLeft' || key === 'ArrowUp') {
+                        next = current - 1; if (next < 1) next = 10;
+                    } else if (key === 'ArrowRight' || key === 'ArrowDown') {
+                        next = current + 1; if (next > 10) next = 1;
+                    } else if (key === 'Home') {
+                        next = 1;
+                    } else if (key === 'End') {
+                        next = 10;
+                    } else if (key === 'Enter' || key === ' ') {
+                        // Activate current button
+                        var alpineRoot = root.__x || (root._x_dataStack && root._x_dataStack[0]);
+                        var data = alpineRoot && (alpineRoot.$data || alpineRoot);
+                        if (data) {
+                            data.pg_scale = Number(btn.getAttribute('data-value')) || data.pg_scale;
+                            if (typeof data.calculateDAS28 === 'function') data.calculateDAS28();
+                            if (window._markDirty) window._markDirty();
+                        }
+                        e.preventDefault();
+                        return;
+                    } else return;
+
+                    // set next value on Alpine data
+                    var alpineRoot = root.__x || (root._x_dataStack && root._x_dataStack[0]);
+                    var data = alpineRoot && (alpineRoot.$data || alpineRoot);
+                    if (data) {
+                        data.pg_scale = next;
+                        if (typeof data.calculateDAS28 === 'function') data.calculateDAS28();
+                        if (window._markDirty) window._markDirty();
+                    }
+                    var nextBtn = container.querySelector('.vas-button[data-value="' + next + '"]');
+                    if (nextBtn) nextBtn.focus();
+                    e.preventDefault();
+                });
+            } catch (e) { console.warn('VAS keyboard delegation setup failed', e); }
+        });
+    })();
+</script>

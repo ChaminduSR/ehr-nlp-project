@@ -1,44 +1,19 @@
-import Konva from 'konva';
-
 export function jointAssessmentFragment(visitId, initialData) {
     return {
         visitId: visitId,
         joints: initialData || {},
         stage: null,
         layer: null,
+        Konva: null, // Lazy-loaded
         width: 400,
         height: 600,
         isSaving: false,
 
-        save() {
-            if (!this.visitId) return;
-            this.isSaving = true;
-
-            // Convert simple state string back to object format expected by backend
-            // Backend expects: { joint_id, has_tenderness, has_pain, swelling_grade }
-            // Frontend state: 'normal', 'tender', 'swollen', 'both'
-            const payload = Object.entries(this.joints).map(([id, state]) => {
-                return {
-                    joint_id: id,
-                    has_tenderness: state === 'tender' || state === 'both',
-                    has_pain: state === 'tender' || state === 'both', // Simplified: assume pain if tender
-                    swelling_grade: (state === 'swollen' || state === 'both') ? 1 : 0
-                };
-            });
-
-            fetch('/api/v1/joint_assessments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    visit_id: this.visitId,
-                    joints: payload
-                })
-            }).then(res => {
-                this.isSaving = false;
-            }).catch(err => {
-                this.isSaving = false;
-                console.error('Error saving joints', err);
-            });
+        // Mark fragment dirty - coordinatedSave in medical_note_form.html handles the actual save
+        markDirty() {
+            if (window._markDirty) {
+                window._markDirty();
+            }
         },
 
         jointDefs: [
@@ -72,7 +47,12 @@ export function jointAssessmentFragment(visitId, initialData) {
             { id: 'r_knee', x: 240, y: 550, label: 'R Knee' }
         ],
 
-        init() {
+        async init() {
+            // Lazy-load Konva only when joint assessment fragment is initialized
+            if (!this.Konva) {
+                const module = await import(/* webpackChunkName: "joint-diagram" */ 'konva');
+                this.Konva = module.default;
+            }
             this.$nextTick(() => {
                 this.setupKonva();
             });
@@ -80,12 +60,13 @@ export function jointAssessmentFragment(visitId, initialData) {
 
         setupKonva() {
             if (this.stage) return;
+            const Konva = this.Konva;
             this.stage = new Konva.Stage({
                 container: this.$refs.konvaContainer,
                 width: this.width,
                 height: this.height
             });
-            this.layer = new Konva.Layer();
+            this.layer = new this.Konva.Layer();
             this.stage.add(this.layer);
             this.drawWireframe();
             this.drawJoints();
@@ -93,6 +74,7 @@ export function jointAssessmentFragment(visitId, initialData) {
         },
 
         drawWireframe() {
+            const Konva = this.Konva;
             const lines = [
                 [200, 60, 200, 400],
                 [120, 60, 280, 60],
@@ -118,6 +100,7 @@ export function jointAssessmentFragment(visitId, initialData) {
         },
 
         drawJoints() {
+            const Konva = this.Konva;
             const tooltipMap = {};
             this.jointDefs.forEach(joint => {
                 const circle = new Konva.Circle({
@@ -197,8 +180,8 @@ export function jointAssessmentFragment(visitId, initialData) {
             node.fill(this.getColor(nextState));
             this.layer.batchDraw();
 
-            // Auto-save on change
-            this.save();
+            // Mark dirty - coordinatedSave handles the actual network request
+            this.markDirty();
         },
 
         getColor(state) {

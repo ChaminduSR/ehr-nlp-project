@@ -79,8 +79,59 @@
   </style>
 
   <div x-data="{
-    currentTab: 'structured',
+    currentTab: 'dictation',
     jointMapLoaded: false,
+    // Review modal state
+    showReview: false,
+    reviewData: {},
+    formatKey(key) { return key.replace(/_/g, ' '); },
+    acceptExtraction() {
+      // Map reviewData into structured inputs
+      const mapping = {
+        chief_complaint: 'CHIEF COMPLAINT',
+        hpi: 'HISTORY OF PRESENT ILLNESS',
+        physical_exam: 'PHYSICAL EXAMINATION',
+        assessment: 'ASSESSMENT',
+        plan: 'PLAN',
+        medications: 'MEDICATIONS',
+        follow_up: 'FOLLOW-UP'
+      };
+      const inputs = document.querySelectorAll('.note-section');
+      inputs.forEach(input => {
+        const section = input.dataset.section;
+        const key = Object.keys(mapping).find(k => mapping[k] === section);
+        if (key && this.reviewData && this.reviewData[key]) {
+          const value = Array.isArray(this.reviewData[key]) ? this.reviewData[key].join(', ') : this.reviewData[key];
+          input.value = value;
+          // mark dirty
+          const statusEl = document.getElementById('save-status');
+          if (statusEl) { statusEl.textContent = 'Unsaved changes...'; statusEl.className = 'status-indicator'; }
+          // mark the script-local dirty flag via helper
+          if (window._markDirty) window._markDirty();
+        }
+      });
+      // Close modal and switch to structured tab for review
+      this.showReview = false;
+      this.currentTab = 'structured';
+    },
+    // Listen for external event to open review modal
+    _initReviewListener() {
+      window.addEventListener('showExtractionReview', (e) => {
+        this.reviewData = e.detail || {};
+        this.showReview = true;
+      });
+      // Focus dictation textarea shortly after init if dictation tab is active
+      setTimeout(() => {
+        try {
+          if (this.currentTab === 'dictation') {
+            const el = document.getElementById('dictation-input');
+            if (el) el.focus();
+          }
+        } catch (err) {
+          // ignore
+        }
+      }, 80);
+    },
     switchTab(tab) {
       this.currentTab = tab;
       if (tab === 'joint-map' && !this.jointMapLoaded) {
@@ -113,7 +164,8 @@
         }
       }
     }
-  }">
+  }" x-init="_initReviewListener()">
+    <script>document.addEventListener('alpine:init', () => { /* no-op: initialised via inline x-data */ });</script>
     <div
       style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
       <div id="save-status" class="status-indicator">Ready</div>
@@ -123,18 +175,37 @@
       </div>
     </div>
 
-    <!-- Tab Switcher -->
     <div class="mode-switcher" role="tablist">
-      <button type="button" class="mode-tab" :class="{ 'active': currentTab === 'structured' }"
-        @click="switchTab('structured')" role="tab" :aria-selected="currentTab === 'structured'">
-        Structured Note</button>
-      <button type="button" class="mode-tab" :class="{ 'active': currentTab === 'joint-map' }"
-        @click="switchTab('joint-map')" role="tab" :aria-selected="currentTab === 'joint-map'">Joint
-        Map (DAS28)</button>
+      <button type="button" class="mode-tab" data-tab="dictation" :class="{ 'active': currentTab === 'dictation' }"
+        @click="switchTab('dictation')" role="tab" :aria-selected="currentTab === 'dictation'">Smart Detection</button>
+      <button type="button" class="mode-tab" data-tab="joint-map" :class="{ 'active': currentTab === 'joint-map' }"
+        @click="switchTab('joint-map')" role="tab" :aria-selected="currentTab === 'joint-map'">Joint Map
+        (DAS28)</button>
+      <button type="button" class="mode-tab" data-tab="structured" :class="{ 'active': currentTab === 'structured' }"
+        @click="switchTab('structured')" role="tab" :aria-selected="currentTab === 'structured'">Structured
+        Note</button>
+    </div>
+
+    <!-- Smart Detection Mode -->
+    <div x-show="currentTab === 'dictation'" class="mode-content">
+      <div style="margin-bottom: 1rem;">
+        <label for="dictation-input">Smart Detection / Dictation</label>
+        <textarea id="dictation-input" rows="6" style="width:100%; padding:0.5rem;"
+          placeholder="Dictate or paste clinical note here..."></textarea>
+      </div>
+      <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:1rem;">
+        <button type="button" id="record-btn" class="mode-tab" style="padding:0.5rem 1rem;"
+          onclick="window.toggleRecording()">Record 🎤</button>
+        <button type="button" id="extract-btn" class="mode-tab" style="padding:0.5rem 1rem;"
+          onclick="window.extractEntities()">Extract Entities ✨</button>
+        <div id="recording-indicator" style="margin-left: 0.5rem; color: var(--pico-muted-color); display:none;">
+          Recording...</div>
+      </div>
+
     </div>
 
     <!-- Structured Mode -->
-    <div x-show="currentTab === 'structured'" class="mode-content active">
+    <div x-show="currentTab === 'structured'" class="mode-content">
       <div class="note-section-container">
         <div style="margin-bottom: 1rem;">
           <label>Chief Complaint</label>
@@ -182,6 +253,8 @@
       </div>
     </div>
 
+    <!-- VAS moved to Joint Map fragment to keep Patient Global co-located with DAS28 controls -->
+
     <!-- Joint Map Mode -->
     <div x-show="currentTab === 'joint-map'" class="mode-content" style="padding: 1rem;">
       <div id="joint-map-container" style="min-height: 400px;">
@@ -190,6 +263,38 @@
         </div>
       </div>
     </div>
+
+    <!-- Review Modal (Alpine-controlled) -->
+    <dialog :open="showReview">
+      <article>
+        <header>
+          <a href="#close" aria-label="Close" class="close" @click="showReview = false"></a>
+          Review Extracted Data
+        </header>
+        <div id="review-content">
+          <p>Please review the extracted information before saving.</p>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <template x-for="(value, key) in reviewData" :key="key">
+              <div>
+                <label x-text="formatKey(key)"
+                  style="text-transform: capitalize; font-weight: bold; display: block; margin-bottom: 0.5rem;"></label>
+                <template x-if="Array.isArray(value)">
+                  <textarea x-model="reviewData[key]" rows="2" style="width: 100%;"
+                    x-init="if (Array.isArray(reviewData[key])) reviewData[key] = reviewData[key].join(', ')"></textarea>
+                </template>
+                <template x-if="!Array.isArray(value)">
+                  <input type="text" x-model="reviewData[key]" style="width: 100%;">
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
+        <footer>
+          <button class="secondary" @click="showReview = false">Cancel</button>
+          <button @click="acceptExtraction()">Accept & Apply</button>
+        </footer>
+      </article>
+    </dialog>
   </div> <!-- Closing x-data root -->
   </form>
   <script>
@@ -210,6 +315,18 @@
 
       let isDirty = false;
       let autoSaveTimer = null;
+      // Helper so Alpine code can mark the script-local dirty flag and update fragment status
+      window._markDirty = function () {
+        isDirty = true;
+        try {
+          if (statusEl) {
+            statusEl.textContent = 'Unsaved changes...';
+            statusEl.className = 'status-indicator';
+          }
+        } catch (e) {
+          // ignore
+        }
+      };
 
       // --- 1. Parser: Text Blob -> Sections ---
       function parseNoteText(text) {
@@ -265,6 +382,15 @@
         return fullText.trim();
       }
 
+      let _vasSaveTimeout = null;
+      window.vasSaveDebounced = function () {
+        clearTimeout(_vasSaveTimeout);
+        _vasSaveTimeout = setTimeout(() => {
+          if (window._markDirty) window._markDirty();
+          if (window.coordinatedSave) window.coordinatedSave();
+        }, 700);
+      };
+
       // --- 3. Initialization ---
       function init() {
         const initialText = hiddenText.value;
@@ -289,6 +415,16 @@
           });
         });
 
+        // Also mark dirty when the Smart Detection dictation textarea changes
+        const dictationEl = document.getElementById('dictation-input');
+        if (dictationEl) {
+          dictationEl.addEventListener('input', () => {
+            isDirty = true;
+            statusEl.textContent = 'Unsaved changes...';
+            statusEl.className = 'status-indicator';
+          });
+        }
+
         // Start Auto-save timer (30s)
         if (autoSaveTimer) clearInterval(autoSaveTimer);
         autoSaveTimer = setInterval(() => {
@@ -299,39 +435,219 @@
       }
 
       // --- 4. Global Actions ---
-      window.saveDraft = async function () {
-        const text = aggregateNoteText();
-        const visitId = document.getElementById('visit_id').value;
+      // Coordinated save: save structured note, dictation (if present), and joint data in a serialized way
+      window.__coordinatedSave_pending = false;
 
-        statusEl.textContent = 'Saving...';
-        statusEl.className = 'status-indicator status-saving';
-
+      window.coordinatedSave = async function () {
+        // If already saving, mark that another save is pending and return
+        // The current save will trigger the pending save when it completes
+        if (window.__coordinatedSave_locked) {
+          window.__coordinatedSave_pending = true;
+          return;
+        }
+        window.__coordinatedSave_locked = true;
+        window.__coordinatedSave_pending = false;
         try {
-          const res = await fetch('/api/v1/medical_notes/draft', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              visit_id: visitId,
-              text: text
-            })
-          });
+          const visitId = document.getElementById('visit_id').value;
+          if (!visitId) {
+            statusEl.textContent = 'No visit id';
+            statusEl.className = 'status-indicator status-error';
+            return;
+          }
 
-          const data = await res.json();
-          if (res.ok) {
+          // Notify listeners that a coordinated save is starting
+          try { window.dispatchEvent(new CustomEvent('coordinatedSaveStart')); } catch (e) { }
+          statusEl.textContent = 'Saving...';
+          statusEl.className = 'status-indicator status-saving';
+
+          // Aggregate structured inputs
+          const structuredText = aggregateNoteText();
+          // Grab dictation text if present
+          const ta = document.getElementById('dictation-input');
+          const dictationText = (ta && ta.value) ? ta.value.trim() : '';
+
+          // Merge: include dictation as a PREAMBLE if present to avoid overwriting structured sections
+          const combinedText = (dictationText ? dictationText + '\n\n' : '') + structuredText;
+
+          try {
+            // 1) Save note text (combined)
+            const res = await fetch('/api/v1/medical_notes/draft', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ visit_id: visitId, text: combinedText })
+            });
+
+            if (!res.ok) {
+              const data = await res.json().catch(() => ({}));
+              throw new Error(data.error || 'Save failed');
+            }
+
+            const noteData = await res.json().catch(() => ({}));
+            // Update note_id if provided
+            if (noteData.note_id) {
+              document.getElementById('note_id').value = noteData.note_id;
+            }
+
+            // 2) Save joint assessment + summary in a single batched request
+            let jointSaved = true;
+            if (window.getJointData && typeof window.getJointData === 'function') {
+              try {
+                const jointState = window.getJointData();
+                if (jointState) {
+                  // Build payload with joints
+                  const payload = {
+                    visit_id: visitId,
+                    joints: Object.entries(jointState).map(([id, state]) => ({
+                      joint_id: id,
+                      has_tenderness: !!state.tenderness,
+                      has_pain: !!state.pain,
+                      swelling_grade: state.swelling || 0
+                    }))
+                  };
+
+                  // Include summary in same request if available
+                  if (window.getJointSummary && typeof window.getJointSummary === 'function') {
+                    let summary = window.getJointSummary();
+                    if (summary) {
+                      payload.summary = {
+                        tjc: summary.tjc,
+                        sjc: summary.sjc,
+                        esr: summary.esr,
+                        pga: summary.pga,
+                        pg_scale: summary.pg_scale,
+                        das28: summary.das28
+                      };
+                    }
+                  }
+
+                  const jr = await fetch('/api/v1/joint_assessments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                  });
+                  jointSaved = jr.ok;
+                }
+              } catch (e) {
+                console.warn('Coordinated save: joint save failed', e);
+                jointSaved = false;
+              }
+            }
+
+            // Success state
             statusEl.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
             statusEl.className = 'status-indicator status-saved';
             isDirty = false;
-            // Update note_id if it was a new note
-            if (data.note_id) {
-              document.getElementById('note_id').value = data.note_id;
+            try { window.dispatchEvent(new CustomEvent('coordinatedSaveEnd', { detail: { success: true } })); } catch (e) { }
+
+          } catch (err) {
+            console.error(err);
+            statusEl.textContent = 'Error saving draft';
+            statusEl.className = 'status-indicator status-error';
+            try { window.dispatchEvent(new CustomEvent('coordinatedSaveEnd', { detail: { success: false, error: err && err.message } })); } catch (e) { }
+          }
+        } finally {
+          window.__coordinatedSave_locked = false;
+          // If another save was requested while we were saving, run it now
+          if (window.__coordinatedSave_pending) {
+            window.__coordinatedSave_pending = false;
+            setTimeout(() => window.coordinatedSave(), 100);
+          }
+        }
+      };
+
+      // Keep legacy alias for compatibility
+      window.saveDraft = function () { return window.coordinatedSave(); };
+
+      // --- 5. Dictation + Extraction (Smart Detection) ---
+      let _isRecording = false;
+
+      window.toggleRecording = async function () {
+        if (_isRecording) {
+          try {
+            if (window.VoiceRecorder && window.VoiceRecorder.stop) {
+              const text = await window.VoiceRecorder.stop();
+              if (text) {
+                const ta = document.getElementById('dictation-input');
+                ta.value = (ta.value ? ta.value + ' ' : '') + text;
+              }
+            }
+          } catch (err) {
+            console.error('Recording stop error', err);
+            alert('Failed to stop recording');
+          } finally {
+            _isRecording = false;
+            const ind = document.getElementById('recording-indicator'); if (ind) ind.style.display = 'none';
+            const rb = document.getElementById('record-btn'); if (rb) rb.textContent = 'Record 🎤';
+          }
+        } else {
+          try {
+            if (window.VoiceRecorder && window.VoiceRecorder.start) {
+              const started = await window.VoiceRecorder.start();
+              if (started) {
+                _isRecording = true;
+                const ind = document.getElementById('recording-indicator'); if (ind) ind.style.display = 'inline';
+                const rb = document.getElementById('record-btn'); if (rb) rb.textContent = 'Stop ⏹️';
+              }
+            } else {
+              alert('VoiceRecorder not available');
+            }
+          } catch (err) {
+            console.error('Recording start error', err);
+            alert('Failed to start recording');
+          }
+        }
+      };
+
+      window.extractEntities = async function () {
+        const ta = document.getElementById('dictation-input');
+        const text = (ta && ta.value) ? ta.value.trim() : '';
+        if (!text) {
+          alert('Please provide text to extract from');
+          return;
+        }
+        try {
+          const res = await fetch('/api/v1/medical_notes/extract', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+          });
+          const data = await res.json();
+          if (data && data.success) {
+            try {
+              window.dispatchEvent(new CustomEvent('showExtractionReview', { detail: data.structured }));
+            } catch (e) {
+              console.warn('Event dispatch failed, falling back to direct populate', e);
+              // Fallback: populate inputs directly
+              const mapping = {
+                chief_complaint: 'CHIEF COMPLAINT',
+                hpi: 'HISTORY OF PRESENT ILLNESS',
+                physical_exam: 'PHYSICAL EXAMINATION',
+                assessment: 'ASSESSMENT',
+                plan: 'PLAN',
+                medications: 'MEDICATIONS',
+                follow_up: 'FOLLOW-UP'
+              };
+              const inputs = document.querySelectorAll('.note-section');
+              inputs.forEach(input => {
+                const section = input.dataset.section;
+                const key = Object.keys(mapping).find(k => mapping[k] === section);
+                if (key && data.structured && data.structured[key]) {
+                  const value = Array.isArray(data.structured[key]) ? data.structured[key].join(', ') : data.structured[key];
+                  input.value = value;
+                  isDirty = true;
+                  statusEl.textContent = 'Unsaved changes...';
+                  statusEl.className = 'status-indicator';
+                }
+              });
+              const tabBtn = document.querySelector('[data-tab="structured"]');
+              if (tabBtn) tabBtn.click();
             }
           } else {
-            throw new Error(data.error || 'Save failed');
+            alert('Extraction failed: ' + (data.message || 'Unknown'));
           }
         } catch (err) {
-          console.error(err);
-          statusEl.textContent = 'Error saving draft';
-          statusEl.className = 'status-indicator status-error';
+          console.error('Extraction error', err);
+          alert('Extraction request failed');
         }
       };
 
