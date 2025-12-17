@@ -2,28 +2,38 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 export default defineConfig({
-  root: 'frontend/src',
+  root: '.',
+  publicDir: false,
+  appType: 'custom',
   server: {
     port: 5173,
     strictPort: true,
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true
-      },
+      // Proxy everything to Flask
       '/': {
-        target: 'http://localhost:5000',
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         bypass: (req) => {
-          if (req.headers.accept && req.headers.accept.includes('html')) {
-            return false; // Let Flask handle HTML
+          // Only let Vite handle its own HMR/module requests
+          if (
+            req.url.startsWith('/@') ||
+            req.url.startsWith('/node_modules') ||
+            req.url.startsWith('/frontend') ||
+            req.url.includes('.ts') ||
+            req.url.includes('.tsx') ||
+            req.url.includes('.js?') ||
+            req.url.includes('?import')
+          ) {
+            return req.url;
           }
+          // Everything else goes to Flask
+          return null;
         }
       }
     }
   },
   build: {
-    outDir: '../../backend/static/dist',
+    outDir: 'backend/static/dist',
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {

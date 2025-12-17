@@ -65,6 +65,22 @@ $enable-transitions: false; // Disable animations for max performance on old PCs
 // ==========================================================================
 
 :root {
+  // Healthcare Blue Palette (Primary brand colors)
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+
+  // Semantic Colors (Modern palette)
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #0ea5e9;
+
+  // Surface Colors (for glass effects)
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-border: #e2e8f0;
+
   // DAS28 Severity Colors (WCAG AA Compliant)
   --color-remission: #2E7D32; // Dark Green
   --color-low-activity: #F57F17; // Dark Amber
@@ -87,6 +103,13 @@ $enable-transitions: false; // Disable animations for max performance on old PCs
 
   // Border radius for softer feel
   --pico-border-radius: 0.5rem;
+}
+
+// Dark mode variables
+[data-theme="dark"] {
+  --color-surface: #0f172a;
+  --color-surface-alt: #1e293b;
+  --color-border: #334155;
 }
 
 /* VAS 1-10 scale buttons */
@@ -463,3 +486,8 @@ a.role-button {
     }
   }
 }
+
+// ==========================================================================
+// 7. EXTRACTED COMPONENTS (DaisyUI/FloatUI/FlyonUI inspired)
+// ==========================================================================
+@import "extracted-components";

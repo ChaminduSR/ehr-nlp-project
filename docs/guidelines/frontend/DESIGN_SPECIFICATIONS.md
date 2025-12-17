@@ -269,33 +269,36 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-
 
 ## Special Components
 
-### Auto-save Indicator
+### Auto-save Indicator (Toast Notifications)
 
 **Visual Design**:
-- Status dot: 12px circle
-- Border: 2px solid `#CCCCCC`
-- Padding: 8px horizontal, 4px vertical
-- Background: White
+- Toast container: Fixed bottom-right position
+- Alert box with left border accent
+- Slide-in animation from right
+- Auto-dismiss after 3 seconds (configurable)
 
 **States**:
-1. **Saving**: Yellow dot + "Saving..." text
-2. **Saved**: Green dot + "Saved" text + timestamp
-3. **Error**: Red dot + "Error - Not Saved" text
+1. **Saving**: Blue alert (`alert-info`) + "Saving changes..."
+2. **Saved**: Green alert (`alert-success`) + "Changes saved successfully"
+3. **Error**: Red alert (`alert-error`) + "Failed to save changes"
+
+**Implementation**: See [MODERN_THEME_COMPONENTS.md](MODERN_THEME_COMPONENTS.md) for toast system
 
 ### DAS28 Score Display
 
 **Visual Design**:
-- Full-width colored bar
-- Border: 2px matching color
-- Border radius: 4px
-- Padding: 12px horizontal
-- Font size: 16px (label), 18px (score)
+- Glass card container with frosted effect
+- Large score number (3rem, 800 weight)
+- Color-coded by severity
+- Modern badge with dot indicator
 
 **Color Coding**:
-- Green: Remission (<2.6)
-- Yellow: Low Activity (2.6-3.2)
-- Orange: Moderate Activity (3.2-5.1)
-- Red: High Activity (>5.1)
+- Green (`badge-success`): Remission (<2.6)
+- Amber (`badge-warning`): Low Activity (2.6-3.2)
+- Blue (`badge-info`): Moderate Activity (3.2-5.1)
+- Red (`badge-error`): High Activity (>5.1)
+
+**Implementation**: See [MODERN_THEME_COMPONENTS.md](MODERN_THEME_COMPONENTS.md) for badge classes
 
 ### Joint Assessment Canvas
 
@@ -637,11 +640,36 @@ backend/templates/fragments/         # Core Business Logic (HTMX + Alpine)
 
 ---
 
+## Modern Theme Components (December 2024)
+
+The following components were added to modernize the UI while staying within bundle size constraints:
+
+| Component | Usage | Source |
+|-----------|-------|--------|
+| **Stats/KPI** | Dashboard metrics display | DaisyUI |
+| **Glass Card** | Frosted glass effect for cards | FloatUI |
+| **Toast Notifications** | Save status alerts | DaisyUI |
+| **Modern Badges** | DAS28 severity, status labels | DaisyUI |
+| **Skeleton Loaders** | Loading states | DaisyUI |
+| **Button Variants** | Ghost, outline, loading states | FlyonUI |
+| **Tabs** | Tab navigation | DaisyUI |
+| **Timeline** | Visit history (available for future use) | FloatUI |
+
+**Implementation Approach**: Component extraction (pure CSS) instead of plugin installation
+- No npm plugin dependencies
+- No Tailwind/DaisyUI plugin overhead
+- Total addition: ~8 KB uncompressed (+0 KB gzipped)
+
+**Full Documentation**: See [MODERN_THEME_COMPONENTS.md](MODERN_THEME_COMPONENTS.md)
+
+---
+
 ## Revision History
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0 | 2025-11-15 | Initial design specifications |
+| 1.0 | 2024-11-15 | Initial design specifications |
+| 1.1 | 2024-12-17 | Added modern theme components (glass cards, toasts, badges, etc.) |
 
 ---
 
@@ -656,5 +684,5 @@ For questions about design specifications:
 ---
 
 **Document Status**: ✅ Complete
-**Last Updated**: November 15, 2025
-**Version**: 1.0
+**Last Updated**: December 17, 2024
+**Version**: 1.1

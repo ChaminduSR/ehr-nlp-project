@@ -26,33 +26,37 @@
       <div aria-busy="true">Loading medical note editor...</div>
     </div>
   </div>
-  <!-- Global fixed save indicator -->
-  <div id="global-save-indicator" aria-live="polite"
-    style="position: fixed; right: 1rem; bottom: 1rem; background: rgba(17,24,39,0.95); color: #ffffff; padding: 0.5rem 0.75rem; border-radius: 6px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight:600; font-size:0.9rem;">
-    Ready</div>
+  <!-- Save indicator now uses toast system - hidden legacy indicator -->
+  <div id="global-save-indicator" aria-live="polite" style="display: none;">Ready</div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
   (function () {
-    const el = document.getElementById('global-save-indicator');
-    if (!el) return;
+    // Track last state to avoid duplicate toasts
+    let lastState = 'ready';
+    let saveToastId = null;
 
     function setState(state, detail) {
+      if (state === lastState) return;
+      lastState = state;
+
       if (state === 'saving') {
-        el.textContent = 'Saving...';
-        el.style.background = 'rgba(59,130,246,0.95)';
+        // Show persistent saving toast
+        if (window.showToast) {
+          saveToastId = window.showToast('Saving changes...', 'info', 0); // 0 = no auto-dismiss
+        }
       } else if (state === 'saved') {
-        el.textContent = 'Saved';
-        el.style.background = 'rgba(16,185,129,0.95)';
-        setTimeout(() => { el.textContent = 'Ready'; el.style.background = 'rgba(17,24,39,0.95)'; }, 2500);
+        // Remove saving toast and show success
+        if (window.showToast) {
+          window.showToast('Changes saved successfully', 'success', 2500);
+        }
+        setTimeout(() => { lastState = 'ready'; }, 2600);
       } else if (state === 'error') {
-        el.textContent = 'Save Error';
-        el.style.background = 'rgba(220,38,38,0.95)';
-      } else {
-        el.textContent = 'Ready';
-        el.style.background = 'rgba(17,24,39,0.95)';
+        if (window.showToast) {
+          window.showToast('Failed to save changes', 'error', 5000);
+        }
       }
     }
 
@@ -62,8 +66,7 @@
       setState(ok ? 'saved' : 'error', e && e.detail);
     });
 
-    // Also reflect local fragment save-status changes (optional)
-    // The fragment updates #save-status; observe it and mirror brief states.
+    // Also reflect local fragment save-status changes
     function attachFragObserver(node) {
       if (!node) return null;
       try {

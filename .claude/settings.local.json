@@ -16,7 +16,8 @@
       "Bash(npm run build:js:*)",
       "Bash(gzip:*)",
       "Bash(du:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(npm run sass:build:*)"
     ],
     "deny": [],
     "ask": []
