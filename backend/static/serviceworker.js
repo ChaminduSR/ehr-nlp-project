@@ -1,18 +1,15 @@
-const CACHE_NAME = 'ehr-offline-v1';
+const CACHE_NAME = 'ehr-offline-v2';
 const ASSETS_TO_CACHE = [
+    // CSS
     '/static/css/theme.css',
     '/static/css/custom.css',
-    '/static/js/config.js',
-    '/static/js/joint_diagram.js',
-    '/static/js/joint_assessment_logic.js',
-    '/static/js/voice_recorder.js',
-    '/static/js/medical_note_logic.js',
-    '/static/js/patients_logic.js',
-    '/static/js/reports_logic.js',
-    '/static/js/dashboard_logic.js',
+    // Webpack bundles (replaces individual /static/js/*.js files)
+    '/static/dist/main.bundle.js',
+    '/static/dist/vendors.bundle.js',
+    '/static/dist/joint-diagram.chunk.js',
+    // External CDN dependencies
     'https://unpkg.com/htmx.org@1.9.10',
-    'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js',
-    'https://unpkg.com/konva@9/konva.min.js'
+    'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'
 ];
 
 // Install event: Cache static assets

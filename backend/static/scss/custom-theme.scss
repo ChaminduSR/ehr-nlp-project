@@ -59,7 +59,7 @@ $enable-transitions: false; // Disable animations for max performance on old PCs
     "components/loading": false,
     "components/progress": false,
     "components/tooltip": false));
-
+@use "extracted-components" as *;
 // ==========================================================================
 // 2. CUSTOM HEALTHCARE VARIABLES
 // ==========================================================================
@@ -490,4 +490,4 @@ a.role-button {
 // ==========================================================================
 // 7. EXTRACTED COMPONENTS (DaisyUI/FloatUI/FlyonUI inspired)
 // ==========================================================================
-@import "extracted-components";
+

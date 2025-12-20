@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2023",
     "module": "ESNext",
     "lib": [
-      "ES2020",
+      "ES2023",
       "DOM",
       "DOM.Iterable"
     ],
@@ -14,11 +14,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "declaration": false,
     "sourceMap": true,
     "noImplicitAny": true,
-    "moduleResolution": "node"
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": [
     "frontend/src/**/*",

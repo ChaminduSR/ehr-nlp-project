@@ -6,6 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Rheumatology Electronic Health Record system for rural clinics, featuring offline voice recognition (VOSK), medical NLP (spaCy/scispaCy), and interactive 28-joint assessment with DAS28-ESR calculation.
 
+## Requirements
+
+- **Node.js**: >=24.0.0 (uses native ESM, type stripping, test runner)
+- **Python**: 3.11+
+- **Vite**: 7.3.0 (baseline-widely-available target, LightningCSS)
+
 ## Commands
 
 ### Backend (Flask)
@@ -34,18 +40,25 @@ black backend/
 mypy backend/
 ```
 
-### Frontend (Node.js)
+### Frontend (Node.js 24+)
 ```powershell
 npm install
 
 # Development
-npm run dev        # Vite dev server at :5173 (proxies to Flask)
+npm run dev        # Vite 7 dev server at :5173 (proxies to Flask)
 npm run sass:dev   # SCSS with source maps
 
 # Production build
-npm run build      # Builds SCSS + Webpack bundle to backend/static/dist
+npm run build      # Builds SCSS + Vite bundle to backend/static/dist
 npm run sass:build # SCSS only (compressed)
-npm run build:js   # Webpack only
+npm run build:js   # Vite build only
+
+# Type checking & Testing
+npm run typecheck  # TypeScript type check (no emit)
+npm test           # Node.js native test runner
+
+# Node 24 features - run TypeScript directly
+node script.ts     # Native type stripping (no build needed)
 ```
 
 ## Architecture
@@ -55,8 +68,27 @@ npm run build:js   # Webpack only
 - **NLP**: spaCy 3.7 + scispaCy (`en_core_sci_md`) - lazy loaded
 - **Speech**: VOSK offline recognition (50MB model)
 - **Frontend**: Jinja2 templates + HTMX + Alpine.js + TypeScript/React components
-- **Build**: Vite (dev) + Webpack (prod) → `backend/static/dist`
+- **Build**: Vite 7.3 (baseline-widely-available, LightningCSS) → `backend/static/dist`
 - **Styling**: Pico.css (via SCSS) + Tailwind utilities
+- **Runtime**: Node.js 24 (ESM-only, native test runner, type stripping)
+
+### Build Configuration
+
+**Vite 7.3** (`vite.config.js`):
+- `target: 'baseline-widely-available'` - chrome107, edge107, firefox104, safari16
+- `cssMinify: 'lightningcss'` - faster CSS minification
+- Warmup enabled for faster HMR
+- Rolldown bundler available experimentally (4-16x faster builds)
+
+**TypeScript** (`tsconfig.json`):
+- `target: ES2023` / `lib: ES2023` - full Node 24 support
+- `moduleResolution: bundler` - optimized for Vite
+- `noEmit: true` - Vite handles transpilation
+
+**Package** (`package.json`):
+- `type: module` - native ESM
+- `engines.node: >=24.0.0` - enforces Node 24+
+- Native test runner via `node --test`
 
 ### Key Patterns
 
@@ -81,6 +113,8 @@ Environment variables (`.env`):
 - `API_PORT`: Server port (default: 5000)
 - `API_HOST`: Host binding (default: localhost)
 
+**Node 24 tip**: Use `node --env-file=.env` to load env vars natively (no dotenv needed).
+
 ## API Endpoints
 
 - `GET/POST /api/v1/patients` - Patient CRUD
@@ -90,3 +124,25 @@ Environment variables (`.env`):
 - `POST /api/v1/joint_assessments` - Save joint data
 - `POST /api/v1/voice/transcribe` - VOSK transcription
 - `GET /api/v1/health` - Health check
+
+## Node.js 24 Native Features Available
+
+These features are available without external dependencies:
+- **Type stripping**: Run `.ts` files directly with `node script.ts`
+- **Native test runner**: `node --test` replaces Jest/Mocha
+- **Native watch mode**: `node --watch` replaces nodemon
+- **Native env loading**: `node --env-file=.env` replaces dotenv
+- **Native WebSocket**: `new WebSocket()` for client connections
+- **Native SQLite**: `node:sqlite` for lightweight database needs
+- **require(esm)**: CJS can require ESM modules without flags
+
+## Performance Optimization (Optional)
+
+To try Rolldown bundler (experimental, 4-16x faster builds):
+```json
+{
+  "devDependencies": {
+    "vite": "npm:rolldown-vite@latest"
+  }
+}
+```

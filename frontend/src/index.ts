@@ -18,7 +18,7 @@ window.VoiceRecorder = VoiceRecorder;
 // Lazy-load JointDiagram (includes Konva) - only loaded when needed
 window.loadJointDiagram = async () => {
   if (!window.JointDiagram) {
-    const { JointDiagram } = await import(/* webpackChunkName: "joint-diagram" */ './modules/joint_diagram');
+    const { JointDiagram } = await import('./modules/joint_diagram');
     window.JointDiagram = JointDiagram;
   }
   return window.JointDiagram;

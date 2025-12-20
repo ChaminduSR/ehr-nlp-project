@@ -17,7 +17,11 @@
       "Bash(gzip:*)",
       "Bash(du:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npm run sass:build:*)"
+      "Bash(npm run sass:build:*)",
+      "Bash(npm ls:*)",
+      "Bash(node --version:*)",
+      "Bash(npx vite --version)",
+      "Bash(timeout 5 npx:*)"
     ],
     "deny": [],
     "ask": []

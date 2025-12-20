@@ -53,10 +53,9 @@
     <!-- App Bundle -->
     {% if config.USE_VITE %}
     <script type="module" src="http://localhost:5173/@vite/client"></script>
-    <script type="module" src="http://localhost:5173/index.tsx"></script>
+    <script type="module" src="http://localhost:5173/frontend/src/index.ts"></script>
     {% else %}
-    <script src="{{ url_for('static', filename='dist/vendors.bundle.js') }}"></script>
-    <script src="{{ url_for('static', filename='dist/main.bundle.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='dist/index.js') }}"></script>
     {% endif %}
 
     <script>

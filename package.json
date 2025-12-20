@@ -1,22 +1,28 @@
 {
   "name": "ehr-nlp-project",
   "version": "1.0.0",
+  "type": "module",
   "description": "Rural Rheumatology EHR with NLP and Modern Tech Stack",
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test tests/**/*.test.js",
     "sass": "sass --watch backend/static/scss:backend/static/css --load-path=node_modules/@picocss/pico/scss/",
+    "sass:migrate": "npx sass-migrator module backend/static/scss",
     "sass:build": "sass backend/static/scss/custom-theme.scss backend/static/css/theme.css --load-path=node_modules/@picocss/pico/scss/ --style compressed && python scripts/css_cleanup.py",
     "sass:dev": "sass backend/static/scss/custom-theme.scss backend/static/css/theme.css --load-path=node_modules/@picocss/pico/scss/ --source-map",
-    "build:js": "webpack --mode production",
-    "analyze": "set ANALYZE=true && webpack --mode production",
+    "build:js": "vite build",
     "dev": "vite",
-    "build": "npm run sass:build && npm run build:js"
+    "build": "npm run sass:build && npm run build:js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "alpinejs": "^3.15.2",
     "date-fns": "^4.1.0",
     "htmx.org": "^2.0.8",
-    "konva": "^10.0.12"
+    "konva": "^10.0.12",
+    "vite": "npm:rolldown-vite@^7.3.0"
   },
   "devDependencies": {
     "@picocss/pico": "^2.0.6",
@@ -25,11 +31,6 @@
     "postcss": "^8.4.49",
     "sass": "^1.83.0",
     "tailwindcss": "^3.4.16",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.3",
-    "webpack": "^5.97.1",
-    "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.7.2"
   }
 }
