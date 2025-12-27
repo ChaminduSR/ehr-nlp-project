@@ -21,7 +21,10 @@
       "Bash(npm ls:*)",
       "Bash(node --version:*)",
       "Bash(npx vite --version)",
-      "Bash(timeout 5 npx:*)"
+      "Bash(timeout 5 npx:*)",
+      "Bash(python backend/services/regex_entity_extractor.py:*)",
+      "Bash(PYTHONPATH=. python:*)",
+      "Bash(python app.py:*)"
     ],
     "deny": [],
     "ask": []

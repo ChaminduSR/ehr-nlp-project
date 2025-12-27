@@ -1,5 +1,8 @@
 """
 Medical notes endpoints - Auto-save and finalize pattern (async NLP)
+
+Uses new NLP extractor system (Version A: Regex, Version B: Transformers)
+Version selection via NLP_VERSION environment variable
 """
 import re
 import asyncio
@@ -7,19 +10,34 @@ from flask import Blueprint, request, jsonify, render_template
 from datetime import datetime
 from pydantic import ValidationError
 from utils.database import get_db
-from services.nlp_engine import NLPEngine
 try:
     from schemas import MedicalNoteExtractRequest, MedicalNoteDraftRequest, MedicalNoteFinalizeRequest
 except ImportError:
     from backend.schemas import MedicalNoteExtractRequest, MedicalNoteDraftRequest, MedicalNoteFinalizeRequest
 
+# Import new NLP config system
+from nlp_config import get_extractor
+
 medical_notes_bp = Blueprint('medical_notes', __name__)
-nlp_engine = NLPEngine()
+
+# Get extractor instance (uses NLP_VERSION from environment)
+# Version A (default): Regex-based, 0 dependencies
+# Version B: Transformer-based, requires transformers library
+extractor = get_extractor()
 
 
-def _run_nlp_extraction(text, engine):
-    """Synchronous NLP processing (runs in executor)"""
-    return engine.process_note(text)
+def _run_nlp_extraction(text, entity_extractor):
+    """
+    Synchronous NLP processing (runs in executor)
+
+    Args:
+        text: Medical note text
+        entity_extractor: BaseEntityExtractor instance (Version A, B, C, or D)
+
+    Returns:
+        ExtractionResult dict with entities, version, processing_time_ms
+    """
+    return entity_extractor.extract(text)
 
 
 @medical_notes_bp.route('/extract', methods=['POST'])
@@ -42,7 +60,7 @@ async def extract_entities():
             None,
             _run_nlp_extraction,
             text,
-            nlp_engine
+            extractor
         )
 
         # 2. Initialize Structured Data
@@ -54,6 +72,8 @@ async def extract_entities():
             'plan': '',
             'medications': [],
             'conditions': [],
+            'symptoms': [],
+            'lab_tests': [],
             'allergies': [],
             'follow_up': ''
         }
@@ -77,24 +97,54 @@ async def extract_entities():
         if plan_match:
             structured['plan'] = plan_match.group(1).strip()
 
-        # 4. Map NLP Entities to Fields
+        # 4. Map NLP Entities to Fields (NEW: supports rheumatology entities)
         for ent in result['entities']:
             label = ent['type'].upper()
-            if label in ['CHEMICAL', 'DRUG']:
-                structured['medications'].append(ent['text'])
-            elif label in ['DISEASE', 'SYNDROME', 'DISORDER']:
-                structured['conditions'].append(ent['text'])
+
+            # Medications (from new regex patterns)
+            if label == 'MEDICATION':
+                if ent['text'] not in structured['medications']:
+                    structured['medications'].append(ent['text'])
+
+            # Diseases/Conditions
+            elif label == 'DISEASE':
+                if ent['text'] not in structured['conditions']:
+                    structured['conditions'].append(ent['text'])
                 # Fallback: If assessment is empty, use the first condition found
                 if not structured['assessment']:
-                     structured['assessment'] = ent['text']
+                    structured['assessment'] = ent['text']
+
+            # Symptoms
+            elif label == 'SYMPTOM':
+                if ent['text'] not in structured['symptoms']:
+                    structured['symptoms'].append(ent['text'])
+
+            # Lab Tests
+            elif label == 'LAB_TEST':
+                if ent['text'] not in structured['lab_tests']:
+                    structured['lab_tests'].append(ent['text'])
+
+            # Legacy support for old entity types (if Version B uses different labels)
+            elif label in ['CHEMICAL', 'DRUG']:
+                if ent['text'] not in structured['medications']:
+                    structured['medications'].append(ent['text'])
+            elif label in ['SYNDROME', 'DISORDER']:
+                if ent['text'] not in structured['conditions']:
+                    structured['conditions'].append(ent['text'])
 
         return jsonify({
             'success': True,
             'raw_entities': result['entities'],
-            'structured': structured
+            'structured': structured,
+            'nlp_version': result['version'],
+            'model_name': result['model_name'],
+            'processing_time_ms': result['processing_time_ms'],
+            'entity_count': len(result['entities'])
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'nlp_version': extractor.get_version()}), 500
 
 @medical_notes_bp.route('/draft', methods=['POST'])
 def save_draft():
@@ -178,30 +228,30 @@ def finalize_note():
 
         conn.commit()
 
-        # Trigger NLP processing
-        from services.nlp_engine import nlp_engine
-        nlp_result = nlp_engine.process_note(final_text)
+        # Trigger NLP processing with new extractor
+        nlp_result = extractor.extract(final_text)
 
-        if nlp_result['success']:
-            # Store entities count and processing time
-            cursor.execute('''
-                UPDATE medical_notes
-                SET entity_count = ?,
-                    processing_time_ms = ?
-                WHERE id = ?
-            ''', (nlp_result['entity_count'], nlp_result['processing_time_ms'], finalize_data.note_id))
+        # Store entities count and processing time
+        cursor.execute('''
+            UPDATE medical_notes
+            SET entity_count = ?,
+                processing_time_ms = ?
+            WHERE id = ?
+        ''', (len(nlp_result['entities']), nlp_result['processing_time_ms'], finalize_data.note_id))
 
-            conn.commit()
+        conn.commit()
 
         return jsonify({
             'success': True,
             'note_id': finalize_data.note_id,
             'status': 'finalized',
             'signed_at': datetime.utcnow().isoformat(),
-            'entities_extracted': nlp_result['entity_count'],
+            'entities_extracted': len(nlp_result['entities']),
             'processing_time_ms': nlp_result['processing_time_ms'],
-            'entities': nlp_result['entities'][:5],  # Return first 5 entities as preview
-            'message': '✅ Note finalized and NLP processed'
+            'nlp_version': nlp_result['version'],
+            'model_name': nlp_result['model_name'],
+            'entities': nlp_result['entities'][:10],  # Return first 10 entities as preview
+            'message': f'✅ Note finalized and processed with NLP Version {nlp_result["version"]}'
         }), 200
 
     except Exception as e:
