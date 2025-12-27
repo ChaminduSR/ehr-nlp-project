@@ -246,3 +246,5 @@ temp/
 
 # Docker compose override for local env
 docker-compose.override.yml
+
+/docs/
