@@ -52,6 +52,14 @@ class ModelDownloader:
             'size': '~440MB',
             'accuracy': 'High (Acc@1=0.81 on entity linking)',
             'use_case': 'Maps medical terms to UMLS concept IDs'
+        },
+        'biolinkbert': {
+            'name': 'michiyasunaga/BioLinkBERT-base',
+            'description': 'Contextual reasoning + entity linking (Version D)',
+            'size': '~440MB',
+            'accuracy': 'High (biomedical NLU, citation graph training)',
+            'use_case': 'Contextual inference and entity relationship linking',
+            'model_type': 'embedding'
         }
     }
 
@@ -145,9 +153,9 @@ class ModelDownloader:
 
         try:
             # Download model and tokenizer
-            # Use AutoModel for embedding models (like SapBERT), AutoModelForTokenClassification for NER
-            if model_info.get('use_case') == 'Maps medical terms to UMLS concept IDs':
-                # SapBERT and other embedding models
+            # Use AutoModel for embedding models (like SapBERT, BioLinkBERT), AutoModelForTokenClassification for NER
+            if model_info.get('model_type') == 'embedding' or model_info.get('use_case') == 'Maps medical terms to UMLS concept IDs':
+                # Embedding models (SapBERT, BioLinkBERT)
                 model = AutoModel.from_pretrained(model_name)
             else:
                 # NER models

@@ -6,6 +6,8 @@ NLP Entity Extraction Services:
 - RegexEntityExtractor: Version A - regex-based extraction (V2.2)
 - MTLEntityExtractor: Version B - GatorTron transformer-based extraction
 - TwoTierExtractor: Version C - Two-Tier (GatorTron + SapBERT)
+- BioLinkBERTExtractor: BioLinkBERT for contextual inference
+- EnsembleExtractor: Version D - Weighted ensemble of all extractors
 - SapBERTNormalizer: UMLS entity normalization
 """
 
@@ -37,6 +39,22 @@ except ImportError:
     SapBERTNormalizer = None
     SAPBERT_AVAILABLE = False
 
+# Conditionally import BioLinkBERT extractor
+try:
+    from .biolinkbert_extractor import BioLinkBERTExtractor, is_biolinkbert_available
+    BIOLINKBERT_AVAILABLE = is_biolinkbert_available()
+except ImportError:
+    BioLinkBERTExtractor = None
+    BIOLINKBERT_AVAILABLE = False
+
+# Conditionally import Version D Ensemble extractor
+try:
+    from .ensemble_extractor import EnsembleExtractor, is_ensemble_available
+    ENSEMBLE_AVAILABLE = is_ensemble_available()
+except ImportError:
+    EnsembleExtractor = None
+    ENSEMBLE_AVAILABLE = False
+
 __all__ = [
     # Base
     'BaseEntityExtractor',
@@ -50,6 +68,12 @@ __all__ = [
     # Version C (conditional)
     'TwoTierExtractor',
     'TWO_TIER_AVAILABLE',
+    # BioLinkBERT (conditional)
+    'BioLinkBERTExtractor',
+    'BIOLINKBERT_AVAILABLE',
+    # Version D Ensemble (conditional)
+    'EnsembleExtractor',
+    'ENSEMBLE_AVAILABLE',
     # Normalizer (conditional)
     'SapBERTNormalizer',
     'SAPBERT_AVAILABLE',
