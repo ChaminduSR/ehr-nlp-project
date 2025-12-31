@@ -66,3 +66,57 @@ CREATE TABLE IF NOT EXISTS joint_assessment_summaries (
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (visit_id) REFERENCES visits(id)
 );
+
+-- =============================================================================
+-- NLP Entity Extraction Tables (Version D Ensemble Support)
+-- =============================================================================
+
+-- Store extracted entities for each medical note
+CREATE TABLE IF NOT EXISTS extracted_entities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    medical_note_id INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    entity_type TEXT NOT NULL,
+    start_pos INTEGER,
+    end_pos INTEGER,
+    confidence REAL,
+    agreement INTEGER,
+    versions_found TEXT,  -- JSON array: ["A", "C", "BioLink"]
+    umls_cui TEXT,
+    umls_name TEXT,
+    is_negated BOOLEAN DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (medical_note_id) REFERENCES medical_notes(id)
+);
+
+-- Store inferred diagnoses from Version D BioLinkBERT
+CREATE TABLE IF NOT EXISTS inferred_diagnoses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    medical_note_id INTEGER NOT NULL,
+    diagnosis_text TEXT NOT NULL,
+    confidence REAL,
+    matched_rule TEXT,
+    rule_match_count INTEGER,
+    rule_min_required INTEGER,
+    linked_from TEXT,  -- JSON array of linked entities
+    suggested_actions TEXT,  -- JSON array
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (medical_note_id) REFERENCES medical_notes(id)
+);
+
+-- Store entity relationships/links
+CREATE TABLE IF NOT EXISTS entity_links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    medical_note_id INTEGER NOT NULL,
+    source_entity TEXT NOT NULL,
+    target_entity TEXT NOT NULL,
+    relationship TEXT NOT NULL,
+    confidence REAL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (medical_note_id) REFERENCES medical_notes(id)
+);
+
+-- Indexes for faster lookups
+CREATE INDEX IF NOT EXISTS idx_entities_note ON extracted_entities(medical_note_id);
+CREATE INDEX IF NOT EXISTS idx_inferred_note ON inferred_diagnoses(medical_note_id);
+CREATE INDEX IF NOT EXISTS idx_links_note ON entity_links(medical_note_id);

@@ -1,8 +1,14 @@
 """
 Medical notes endpoints - Auto-save and finalize pattern (async NLP)
 
-Uses new NLP extractor system (Version A: Regex, Version B: Transformers)
-Version selection via NLP_VERSION environment variable
+Uses NLP extractor system with multiple versions:
+- Version A: Regex V2.2 (fast, no dependencies)
+- Version B: GatorTron MTL (transformer-based)
+- Version C: Two-Tier (GatorTron + SapBERT for UMLS normalization)
+- Version D: Ensemble (A + C + BioLinkBERT with weighted confidence)
+
+Version selection via NLP_VERSION environment variable.
+Version D adds: inferred diagnoses, entity links, agreement scores.
 """
 import re
 import asyncio
@@ -132,7 +138,8 @@ async def extract_entities():
                 if ent['text'] not in structured['conditions']:
                     structured['conditions'].append(ent['text'])
 
-        return jsonify({
+        # Build response with base fields
+        response = {
             'success': True,
             'raw_entities': result['entities'],
             'structured': structured,
@@ -140,7 +147,19 @@ async def extract_entities():
             'model_name': result['model_name'],
             'processing_time_ms': result['processing_time_ms'],
             'entity_count': len(result['entities'])
-        })
+        }
+
+        # Add Version D ensemble fields if present
+        if result.get('inferred'):
+            response['inferred'] = result['inferred']
+        if result.get('links'):
+            response['links'] = result['links']
+        if result.get('agreement_summary'):
+            response['agreement_summary'] = result['agreement_summary']
+        if result.get('extractors_used'):
+            response['extractors_used'] = result['extractors_used']
+
+        return jsonify(response)
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -202,6 +221,8 @@ def save_draft():
 @medical_notes_bp.route('/finalize', methods=['POST'])
 def finalize_note():
     """Finalize and sign note - triggers NLP"""
+    import json
+
     data = request.get_json()
 
     # Validate with Pydantic
@@ -239,9 +260,68 @@ def finalize_note():
             WHERE id = ?
         ''', (len(nlp_result['entities']), nlp_result['processing_time_ms'], finalize_data.note_id))
 
+        # Clear previous entities for this note (in case of re-finalization)
+        cursor.execute('DELETE FROM extracted_entities WHERE medical_note_id = ?', (finalize_data.note_id,))
+        cursor.execute('DELETE FROM inferred_diagnoses WHERE medical_note_id = ?', (finalize_data.note_id,))
+        cursor.execute('DELETE FROM entity_links WHERE medical_note_id = ?', (finalize_data.note_id,))
+
+        # Store extracted entities
+        for ent in nlp_result.get('entities', []):
+            cursor.execute('''
+                INSERT INTO extracted_entities
+                (medical_note_id, text, entity_type, start_pos, end_pos, confidence,
+                 agreement, versions_found, umls_cui, umls_name, is_negated)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                finalize_data.note_id,
+                ent.get('text', ''),
+                ent.get('type', 'UNKNOWN'),
+                ent.get('start'),
+                ent.get('end'),
+                ent.get('confidence'),
+                ent.get('agreement'),
+                json.dumps(ent.get('versions_found', [])) if ent.get('versions_found') else None,
+                ent.get('umls_cui'),
+                ent.get('umls_name'),
+                1 if ent.get('is_negated') else 0
+            ))
+
+        # Store inferred diagnoses (Version D)
+        for inferred in nlp_result.get('inferred', []):
+            cursor.execute('''
+                INSERT INTO inferred_diagnoses
+                (medical_note_id, diagnosis_text, confidence, matched_rule,
+                 rule_match_count, rule_min_required, linked_from, suggested_actions)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                finalize_data.note_id,
+                inferred.get('text', ''),
+                inferred.get('confidence'),
+                inferred.get('matched_rule'),
+                inferred.get('rule_match_count'),
+                inferred.get('rule_min_required'),
+                json.dumps(inferred.get('linked_from', [])) if inferred.get('linked_from') else None,
+                json.dumps(inferred.get('suggested_actions', [])) if inferred.get('suggested_actions') else None
+            ))
+
+        # Store entity links (Version D)
+        for link in nlp_result.get('links', []):
+            cursor.execute('''
+                INSERT INTO entity_links
+                (medical_note_id, source_entity, target_entity, relationship, confidence)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                finalize_data.note_id,
+                link.get('source', ''),
+                link.get('target', ''),
+                link.get('relationship', ''),
+                link.get('confidence')
+            ))
+
         conn.commit()
 
-        return jsonify({
+        # Build response
+        response = {
             'success': True,
             'note_id': finalize_data.note_id,
             'status': 'finalized',
@@ -252,10 +332,26 @@ def finalize_note():
             'model_name': nlp_result['model_name'],
             'entities': nlp_result['entities'][:10],  # Return first 10 entities as preview
             'message': f'✅ Note finalized and processed with NLP Version {nlp_result["version"]}'
-        }), 200
+        }
+
+        # Add Version D fields if present
+        if nlp_result.get('inferred'):
+            response['inferred'] = nlp_result['inferred']
+            response['inferred_count'] = len(nlp_result['inferred'])
+        if nlp_result.get('links'):
+            response['links'] = nlp_result['links'][:10]  # Preview first 10 links
+            response['links_count'] = len(nlp_result['links'])
+        if nlp_result.get('agreement_summary'):
+            response['agreement_summary'] = nlp_result['agreement_summary']
+        if nlp_result.get('extractors_used'):
+            response['extractors_used'] = nlp_result['extractors_used']
+
+        return jsonify(response), 200
 
     except Exception as e:
         conn.rollback()
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
     finally:
