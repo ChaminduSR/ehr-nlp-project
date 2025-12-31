@@ -5,6 +5,7 @@ This module handles:
 - Loading NLP configuration from environment variables
 - Factory pattern for creating appropriate extractor based on version
 - Version selection logic
+- Model availability checking
 
 Environment Variables:
 - NLP_VERSION: Which extractor version to use ('A', 'B', 'C', or 'D')
@@ -14,6 +15,7 @@ Environment Variables:
 """
 
 import os
+from pathlib import Path
 from typing import Optional
 from services.base_extractor import BaseEntityExtractor
 
@@ -50,6 +52,62 @@ class NLPConfig:
 config = NLPConfig()
 
 
+def get_version_b_model_path() -> Path:
+    """
+    Get the expected path for the Version B (gatortron-rheum) model.
+
+    Returns:
+        Path to the model directory
+
+    Example:
+        >>> get_version_b_model_path()
+        PosixPath('/path/to/project/data/models/gatortron-rheum')
+    """
+    # Get project root (3 levels up from this file: nlp_config -> backend -> root)
+    project_root = Path(__file__).parent.parent.parent
+
+    # Build model path
+    model_path = Path(config.model_path)
+    if not model_path.is_absolute():
+        model_path = project_root / model_path
+
+    return model_path / 'gatortron-rheum'
+
+
+def is_version_b_model_available() -> bool:
+    """
+    Check if the Version B (gatortron-rheum) model is available.
+
+    Checks for required files:
+    - config.json (model configuration)
+    - vocab.txt (tokenizer vocabulary)
+    - pytorch_model.bin OR model.safetensors (model weights)
+
+    Returns:
+        True if model is ready to use, False otherwise
+
+    Example:
+        >>> if is_version_b_model_available():
+        ...     extractor = get_extractor('B')
+        ... else:
+        ...     print("Model not ready, using Version A")
+    """
+    model_path = get_version_b_model_path()
+
+    if not model_path.exists():
+        return False
+
+    # Check for required files
+    has_config = (model_path / 'config.json').exists()
+    has_vocab = (model_path / 'vocab.txt').exists()
+    has_weights = (
+        (model_path / 'pytorch_model.bin').exists() or
+        (model_path / 'model.safetensors').exists()
+    )
+
+    return has_config and has_vocab and has_weights
+
+
 def get_extractor(version: Optional[str] = None) -> BaseEntityExtractor:
     """
     Factory function to get appropriate extractor based on version.
@@ -76,12 +134,26 @@ def get_extractor(version: Optional[str] = None) -> BaseEntityExtractor:
         return RegexEntityExtractor()
 
     elif target_version == 'B':
+        # Check if model exists before trying to load
+        if not is_version_b_model_available():
+            print(f"Warning: Version B model (gatortron-rheum) not found")
+            print(f"Expected at: {get_version_b_model_path()}")
+            print(f"Copy your trained model or use Version A for now")
+            print(f"Falling back to Version A (regex)")
+            from services.regex_entity_extractor import RegexEntityExtractor
+            return RegexEntityExtractor()
+
         try:
             from services.mtl_entity_extractor import MTLEntityExtractor
             return MTLEntityExtractor(model_path=config.model_path)
         except ImportError as e:
             print(f"Error: Cannot load Version B - transformers not installed")
             print(f"Run: pip install transformers torch sentencepiece")
+            print(f"Falling back to Version A (regex)")
+            from services.regex_entity_extractor import RegexEntityExtractor
+            return RegexEntityExtractor()
+        except FileNotFoundError as e:
+            print(f"Error: Version B model not found: {e}")
             print(f"Falling back to Version A (regex)")
             from services.regex_entity_extractor import RegexEntityExtractor
             return RegexEntityExtractor()
@@ -115,19 +187,21 @@ def get_available_versions() -> list[str]:
     Get list of currently available extractor versions.
 
     Returns:
-        List of version strings that are implemented and have dependencies installed
+        List of version strings that are implemented, have dependencies installed,
+        AND have required models available.
 
     Example:
         >>> get_available_versions()
-        ['A', 'B']  # C and D not yet implemented
+        ['A']  # B requires model, C and D not yet implemented
     """
     available = ['A']  # Regex always available
 
-    # Check if transformers is installed for Version B
+    # Check if transformers is installed AND model is available for Version B
     try:
         import transformers
         import torch
-        available.append('B')
+        if is_version_b_model_available():
+            available.append('B')
     except ImportError:
         pass
 
@@ -146,6 +220,76 @@ def get_available_versions() -> list[str]:
         pass
 
     return available
+
+
+def get_version_status() -> dict:
+    """
+    Get detailed status of all extractor versions.
+
+    Returns:
+        Dictionary with status info for each version
+
+    Example:
+        >>> status = get_version_status()
+        >>> print(status['B'])
+        {'available': False, 'reason': 'Model not found', 'model_path': '...'}
+    """
+    status = {}
+
+    # Version A - always available
+    status['A'] = {
+        'available': True,
+        'reason': 'Regex-based (no dependencies)',
+        'accuracy': '85% F1'
+    }
+
+    # Version B - check transformers AND model
+    try:
+        import transformers
+        import torch
+        transformers_ok = True
+    except ImportError:
+        transformers_ok = False
+
+    model_available = is_version_b_model_available()
+    model_path = str(get_version_b_model_path())
+
+    if transformers_ok and model_available:
+        status['B'] = {
+            'available': True,
+            'reason': 'GatorTron-Rheum model ready',
+            'model_path': model_path,
+            'accuracy': '85-90% F1'
+        }
+    elif not transformers_ok:
+        status['B'] = {
+            'available': False,
+            'reason': 'transformers/torch not installed',
+            'fix': 'pip install transformers torch sentencepiece'
+        }
+    else:
+        status['B'] = {
+            'available': False,
+            'reason': 'Model not found',
+            'model_path': model_path,
+            'fix': f'Copy trained model to: {model_path}'
+        }
+
+    # Version C
+    try:
+        from services.fallback_manager import FallbackManager
+        status['C'] = {'available': True, 'reason': 'FallbackManager ready'}
+    except ImportError:
+        status['C'] = {'available': False, 'reason': 'Not yet implemented'}
+
+    # Version D
+    try:
+        from services.ensemble_extractor import EnsembleExtractor
+        status['D'] = {'available': True, 'reason': 'EnsembleExtractor ready'}
+    except ImportError:
+        status['D'] = {'available': False, 'reason': 'Not yet implemented'}
+
+    return status
 
 
 # Convenience function for quick extractor access
@@ -170,7 +314,29 @@ def extract_entities(text: str, version: Optional[str] = None) -> dict:
 
 if __name__ == "__main__":
     # Test configuration
-    print("NLP Configuration:")
-    print(config)
+    print("=" * 60)
+    print("NLP Configuration Status")
+    print("=" * 60)
+    print(f"\nConfig: {config}")
     print(f"\nAvailable versions: {get_available_versions()}")
-    print(f"\nCurrent extractor: {get_extractor()}")
+
+    print("\n" + "-" * 60)
+    print("Version Details:")
+    print("-" * 60)
+    for version, info in get_version_status().items():
+        status_icon = "[OK]" if info['available'] else "[--]"
+        print(f"\n  {status_icon} Version {version}:")
+        for key, value in info.items():
+            if key != 'available':
+                print(f"      {key}: {value}")
+
+    print("\n" + "-" * 60)
+    print(f"Current extractor (NLP_VERSION={config.version}):")
+    print("-" * 60)
+    try:
+        extractor = get_extractor()
+        print(f"  Loaded: {extractor.get_model_name()} (Version {extractor.get_version()})")
+    except Exception as e:
+        print(f"  Error: {e}")
+
+    print("\n" + "=" * 60)
