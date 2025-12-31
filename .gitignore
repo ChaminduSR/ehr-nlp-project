@@ -250,3 +250,5 @@ docker-compose.override.yml
 /docs/
 
 /data/
+
+NUL
