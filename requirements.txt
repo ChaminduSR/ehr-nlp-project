@@ -12,6 +12,8 @@ pydantic==2.5.3
 transformers>=4.30.0
 torch>=2.0.0
 sentencepiece>=0.1.99
+regex>=2023.0.0          # Fuzzy matching with {e<=N} syntax
+flashtext>=2.7           # O(1) keyword extraction
 
 # =========================
 # Data Handling
