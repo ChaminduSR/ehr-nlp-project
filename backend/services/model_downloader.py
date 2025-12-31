@@ -45,6 +45,13 @@ class ModelDownloader:
             'labels': ['O', 'B-DRUG', 'I-DRUG', 'B-SYMPTOM', 'I-SYMPTOM', 'B-DOSAGE',
                       'I-DOSAGE', 'B-FREQUENCY', 'I-FREQUENCY', 'B-NEGATION',
                       'I-NEGATION', 'B-CONDITION', 'I-CONDITION']
+        },
+        'sapbert': {
+            'name': 'cambridgeltl/SapBERT-from-PubMedBERT-fulltext',
+            'description': 'Entity linking + UMLS normalization (Version C Tier 2)',
+            'size': '~440MB',
+            'accuracy': 'High (Acc@1=0.81 on entity linking)',
+            'use_case': 'Maps medical terms to UMLS concept IDs'
         }
     }
 
@@ -100,6 +107,7 @@ class ModelDownloader:
 
         try:
             from transformers import (
+                AutoModel,
                 AutoModelForTokenClassification,
                 AutoTokenizer
             )
@@ -137,7 +145,14 @@ class ModelDownloader:
 
         try:
             # Download model and tokenizer
-            model = AutoModelForTokenClassification.from_pretrained(model_name)
+            # Use AutoModel for embedding models (like SapBERT), AutoModelForTokenClassification for NER
+            if model_info.get('use_case') == 'Maps medical terms to UMLS concept IDs':
+                # SapBERT and other embedding models
+                model = AutoModel.from_pretrained(model_name)
+            else:
+                # NER models
+                model = AutoModelForTokenClassification.from_pretrained(model_name)
+
             tokenizer = AutoTokenizer.from_pretrained(model_name)
 
             # Save to cache directory
