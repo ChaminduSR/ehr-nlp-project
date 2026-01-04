@@ -28,10 +28,16 @@ class TestFuzzyMatcher:
 
     @pytest.fixture
     def matcher(self):
-        """Create FuzzyMatcher instance."""
+        """Create FuzzyMatcher instance with drug list."""
         try:
             from services.text_processors import FuzzyMatcher
-            return FuzzyMatcher()
+            # FuzzyMatcher requires drug_list parameter
+            drug_list = [
+                'methotrexate', 'prednisone', 'hydroxychloroquine',
+                'adalimumab', 'etanercept', 'sulfasalazine', 'leflunomide',
+                'azathioprine', 'rituximab', 'tocilizumab', 'infliximab'
+            ]
+            return FuzzyMatcher(drug_list)
         except ImportError:
             pytest.skip("FuzzyMatcher not available")
 
@@ -45,47 +51,44 @@ class TestFuzzyMatcher:
     ])
     def test_correct_common_typos(self, matcher, typo, expected):
         """Test correction of common medication typos."""
-        # Arrange - via parametrize
+        # Arrange - sentence containing the typo
+        text = f"Patient is on {typo} 15mg weekly"
 
-        # Act
-        if hasattr(matcher, 'correct'):
-            result = matcher.correct(typo)
-        elif hasattr(matcher, 'match'):
-            result = matcher.match(typo)
-        else:
-            result = typo
+        # Act - extract returns list of entities
+        result = matcher.extract(text)
 
-        # Assert
+        # Assert - should find and correct the typo (or find it as-is)
+        # If fuzzy matching is available, it should correct the typo
         if result:
-            assert expected.lower() in result.lower() or result == typo
+            found_texts = [e.get('canonical', e.get('text', '')) for e in result]
+            # Either found the expected canonical form or the original typo
+            assert any(expected.lower() in t.lower() or typo.lower() in t.lower()
+                      for t in found_texts)
 
     def test_exact_match_unchanged(self, matcher):
-        """Test exact matches are unchanged."""
+        """Test exact matches are found correctly."""
         # Arrange
-        text = "methotrexate"
+        text = "Patient is on methotrexate"
 
         # Act
-        if hasattr(matcher, 'correct'):
-            result = matcher.correct(text)
-        else:
-            result = text
+        result = matcher.extract(text)
 
-        # Assert
-        assert result.lower() == text.lower()
+        # Assert - should find methotrexate
+        assert len(result) >= 1
+        found_texts = [e.get('canonical', e.get('text', '')).lower() for e in result]
+        assert any('methotrexate' in t for t in found_texts)
 
     def test_unknown_word_unchanged(self, matcher):
-        """Test unknown words are unchanged."""
+        """Test unknown words are not extracted."""
         # Arrange
-        text = "xyzunknownword123"
+        text = "Patient reports xyzunknownword123"
 
         # Act
-        if hasattr(matcher, 'correct'):
-            result = matcher.correct(text)
-        else:
-            result = text
+        result = matcher.extract(text)
 
-        # Assert
-        assert result == text
+        # Assert - no entities should contain the unknown word
+        for entity in result:
+            assert 'xyzunknownword123' not in entity.get('text', '').lower()
 
 
 class TestAbbreviationExpander:
@@ -115,51 +118,43 @@ class TestAbbreviationExpander:
     ])
     def test_expand_common_abbreviations(self, expander, abbrev, expected):
         """Test expansion of common medical abbreviations."""
-        # Arrange - via parametrize
+        # Arrange - text containing the abbreviation
+        text = f"Patient with {abbrev}"
 
-        # Act
-        if hasattr(expander, 'expand'):
-            result = expander.expand(abbrev)
-        elif hasattr(expander, 'expand_abbreviation'):
-            result = expander.expand_abbreviation(abbrev)
-        else:
-            result = abbrev
+        # Act - expand returns list of expansion dicts
+        result = expander.expand(text)
 
-        # Assert
-        if result != abbrev:
-            assert expected.lower() in result.lower()
+        # Assert - should find and expand the abbreviation
+        assert len(result) >= 1
+        expanded_texts = [e.get('text', '').lower() for e in result]
+        assert any(expected.lower() in t for t in expanded_texts)
 
     def test_non_abbreviation_unchanged(self, expander):
-        """Test non-abbreviations are unchanged."""
+        """Test non-abbreviations return empty list."""
         # Arrange
-        text = "patient"
+        text = "patient takes medication"
 
         # Act
-        if hasattr(expander, 'expand'):
-            result = expander.expand(text)
-        else:
-            result = text
+        result = expander.expand(text)
 
-        # Assert
-        assert result.lower() == text.lower()
+        # Assert - no abbreviations to expand
+        # Only known abbreviations get expanded
+        for e in result:
+            assert e.get('original_abbrev', '') != 'patient'
 
     def test_case_insensitive(self, expander):
         """Test case-insensitive abbreviation matching."""
         # Arrange
-        texts = ["mtx", "MTX", "Mtx"]
+        texts = ["Patient with mtx", "Patient with MTX", "Patient with Mtx"]
 
         # Act
-        results = []
-        for text in texts:
-            if hasattr(expander, 'expand'):
-                results.append(expander.expand(text))
-            else:
-                results.append(text)
+        results = [expander.expand(text) for text in texts]
 
-        # Assert
-        # All should expand to same thing (or all stay unchanged)
-        if results[0] != texts[0]:
-            assert len(set(r.lower() for r in results)) == 1
+        # Assert - all should find the same abbreviation
+        for result in results:
+            if result:
+                expanded_texts = [e.get('text', '').lower() for e in result]
+                assert any('methotrexate' in t for t in expanded_texts)
 
 
 class TestDosageNormalizer:
@@ -178,60 +173,51 @@ class TestDosageNormalizer:
 
     # ==================== DOSAGE NORMALIZATION TESTS ====================
 
-    @pytest.mark.parametrize("input_dose,expected", [
-        ("0.5g", "500mg"),
-        ("0.5 g", "500mg"),
-        ("1g", "1000mg"),
-        ("0.25g", "250mg"),
+    @pytest.mark.parametrize("input_dose,expected_mg", [
+        ("0.5g", 500.0),
+        ("0.5 g", 500.0),
+        ("1g", 1000.0),
+        ("0.25g", 250.0),
     ])
-    def test_normalize_grams_to_mg(self, normalizer, input_dose, expected):
+    def test_normalize_grams_to_mg(self, normalizer, input_dose, expected_mg):
         """Test conversion of grams to milligrams."""
         # Arrange - via parametrize
 
-        # Act
-        if hasattr(normalizer, 'normalize'):
-            result = normalizer.normalize(input_dose)
-        elif hasattr(normalizer, 'normalize_dosage'):
-            result = normalizer.normalize_dosage(input_dose)
-        else:
-            result = input_dose
+        # Act - normalize returns a dict
+        result = normalizer.normalize(input_dose)
 
         # Assert
-        if result != input_dose:
-            assert expected.replace(' ', '') in result.replace(' ', '')
+        assert result.get('valid', False) is True
+        assert result.get('normalized_amount') == expected_mg
+        assert result.get('normalized_unit') == 'mg'
 
-    @pytest.mark.parametrize("input_dose,expected", [
-        ("15mg", "15mg"),
-        ("200 mg", "200mg"),
-        ("100mg", "100mg"),
+    @pytest.mark.parametrize("input_dose,expected_mg", [
+        ("15mg", 15.0),
+        ("200 mg", 200.0),
+        ("100mg", 100.0),
     ])
-    def test_mg_format_normalized(self, normalizer, input_dose, expected):
+    def test_mg_format_normalized(self, normalizer, input_dose, expected_mg):
         """Test mg dosages are formatted consistently."""
         # Arrange - via parametrize
 
-        # Act
-        if hasattr(normalizer, 'normalize'):
-            result = normalizer.normalize(input_dose)
-        else:
-            result = input_dose
+        # Act - normalize returns a dict
+        result = normalizer.normalize(input_dose)
 
         # Assert
-        # Should contain the numeric value
-        assert '15' in result or '200' in result or '100' in result or result == input_dose
+        assert result.get('valid', False) is True
+        assert result.get('normalized_amount') == expected_mg
 
     def test_invalid_dosage_unchanged(self, normalizer):
-        """Test invalid dosage strings are unchanged."""
+        """Test invalid dosage strings return invalid result."""
         # Arrange
         text = "take as needed"
 
         # Act
-        if hasattr(normalizer, 'normalize'):
-            result = normalizer.normalize(text)
-        else:
-            result = text
+        result = normalizer.normalize(text)
 
-        # Assert
-        assert result == text
+        # Assert - should indicate invalid
+        assert result.get('valid', True) is False
+        assert result.get('original') == text
 
 
 class TestAssertionClassifier:
@@ -250,47 +236,37 @@ class TestAssertionClassifier:
 
     # ==================== ASSERTION CLASSIFICATION TESTS ====================
 
-    @pytest.mark.parametrize("text,expected_assertion", [
-        ("Patient has fever", "positive"),
-        ("Patient denies fever", "negated"),
-        ("Patient may have fever", "uncertain"),
-        ("Patient had fever last month", "historical"),
-        ("Plan to start methotrexate", "plan"),
+    @pytest.mark.parametrize("text,entity_word,expected_assertion", [
+        ("Patient has fever today", "fever", "positive"),
+        ("Patient denies fever", "fever", "negated"),
+        ("Patient may have fever", "fever", "uncertain"),
+        ("Patient had fever last month", "fever", "historical"),
+        ("Plan to start methotrexate", "methotrexate", "plan"),
     ])
-    def test_classify_assertions(self, classifier, text, expected_assertion):
+    def test_classify_assertions(self, classifier, text, entity_word, expected_assertion):
         """Test classification of different assertion types."""
-        # Arrange - via parametrize
+        # Arrange - find entity position in text
+        entity_start = text.lower().find(entity_word.lower())
 
-        # Act
-        if hasattr(classifier, 'classify'):
-            result = classifier.classify(text)
-        elif hasattr(classifier, 'get_assertion'):
-            result = classifier.get_assertion(text)
-        else:
-            result = "positive"
+        # Act - classify takes (text, entity_start, window)
+        result = classifier.classify(text, entity_start)
 
         # Assert
-        if isinstance(result, dict):
-            assert result.get('assertion') == expected_assertion or result.get('type') == expected_assertion
-        elif isinstance(result, str):
-            assert result == expected_assertion or result in ['positive', 'negated', 'uncertain', 'historical', 'plan']
+        assert isinstance(result, dict)
+        assert result.get('assertion') == expected_assertion
 
     def test_default_is_positive(self, classifier):
-        """Test default assertion is positive."""
-        # Arrange
-        text = "methotrexate 15mg"  # No assertion markers
+        """Test default assertion is positive when no markers."""
+        # Arrange - no assertion markers, entity at end
+        text = "methotrexate 15mg"
+        entity_start = 0
 
         # Act
-        if hasattr(classifier, 'classify'):
-            result = classifier.classify(text)
-        else:
-            result = "positive"
+        result = classifier.classify(text, entity_start)
 
-        # Assert
-        if isinstance(result, dict):
-            assert result.get('assertion') in ['positive', None]
-        else:
-            assert result == "positive" or result is None
+        # Assert - default should be positive
+        assert isinstance(result, dict)
+        assert result.get('assertion') == 'positive'
 
 
 class TestContextRanker:
@@ -310,41 +286,47 @@ class TestContextRanker:
     # ==================== CONTEXT RANKING TESTS ====================
 
     def test_rank_entities(self, ranker):
-        """Test entity ranking by clinical relevance."""
-        # Arrange
-        entities = [
-            {'text': 'methotrexate', 'type': 'MEDICATION', 'confidence': 0.9},
-            {'text': 'pain', 'type': 'SYMPTOM', 'confidence': 0.7},
-            {'text': 'the', 'type': 'OTHER', 'confidence': 0.5},
-        ]
+        """Test entity ranking by clinical context."""
+        # Arrange - clinical decision context
+        text = "Treatment plan: start methotrexate 15mg weekly"
+        entity_start = text.find("methotrexate")
 
-        # Act
-        if hasattr(ranker, 'rank'):
-            result = ranker.rank(entities)
-        elif hasattr(ranker, 'rank_entities'):
-            result = ranker.rank_entities(entities)
-        else:
-            result = entities
+        # Act - rank takes (text, entity_start, window)
+        result = ranker.rank(text, entity_start)
 
         # Assert
-        assert isinstance(result, list)
-        # Medication should rank higher than generic word
-        if len(result) > 0:
-            assert result[0]['type'] in ['MEDICATION', 'SYMPTOM']
+        assert isinstance(result, dict)
+        assert result.get('context_score', 0) > 0.5  # High score for treatment plan
+        assert result.get('context_type') == 'clinical_decision'
 
-    def test_empty_entities_returns_empty(self, ranker):
-        """Test empty input returns empty list."""
-        # Arrange
-        entities = []
+    def test_rank_neutral_context(self, ranker):
+        """Test entity ranking in neutral context."""
+        # Arrange - neutral context
+        text = "Patient reports taking methotrexate at home"
+        entity_start = text.find("methotrexate")
 
         # Act
-        if hasattr(ranker, 'rank'):
-            result = ranker.rank(entities)
-        else:
-            result = []
+        result = ranker.rank(text, entity_start)
 
         # Assert
-        assert result == []
+        assert isinstance(result, dict)
+        # Should have lower score for neutral context
+        assert 'context_score' in result
+
+    def test_default_baseline_score(self, ranker):
+        """Test default baseline score for text without markers."""
+        # Arrange - text without any context markers
+        text = "methotrexate 15mg"
+        entity_start = 0
+
+        # Act
+        result = ranker.rank(text, entity_start)
+
+        # Assert - should return baseline score
+        assert isinstance(result, dict)
+        assert 'context_score' in result
+        # Baseline score is typically around 0.5
+        assert 0.0 <= result.get('context_score', 0) <= 1.0
 
 
 class TestTemporalAnchor:

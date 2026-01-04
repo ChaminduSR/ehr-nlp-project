@@ -208,10 +208,13 @@ class TestMedicalNotesDraftAPI:
     @pytest.fixture
     def sample_visit_id(self, test_database, db_connection):
         """Create a test patient and visit for draft tests."""
-        # Insert test patient
+        import uuid
+        unique_mrn = f"TEST-DRAFT-{uuid.uuid4().hex[:8]}"
+
+        # Insert test patient (mrn is required NOT NULL and UNIQUE)
         db_connection.execute(
-            "INSERT INTO patients (first_name, last_name) VALUES (?, ?)",
-            ('Test', 'Patient')
+            "INSERT INTO patients (mrn, first_name, last_name) VALUES (?, ?, ?)",
+            (unique_mrn, 'Test', 'Patient')
         )
         patient_id = db_connection.execute("SELECT last_insert_rowid()").fetchone()[0]
 
@@ -322,10 +325,13 @@ class TestMedicalNotesFinalizeAPI:
     @pytest.fixture
     def sample_note_id(self, test_database, db_connection):
         """Create a test note for finalize tests."""
-        # Insert test patient
+        import uuid
+        unique_mrn = f"TEST-FINALIZE-{uuid.uuid4().hex[:8]}"
+
+        # Insert test patient (mrn is required NOT NULL and UNIQUE)
         db_connection.execute(
-            "INSERT INTO patients (first_name, last_name) VALUES (?, ?)",
-            ('Test', 'Finalize')
+            "INSERT INTO patients (mrn, first_name, last_name) VALUES (?, ?, ?)",
+            (unique_mrn, 'Test', 'Finalize')
         )
         patient_id = db_connection.execute("SELECT last_insert_rowid()").fetchone()[0]
 
@@ -336,9 +342,9 @@ class TestMedicalNotesFinalizeAPI:
         )
         visit_id = db_connection.execute("SELECT last_insert_rowid()").fetchone()[0]
 
-        # Insert test note
+        # Insert test note (column is note_text per schema)
         db_connection.execute(
-            "INSERT INTO medical_notes (visit_id, text, status) VALUES (?, ?, ?)",
+            "INSERT INTO medical_notes (visit_id, note_text, status) VALUES (?, ?, ?)",
             (visit_id, 'Patient on methotrexate for RA', 'draft')
         )
         note_id = db_connection.execute("SELECT last_insert_rowid()").fetchone()[0]
