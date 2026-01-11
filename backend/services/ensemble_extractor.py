@@ -425,6 +425,11 @@ class EnsembleExtractor(BaseEntityExtractor):
         # Collect entity links
         links = self._collect_entity_links(results)
 
+        # Apply abbreviation expansion for UI display
+        from .abbreviation_utils import expand_abbreviations
+        merged_entities = expand_abbreviations(merged_entities)
+        inferred = expand_abbreviations(inferred)
+
         processing_time = (time.time() - start_time) * 1000
 
         return {

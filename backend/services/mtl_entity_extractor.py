@@ -240,9 +240,12 @@ class MTLEntityExtractor(BaseEntityExtractor):
                 )
 
                 # Check if entity is within scope of any NEGATION span
-                entity['is_negated'] = self._check_negation_from_spans(
-                    entity_dict['start'], entity_dict['end'], negation_spans
+                is_negated, negation_cue = self._check_negation_with_cue(
+                    entity_dict['start'], entity_dict['end'], negation_spans, text
                 )
+                entity['is_negated'] = is_negated
+                if is_negated and negation_cue:
+                    entity['negation_cue'] = negation_cue
 
                 entities.append(entity)
 
@@ -473,6 +476,38 @@ class MTLEntityExtractor(BaseEntityExtractor):
                 return True
 
         return False
+
+    def _check_negation_with_cue(
+        self,
+        entity_start: int,
+        entity_end: int,
+        negation_spans: List[Tuple[int, int]],
+        text: str
+    ) -> Tuple[bool, Optional[str]]:
+        """
+        Check if entity is negated and return the negation cue text.
+
+        Args:
+            entity_start: Starting position of entity
+            entity_end: Ending position of entity
+            negation_spans: List of (start, end) tuples for NEGATION entities
+            text: Original text to extract cue from
+
+        Returns:
+            Tuple of (is_negated, negation_cue_text)
+        """
+        for neg_start, neg_end in negation_spans:
+            # Check if negation is before entity (within scope)
+            if neg_end <= entity_start and (entity_start - neg_end) <= self.NEGATION_SCOPE:
+                cue_text = text[neg_start:neg_end].strip()
+                return True, cue_text
+
+            # Check if negation is after entity (within scope)
+            if neg_start >= entity_end and (neg_start - entity_end) <= self.NEGATION_SCOPE:
+                cue_text = text[neg_start:neg_end].strip()
+                return True, cue_text
+
+        return False, None
 
     def _extract_lab_tests(
         self,

@@ -24,7 +24,8 @@
       "Bash(timeout 5 npx:*)",
       "Bash(python backend/services/regex_entity_extractor.py:*)",
       "Bash(PYTHONPATH=. python:*)",
-      "Bash(python app.py:*)"
+      "Bash(python app.py:*)",
+      "Bash(dir /s /b \"c:\\\\Users\\\\Research\\\\Documents\\\\Projects\\\\ehr-nlp-project\\\\docs\\\\guidelines\")"
     ],
     "deny": [],
     "ask": []

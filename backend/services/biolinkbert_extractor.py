@@ -57,6 +57,24 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
     # Similarity threshold for entity matching
     SIMILARITY_THRESHOLD = 0.70
 
+    # Type normalization for inference rules and entity linking
+    # Maps various entity type names to canonical types
+    TYPE_NORMALIZATION = {
+        # Current model types -> canonical
+        'DRUG': 'MEDICATION',
+        'CONDITION': 'DISEASE',
+        'LAB_TEST': 'LAB',
+        'LAB_RESULT': 'LAB',
+        'SYMPTOM': 'SYMPTOM',
+        'DOSAGE': 'DOSAGE',
+        'FREQUENCY': 'FREQUENCY',
+        # Already canonical (no change)
+        'MEDICATION': 'MEDICATION',
+        'DISEASE': 'DISEASE',
+        'LAB': 'LAB',
+        'INFERRED_DIAGNOSIS': 'INFERRED_DIAGNOSIS',
+    }
+
     # =========================================
     # INFERENCE RULES (Rheumatology Focus)
     # =========================================
@@ -237,16 +255,18 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
         },
     }
 
-    # Relationship types for entity linking
+    # Relationship types for entity linking (use normalized types)
     RELATIONSHIP_TYPES = {
         ('MEDICATION', 'DISEASE'): 'TREATS',
         ('MEDICATION', 'INFERRED_DIAGNOSIS'): 'TREATS',
         ('SYMPTOM', 'DISEASE'): 'SYMPTOM_OF',
         ('SYMPTOM', 'INFERRED_DIAGNOSIS'): 'SYMPTOM_OF',
-        ('LAB_TEST', 'DISEASE'): 'INDICATES',
-        ('LAB_TEST', 'INFERRED_DIAGNOSIS'): 'INDICATES',
+        ('LAB', 'DISEASE'): 'INDICATES',
+        ('LAB', 'INFERRED_DIAGNOSIS'): 'INDICATES',
         ('MEDICATION', 'SYMPTOM'): 'ALLEVIATES',
-        ('LAB_TEST', 'SYMPTOM'): 'CORRELATES_WITH',
+        ('LAB', 'SYMPTOM'): 'CORRELATES_WITH',
+        ('DOSAGE', 'MEDICATION'): 'DOSE_OF',
+        ('FREQUENCY', 'MEDICATION'): 'SCHEDULE_OF',
     }
 
     # Reference embeddings for common medical terms (lazy loaded)
@@ -347,6 +367,34 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
             return 0.0
         return float(np.dot(emb1, emb2) / (norm1 * norm2))
 
+    def _normalize_type(self, entity_type: str) -> str:
+        """Normalize entity type to canonical form for rule matching."""
+        return self.TYPE_NORMALIZATION.get(entity_type, entity_type)
+
+    def _symptom_matches(self, entity_text: str, symptom_pattern: str) -> bool:
+        """
+        Check if entity text matches a symptom pattern with fuzzy matching.
+
+        Handles variations like:
+        - "joint pain" matches "pain in joints"
+        - "morning stiffness" matches "stiff in morning"
+        """
+        entity_lower = entity_text.lower()
+        pattern_lower = symptom_pattern.lower()
+
+        # Exact match
+        if pattern_lower in entity_lower or entity_lower in pattern_lower:
+            return True
+
+        # Word overlap matching (at least 50% of pattern words must match)
+        pattern_words = set(pattern_lower.split())
+        entity_words = set(entity_lower.split())
+        overlap = pattern_words & entity_words
+        if len(overlap) >= len(pattern_words) * 0.5:
+            return True
+
+        return False
+
     def _find_entity_mentions(self, text: str, entities_from_other_extractors: List[Entity]) -> List[Entity]:
         """
         Find entity mentions in text using semantic similarity.
@@ -383,6 +431,8 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
         """
         Match entities against inference rules to infer diagnoses.
 
+        Uses fuzzy matching and partial symptom matching (60%+ threshold).
+
         Args:
             entities: List of extracted entities
             text: Original text (for context)
@@ -393,7 +443,7 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
         inferred = []
         text_lower = text.lower()
 
-        # Collect entity texts by type
+        # Collect entity texts by normalized type
         symptoms_found = set()
         labs_found = set()
         imaging_found = set()
@@ -401,10 +451,11 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
         for entity in entities:
             entity_text = entity.get('text', '').lower()
             entity_type = entity.get('type', '')
+            normalized_type = self._normalize_type(entity_type)
 
-            if entity_type in ['SYMPTOM', 'CONDITION']:
+            if normalized_type in ['SYMPTOM', 'DISEASE']:
                 symptoms_found.add(entity_text)
-            elif entity_type in ['LAB_TEST', 'LAB_RESULT']:
+            elif normalized_type == 'LAB':
                 labs_found.add(entity_text)
 
         # Also scan text directly for rule markers
@@ -414,20 +465,23 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
             matched_labs = []
             matched_imaging = []
 
-            # Check symptoms
+            # Check symptoms with fuzzy matching
             for symptom in rule.get('symptoms', []):
                 symptom_lower = symptom.lower()
-                if symptom_lower in text_lower or any(
-                    symptom_lower in s for s in symptoms_found
-                ):
+                # Direct text match
+                if symptom_lower in text_lower:
+                    matches.append(('symptom', symptom))
+                    matched_symptoms.append(symptom)
+                # Fuzzy match against extracted entities
+                elif any(self._symptom_matches(s, symptom) for s in symptoms_found):
                     matches.append(('symptom', symptom))
                     matched_symptoms.append(symptom)
 
-            # Check labs
+            # Check labs with fuzzy matching
             for lab in rule.get('labs', []):
                 lab_lower = lab.lower()
                 if lab_lower in text_lower or any(
-                    lab_lower in l for l in labs_found
+                    lab_lower in l or l in lab_lower for l in labs_found
                 ):
                     matches.append(('lab', lab))
                     matched_labs.append(lab)
@@ -438,8 +492,13 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
                     matches.append(('imaging', imaging))
                     matched_imaging.append(imaging)
 
-            # Check if minimum matches met
-            if len(matches) >= rule.get('min_match', 3):
+            # Calculate match ratio for partial matching
+            total_rule_items = len(rule.get('symptoms', [])) + len(rule.get('labs', [])) + len(rule.get('imaging', []))
+            match_ratio = len(matches) / total_rule_items if total_rule_items > 0 else 0
+            min_match = rule.get('min_match', 3)
+
+            # Accept if minimum matches met OR 60%+ partial match
+            if len(matches) >= min_match or match_ratio >= 0.6:
                 # Check required categories
                 required_cats = rule.get('required_categories', [])
                 cats_met = True
@@ -509,6 +568,8 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
         """
         Create relationship links between entities.
 
+        Uses normalized types for relationship matching.
+
         Args:
             entities: Extracted entities
             inferred: Inferred diagnoses
@@ -521,26 +582,31 @@ class BioLinkBERTExtractor(BaseEntityExtractor):
 
         for i, e1 in enumerate(all_entities):
             for e2 in all_entities[i + 1:]:
-                type1 = e1.get('type', '')
-                type2 = e2.get('type', '')
+                # Normalize types for relationship lookup
+                type1 = self._normalize_type(e1.get('type', ''))
+                type2 = self._normalize_type(e2.get('type', ''))
 
                 # Check for known relationship types
                 relationship = self.RELATIONSHIP_TYPES.get((type1, type2))
+                source_entity, target_entity = e1, e2
+
                 if not relationship:
                     relationship = self.RELATIONSHIP_TYPES.get((type2, type1))
                     if relationship:
                         # Swap order for correct directionality
-                        e1, e2 = e2, e1
+                        source_entity, target_entity = e2, e1
 
                 if relationship:
                     # Calculate link confidence based on entity confidences
-                    conf1 = e1.get('confidence', 0.5)
-                    conf2 = e2.get('confidence', 0.5)
+                    conf1 = source_entity.get('confidence', 0.5)
+                    conf2 = target_entity.get('confidence', 0.5)
                     link_confidence = (conf1 + conf2) / 2
 
                     links.append({
-                        'source': e1.get('text', ''),
-                        'target': e2.get('text', ''),
+                        'source': source_entity.get('text', ''),
+                        'source_type': type1 if source_entity is e1 else type2,
+                        'target': target_entity.get('text', ''),
+                        'target_type': type2 if target_entity is e2 else type1,
                         'relationship': relationship,
                         'confidence': round(link_confidence, 3),
                     })

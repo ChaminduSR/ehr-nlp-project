@@ -27,7 +27,8 @@ These guidelines are specific to the Rheumatology EHR project and derived from `
 
 *   **Structure**: Follow the established Flask Blueprint pattern.
     *   **Routes**: `backend/routes/` (One file per domain, e.g., `patients.py`)
-    *   **Services**: `backend/services/` (Business logic, e.g., `nlp_engine.py`)
+    *   **Services**: `backend/services/` (Business logic, e.g., `nlp_engine.py`, `*_extractor.py`)
+    *   **NLP Config**: `backend/nlp_config/` (ML version selection and factory)
     *   **Models**: `backend/models/` (Database models)
     *   **Utils**: `backend/utils/` (Shared helpers)
 *   **New Features**:
@@ -52,6 +53,8 @@ These guidelines are specific to the Rheumatology EHR project and derived from `
 | Joint Assessments | ✅ Done | `routes/joint_assessments.py` |
 | Pico CSS + SASS Theme | ✅ Done | `static/scss/custom-theme.scss` |
 | Reports & Dashboard | ✅ Done | `routes/analytics.py` |
+| ML Entity Extraction (4-tier) | ✅ Done | `services/*_extractor.py`, `nlp_config/` |
+| BioLinkBERT Inference | ✅ Done | `services/biolinkbert_extractor.py` |
 
 ---
 

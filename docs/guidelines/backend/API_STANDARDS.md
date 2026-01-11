@@ -260,8 +260,115 @@ class PatientCreate(BaseModel):
 
 ---
 
-## 12. Reference
+## 12. ML Entity Extraction Endpoints
+
+### 12.1 Extract Entities
+
+**Endpoint**: `POST /api/v1/medical_notes/extract`
+
+**Purpose**: Extract medical entities from text without saving to database.
+
+**Request**:
+```json
+{
+  "text": "Patient takes methotrexate 15mg weekly for rheumatoid arthritis. Labs show ESR 45, CRP elevated."
+}
+```
+
+**Response** (Version A/B/C):
+```json
+{
+  "success": true,
+  "raw_entities": [
+    {"text": "methotrexate", "type": "MEDICATION", "start": 14, "end": 26, "confidence": 0.95},
+    {"text": "15mg", "type": "DOSAGE", "start": 27, "end": 31, "confidence": 0.92},
+    {"text": "weekly", "type": "FREQUENCY", "start": 32, "end": 38, "confidence": 0.90},
+    {"text": "rheumatoid arthritis", "type": "DISEASE", "start": 43, "end": 63, "confidence": 0.97}
+  ],
+  "structured": {
+    "medications": ["methotrexate"],
+    "conditions": ["rheumatoid arthritis"],
+    "symptoms": [],
+    "lab_tests": ["ESR", "CRP"]
+  },
+  "nlp_version": "C",
+  "model_name": "two-tier-v1",
+  "processing_time_ms": 234.5,
+  "entity_count": 6
+}
+```
+
+**Response** (Version D - Ensemble, additional fields):
+```json
+{
+  "success": true,
+  "raw_entities": [...],
+  "structured": {...},
+  "nlp_version": "D",
+  "model_name": "ensemble-v1",
+  "processing_time_ms": 456.2,
+  "entity_count": 8,
+  "inferred": [
+    {
+      "text": "Rheumatoid Arthritis",
+      "type": "INFERRED_DIAGNOSIS",
+      "confidence": 0.89,
+      "matched_rule": "ra_rule",
+      "linked_from": ["joint pain", "RF positive", "methotrexate"]
+    }
+  ],
+  "links": [
+    {"source": "methotrexate", "target": "rheumatoid arthritis", "relationship": "TREATS", "confidence": 0.95}
+  ],
+  "agreement_summary": {
+    "full_agreement": 4,
+    "partial_agreement": 2,
+    "single_source": 2
+  },
+  "extractors_used": ["regex_v2.2", "two_tier_v1", "biolinkbert"]
+}
+```
+
+**Pydantic Schema**: `MedicalNoteExtractRequest`
+
+### 12.2 Finalize Note (with NLP)
+
+**Endpoint**: `POST /api/v1/medical_notes/finalize`
+
+**Purpose**: Finalize a draft note and trigger NLP extraction.
+
+**Request**:
+```json
+{
+  "note_id": 123,
+  "text": "Patient takes methotrexate..."
+}
+```
+
+**Response**: Same structure as `/extract` plus:
+```json
+{
+  "success": true,
+  "note_id": 123,
+  "status": "finalized",
+  "signed_at": "2025-01-10T14:30:00Z",
+  "entities_extracted": 8,
+  "processing_time_ms": 456.2,
+  "nlp_version": "D",
+  "entities": [...],
+  "inferred": [...],
+  "links": [...]
+}
+```
+
+**Pydantic Schema**: `MedicalNoteFinalizeRequest`
+
+---
+
+## 13. Reference
 
 *   `routes/patients.py` - Example of REST + Fragment endpoints
 *   `routes/visits.py` - Example of nested resource
+*   `routes/medical_notes.py` - Entity extraction endpoints
 *   `templates/fragments/` - HTMX fragment templates
+*   `schemas.py` - Pydantic request/response models
