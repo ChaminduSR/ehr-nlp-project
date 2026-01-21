@@ -70,7 +70,7 @@ export function initReports(Alpine) {
                     filters: this.filters
                 };
 
-                const response = await fetch('/api/reports/generate', {
+                const response = await fetch('/api/v1/reports/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -84,7 +84,7 @@ export function initReports(Alpine) {
                 // Trigger HTMX to load preview
                 this.$nextTick(() => {
                     const previewDiv = document.getElementById('report-preview').firstElementChild;
-                    let url = `/api/reports/preview?type=${this.reportType}`;
+                    let url = `/api/v1/reports/preview?type=${this.reportType}`;
                     if (this.selectedPatient) {
                         url += `&patient_id=${this.selectedPatient.id}`;
                     }

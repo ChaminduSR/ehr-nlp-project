@@ -4,22 +4,22 @@
 <div class="container" x-data="dashboardData" x-init="init()">
 
   <!-- Header -->
-  <div class="grid">
-    <div>
-      <h1>Clinic Dashboard</h1>
-      <p x-text="'Last updated: ' + new Date().toLocaleTimeString()"></p>
-    </div>
-  </div>
+  <header style="margin-bottom: 2rem;">
+    <h1 class="mb-0">Clinic Dashboard</h1>
+    <p class="text-muted" style="margin-top: 0.25rem;" x-text="'Last updated: ' + new Date().toLocaleTimeString()"></p>
+  </header>
 
-  <!-- KPI Stats (Modern glass cards) -->
-  <div class="stats">
-    <article class="stat glass glass-hover">
+  <!-- KPI Stats (Hero Layout) -->
+  <div class="stats-hero">
+    
+    <!-- Hero Stat: Patients Today -->
+    <article class="stat stat-xl glass">
       <div class="stat-title">Patients Today</div>
-      <div class="stat-value" x-text="stats.patientsToday">
-        <template x-if="loading">
-          <span class="skeleton" style="width: 3rem; height: 2.25rem; display: inline-block;"></span>
+      <div class="stat-value">
+        <template x-if="isLoading">
+          <span class="skeleton" style="width: 4rem; height: 3.5rem; display: inline-block;"></span>
         </template>
-        <span x-show="!loading" x-text="stats.patientsToday">0</span>
+        <span x-show="!isLoading" x-text="stats.patientsToday">0</span>
       </div>
       <div class="stat-desc" x-show="stats.patientsTodayChange">
         <span :class="stats.patientsTodayChange > 0 ? 'stat-desc-success' : 'stat-desc-error'"
@@ -27,72 +27,87 @@
       </div>
     </article>
 
-    <article class="stat glass glass-hover">
-      <div class="stat-title">Avg DAS28</div>
-      <div class="stat-value">
-        <template x-if="loading">
-          <span class="skeleton" style="width: 3rem; height: 2.25rem; display: inline-block;"></span>
-        </template>
-        <span x-show="!loading" x-text="(stats.avgDAS28).toFixed(1)">0.0</span>
-      </div>
-      <div class="stat-desc">
-        <span class="badge-modern"
-              :class="stats.avgDAS28 < 2.6 ? 'badge-success' : (stats.avgDAS28 < 3.2 ? 'badge-warning' : 'badge-error')"
-              x-text="stats.avgDAS28 < 2.6 ? 'Remission' : (stats.avgDAS28 < 3.2 ? 'Low' : 'Active')"></span>
-      </div>
-    </article>
+    <!-- Secondary Stats -->
+    <div class="stats-secondary">
+      
+      <!-- Avg DAS28 -->
+      <article class="stat glass glass-hover">
+        <div class="stat-title">Avg DAS28</div>
+        <div class="stat-value">
+          <template x-if="isLoading">
+            <span class="skeleton" style="width: 3rem; height: 2.25rem; display: inline-block;"></span>
+          </template>
+          <span x-show="!isLoading" x-text="(stats.avgDAS28).toFixed(1)">0.0</span>
+        </div>
+        <div class="stat-desc">
+          <span class="badge-modern"
+                :class="stats.avgDAS28 < 2.6 ? 'badge-success' : (stats.avgDAS28 < 3.2 ? 'badge-warning' : 'badge-error')"
+                x-text="stats.avgDAS28 < 2.6 ? 'Remission' : (stats.avgDAS28 < 3.2 ? 'Low' : 'Active')"></span>
+        </div>
+      </article>
 
-    <article class="stat glass glass-hover">
-      <div class="stat-title">In Remission</div>
-      <div class="stat-value text-success">
-        <template x-if="loading">
-          <span class="skeleton" style="width: 3rem; height: 2.25rem; display: inline-block;"></span>
-        </template>
-        <span x-show="!loading" x-text="stats.remissionPercent + '%'">0%</span>
-      </div>
-      <div class="stat-desc stat-desc-success" x-text="'Target: 50%'"></div>
-    </article>
+      <!-- In Remission -->
+      <article class="stat glass glass-hover">
+        <div class="stat-title">In Remission</div>
+        <div class="stat-value text-success">
+          <template x-if="isLoading">
+            <span class="skeleton" style="width: 3rem; height: 2.25rem; display: inline-block;"></span>
+          </template>
+          <span x-show="!isLoading" x-text="stats.remissionPercent + '%'">0%</span>
+        </div>
+        <div class="stat-desc stat-desc-success">Target: 50%</div>
+      </article>
 
-    <article class="stat glass glass-hover">
-      <div class="stat-title">Pending Reviews</div>
-      <div class="stat-value" :class="stats.pendingReviews > 5 ? 'text-warning' : ''">
-        <template x-if="loading">
-          <span class="skeleton" style="width: 3rem; height: 2.25rem; display: inline-block;"></span>
-        </template>
-        <span x-show="!loading" x-text="stats.pendingReviews">0</span>
-      </div>
-      <div class="stat-desc" x-show="stats.pendingReviews > 0">
-        <span class="badge-modern badge-warning" x-text="'Needs attention'"></span>
-      </div>
-    </article>
+      <!-- Pending Reviews -->
+      <article class="stat glass glass-hover">
+        <div class="stat-title">Pending Reviews</div>
+        <div class="stat-value" :class="stats.pendingReviews > 5 ? 'text-warning' : ''">
+          <template x-if="isLoading">
+            <span class="skeleton" style="width: 3rem; height: 2.25rem; display: inline-block;"></span>
+          </template>
+          <span x-show="!isLoading" x-text="stats.pendingReviews">0</span>
+        </div>
+        <div class="stat-desc" x-show="stats.pendingReviews > 0">
+          <span class="badge-modern badge-warning">Needs attention</span>
+        </div>
+        <div class="stat-desc text-muted" x-show="stats.pendingReviews === 0">All caught up</div>
+      </article>
+
+    </div>
   </div>
 
   <!-- Charts Section (Lazy-loaded) -->
-  <div class="grid">
+  <div class="grid" style="margin-top: 2rem;">
 
     <!-- Distribution Chart -->
     <article>
-      <header>Disease Activity Distribution</header>
-      <button @click="loadChart('distribution')" class="secondary outline" x-show="!charts.distribution">
-        📊 Load Chart
-      </button>
+      <header class="accent">Disease Activity Distribution</header>
+      <div x-show="!charts.distribution" style="text-align: center; padding: 2rem 0;">
+        <button @click="loadChart('distribution')" class="secondary outline">
+          📊 Load Chart
+        </button>
+        <p class="text-muted" style="font-size: 0.85rem; margin-top: 0.5rem;">Click to load visualization</p>
+      </div>
       <div id="chart-distribution" style="height: 350px; width: 100%;" x-show="charts.distribution"></div>
     </article>
 
     <!-- Trend Chart -->
     <article>
-      <header>DAS28 Trend (Last 30 Days)</header>
-      <button @click="loadChart('trend')" class="secondary outline" x-show="!charts.trend">
-        📈 Load Chart
-      </button>
+      <header class="accent">DAS28 Trend (Last 30 Days)</header>
+      <div x-show="!charts.trend" style="text-align: center; padding: 2rem 0;">
+        <button @click="loadChart('trend')" class="secondary outline">
+          📈 Load Chart
+        </button>
+        <p class="text-muted" style="font-size: 0.85rem; margin-top: 0.5rem;">Click to load visualization</p>
+      </div>
       <div id="chart-trend" style="height: 350px; width: 100%;" x-show="charts.trend"></div>
     </article>
   </div>
 
   <!-- Recent Visits Table -->
-  <article>
-    <header><strong>Recent Visits</strong></header>
-    <div hx-get="/api/dashboard/recent-visits" hx-trigger="load" hx-swap="innerHTML" hx-target="this">
+  <article style="margin-top: 2rem;">
+    <header class="accent">Recent Visits</header>
+    <div hx-get="/api/v1/dashboard/recent-visits" hx-trigger="load" hx-swap="innerHTML" hx-target="this">
       <div aria-busy="true">Loading visits...</div>
     </div>
   </article>

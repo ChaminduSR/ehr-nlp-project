@@ -7,7 +7,8 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "test": "node --test tests/**/*.test.js",
+    "test": "node --test tests/frontend/*.test.js",
+    "test:all": "pytest tests/ && node --test tests/frontend/*.test.js",
     "sass": "sass --watch backend/static/scss:backend/static/css --load-path=node_modules/@picocss/pico/scss/",
     "sass:migrate": "npx sass-migrator module backend/static/scss",
     "sass:build": "sass backend/static/scss/custom-theme.scss backend/static/css/theme.css --load-path=node_modules/@picocss/pico/scss/ --style compressed && python scripts/css_cleanup.py",

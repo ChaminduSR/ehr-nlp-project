@@ -526,3 +526,72 @@ def assert_inferred_diagnosis(
         raise AssertionError(error_msg)
 
     return matching[0]
+
+
+# ==============================================================================
+# API CONTRACT ASSERTIONS
+# ==============================================================================
+
+def assert_response_has_keys(
+    response_json: Dict,
+    required_keys: List[str],
+    msg: Optional[str] = None
+) -> None:
+    """
+    Assert that API response JSON contains all required keys.
+
+    Example:
+        result = json.loads(response.data)
+        assert_response_has_keys(result, ['data', 'pagination'])
+    """
+    missing = [k for k in required_keys if k not in response_json]
+    if missing:
+        error_msg = (
+            f"Response missing required keys: {missing}\n"
+            f"Got keys: {list(response_json.keys())}"
+        )
+        if msg:
+            error_msg = f"{msg}\n{error_msg}"
+        raise AssertionError(error_msg)
+
+
+def assert_is_list(value: Any, msg: Optional[str] = None) -> None:
+    """
+    Assert that value is a list (not wrapped in object).
+
+    Catches Bug #2: Frontend expected array but got {data: []}
+    """
+    if not isinstance(value, list):
+        error_msg = f"Expected list, got {type(value).__name__}: {repr(value)[:100]}"
+        if msg:
+            error_msg = f"{msg}\n{error_msg}"
+        raise AssertionError(error_msg)
+
+
+def assert_is_dict(value: Any, msg: Optional[str] = None) -> None:
+    """
+    Assert that value is a dictionary.
+    """
+    if not isinstance(value, dict):
+        error_msg = f"Expected dict, got {type(value).__name__}: {repr(value)[:100]}"
+        if msg:
+            error_msg = f"{msg}\n{error_msg}"
+        raise AssertionError(error_msg)
+
+
+def assert_pagination_structure(
+    pagination: Dict,
+    msg: Optional[str] = None
+) -> None:
+    """
+    Assert pagination object has standard structure.
+
+    Expected: {page, per_page, total_count, total_pages, has_next, has_prev}
+    """
+    required = ['page', 'per_page', 'total_count', 'total_pages', 'has_next', 'has_prev']
+    missing = [k for k in required if k not in pagination]
+    if missing:
+        error_msg = f"Pagination missing keys: {missing}\nGot: {pagination}"
+        if msg:
+            error_msg = f"{msg}\n{error_msg}"
+        raise AssertionError(error_msg)

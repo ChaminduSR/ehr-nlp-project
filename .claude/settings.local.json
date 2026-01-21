@@ -25,7 +25,14 @@
       "Bash(python backend/services/regex_entity_extractor.py:*)",
       "Bash(PYTHONPATH=. python:*)",
       "Bash(python app.py:*)",
-      "Bash(dir /s /b \"c:\\\\Users\\\\Research\\\\Documents\\\\Projects\\\\ehr-nlp-project\\\\docs\\\\guidelines\")"
+      "Bash(dir /s /b \"c:\\\\Users\\\\Research\\\\Documents\\\\Projects\\\\ehr-nlp-project\\\\docs\\\\guidelines\")",
+      "Bash(python -c:*)",
+      "Bash(conda activate:*)",
+      "Bash(findstr:*)",
+      "Bash(where:*)",
+      "Bash(dir:*)",
+      "Bash(conda info:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

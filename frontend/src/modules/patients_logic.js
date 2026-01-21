@@ -20,7 +20,9 @@ export function patientsManager() {
       async fetchPatients() {
         try {
           const res = await fetch('/api/v1/patients');
-          this.patients = await res.json();
+          const json = await res.json();
+          // API returns {data: [...], pagination: {...}}
+          this.patients = json.data || [];
           this.filterPatients();
         } catch (e) {
           console.error("Failed to fetch patients", e);

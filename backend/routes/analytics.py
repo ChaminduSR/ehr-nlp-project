@@ -9,7 +9,7 @@ analytics_bp = Blueprint('analytics', __name__)
 
 # --- Dashboard API ---
 
-@analytics_bp.route('/api/dashboard/stats')
+@analytics_bp.route('/dashboard/stats')
 def dashboard_stats():
     """Get KPI statistics for dashboard (Mock Data)"""
     # In a real implementation, query the database
@@ -20,7 +20,7 @@ def dashboard_stats():
         'pendingReviews': 5
     })
 
-@analytics_bp.route('/api/dashboard/distribution')
+@analytics_bp.route('/dashboard/distribution')
 def dashboard_distribution():
     """Get disease activity distribution for pie chart (Mock Data)"""
     return jsonify({
@@ -30,7 +30,7 @@ def dashboard_distribution():
         'high': 5
     })
 
-@analytics_bp.route('/api/dashboard/trend')
+@analytics_bp.route('/dashboard/trend')
 def dashboard_trend():
     """Get 30-day DAS28 trend for line chart (Mock Data)"""
     dates = [(datetime.now() - timedelta(days=i)).strftime('%m/%d') for i in range(30, 0, -1)]
@@ -43,7 +43,7 @@ def dashboard_trend():
         'scores': scores
     })
 
-@analytics_bp.route('/api/dashboard/recent-visits')
+@analytics_bp.route('/dashboard/recent-visits')
 def dashboard_recent_visits():
     """Return recent visits table as HTML (Mock Data)"""
     # Mock visits
@@ -59,7 +59,7 @@ def dashboard_recent_visits():
 
 # --- Reports API ---
 
-@analytics_bp.route('/api/reports/generate', methods=['POST'])
+@analytics_bp.route('/reports/generate', methods=['POST'])
 def generate_report():
     """Generate report data (Mock)"""
     data = request.json
@@ -68,7 +68,7 @@ def generate_report():
     # Simulate processing
     return jsonify({'status': 'ok', 'report_type': report_type})
 
-@analytics_bp.route('/api/reports/preview')
+@analytics_bp.route('/reports/preview')
 def report_preview():
     """Render report preview (Mock)"""
     report_type = request.args.get('type', 'summary')
@@ -94,7 +94,7 @@ def report_preview():
                            medications=medications,
                            now=datetime.now)
 
-@analytics_bp.route('/api/reports/export-pdf')
+@analytics_bp.route('/reports/export-pdf')
 def export_pdf():
     """Export report as PDF (Mock - returns text file for now)"""
     # In real implementation, use WeasyPrint
@@ -106,7 +106,7 @@ def export_pdf():
         download_name='report.pdf'
     )
 
-@analytics_bp.route('/api/reports/export-csv')
+@analytics_bp.route('/reports/export-csv')
 def export_csv():
     """Export report as CSV (Mock)"""
     csv_content = "Date,DAS28,TJC,SJC\n2023-10-24,2.4,1,0\n2023-09-24,3.1,3,1"

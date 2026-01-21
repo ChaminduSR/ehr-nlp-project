@@ -46,7 +46,7 @@ export function initDashboard(Alpine) {
 
             this.isLoading = true;
             try {
-                const response = await fetch('/api/dashboard/stats');
+                const response = await fetch('/api/v1/dashboard/stats');
                 const data = await response.json();
                 this.stats = data;
                 cache.set('stats', data);
@@ -95,7 +95,7 @@ export function initDashboard(Alpine) {
             // Check cache first
             let data = cache.get('distribution');
             if (!data) {
-                const response = await fetch('/api/dashboard/distribution');
+                const response = await fetch('/api/v1/dashboard/distribution');
                 data = await response.json();
                 cache.set('distribution', data);
             }
@@ -146,7 +146,7 @@ export function initDashboard(Alpine) {
             // Check cache first
             let data = cache.get('trend');
             if (!data) {
-                const response = await fetch('/api/dashboard/trend');
+                const response = await fetch('/api/v1/dashboard/trend');
                 data = await response.json();
                 cache.set('trend', data);
             }

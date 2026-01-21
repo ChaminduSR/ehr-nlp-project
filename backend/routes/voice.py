@@ -10,9 +10,9 @@ voice_bp = Blueprint('voice', __name__)
 # Global VOSK model (lazy loaded)
 vosk_model = None
 
-@voice_bp.route('/load-model', methods=['POST'])
+@voice_bp.route('/model', methods=['POST'])
 def load_vosk_model():
-    """Load VOSK model on first use (lazy loading)"""
+    """Initialize VOSK model on first use (lazy loading)"""
     global vosk_model
 
     if vosk_model is None:
@@ -106,8 +106,8 @@ async def transcribe_audio():
     # Check if model is loaded
     if vosk_model is None:
         return jsonify({
-            'error': 'VOSK model not loaded. Call /api/v1/voice/load-model first',
-            'hint': 'POST to /api/v1/voice/load-model before transcribing'
+            'error': 'VOSK model not loaded. Call /api/v1/voice/model first',
+            'hint': 'POST to /api/v1/voice/model before transcribing'
         }), 400
 
     # Check if audio file provided

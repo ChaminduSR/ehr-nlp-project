@@ -1,7 +1,13 @@
 """
-Unit tests for Version A: Regex Entity Extractor (V2.1 Enhanced)
+Unit tests for Version A: Regex Entity Extractor (V2.2 Enhanced)
 
 Tests comprehensive regex pattern matching for rheumatology clinical NLP.
+
+V2.2 Updates:
+- Model name: 'regex-v2.1' → 'regex-v2.2-enhanced'
+- Enhanced pattern matching and entity normalization
+- Improved abbreviation expansion
+- Better entity boundary detection
 
 V2.1 Updates:
 - Model name: 'regex' → 'regex-v2.1'
@@ -33,17 +39,17 @@ class TestRegexEntityExtractor:
     # ============================================================================
 
     def test_extractor_initialization(self, extractor):
-        """Test that extractor initializes correctly (V2.1)"""
+        """Test that extractor initializes correctly (V2.2)"""
         assert extractor is not None
         assert extractor.get_version() == 'A'
-        assert extractor.get_model_name() == 'regex-v2.1'  # V2.1: Updated from 'regex'
+        assert extractor.get_model_name() == 'regex-v2.2-enhanced'  # V2.2: Updated from 'regex-v2.1'
 
     def test_empty_text_extraction(self, extractor):
-        """Test extraction with empty text (V2.1)"""
+        """Test extraction with empty text (V2.2)"""
         result = extractor.extract("")
 
         assert result['version'] == 'A'
-        assert result['model_name'] == 'regex-v2.1'  # V2.1: Updated from 'regex'
+        assert result['model_name'] == 'regex-v2.2-enhanced'  # V2.2: Updated from 'regex-v2.1'
         assert isinstance(result['entities'], list)
         assert len(result['entities']) == 0
         assert result['processing_time_ms'] >= 0

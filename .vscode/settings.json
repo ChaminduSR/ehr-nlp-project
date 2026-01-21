@@ -1,6 +1,6 @@
 {
   // Python Configuration
-  "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
+  "python.defaultInterpreterPath": "C:\\Users\\Research\\anaconda3\\envs\\ehr-nlp\\python.exe",
   "python.terminal.activateEnvironment": true,
   // Testing
   "python.testing.pytestEnabled": true,
@@ -190,5 +190,8 @@
     "ui",
     "docs",
     "tests"
+  ],
+  "python.analysis.extraPaths": [
+    "./backend"
   ]
 }

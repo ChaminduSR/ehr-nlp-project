@@ -49,7 +49,9 @@ def save_joint_assessment():
     try:
         assessment_data = JointAssessmentCreate(**data)
     except ValidationError as e:
-        return jsonify({'detail': e.errors()}), 422
+        errors = e.errors()
+        msg = '; '.join(f"{err['loc'][0]}: {err['msg']}" for err in errors)
+        return jsonify({'error': msg}), 400
 
     visit_id = assessment_data.visit_id
     joints = assessment_data.joints

@@ -55,7 +55,9 @@ async def extract_entities():
     try:
         extract_data = MedicalNoteExtractRequest(**data)
     except ValidationError as e:
-        return jsonify({'detail': e.errors()}), 422
+        errors = e.errors()
+        msg = '; '.join(f"{err['loc'][0]}: {err['msg']}" for err in errors)
+        return jsonify({'error': msg}), 400
 
     text = extract_data.text
 
@@ -174,11 +176,12 @@ def save_draft():
     try:
         draft_data = MedicalNoteDraftRequest(**data)
     except ValidationError as e:
-        return jsonify({'detail': e.errors()}), 422
+        errors = e.errors()
+        msg = '; '.join(f"{err['loc'][0]}: {err['msg']}" for err in errors)
+        return jsonify({'error': msg}), 400
 
     raw_text = draft_data.get_text()
-    if not raw_text:
-        return jsonify({'detail': [{'loc': ['text'], 'msg': 'text or raw_text is required', 'type': 'value_error'}]}), 422
+    # Allow empty text - this clears the draft content
 
     conn = get_db()
     cursor = conn.cursor()
@@ -229,7 +232,9 @@ def finalize_note():
     try:
         finalize_data = MedicalNoteFinalizeRequest(**data)
     except ValidationError as e:
-        return jsonify({'detail': e.errors()}), 422
+        errors = e.errors()
+        msg = '; '.join(f"{err['loc'][0]}: {err['msg']}" for err in errors)
+        return jsonify({'error': msg}), 400
 
     final_text = finalize_data.get_text()
 

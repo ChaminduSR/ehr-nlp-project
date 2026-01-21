@@ -20,7 +20,7 @@ app.config['ASYNC_SUPPORT'] = True
 
 # Register blueprints
 app.register_blueprint(frontend_bp, url_prefix='/')
-app.register_blueprint(analytics_bp, url_prefix='')
+app.register_blueprint(analytics_bp, url_prefix='/api/v1')
 app.register_blueprint(patients_bp, url_prefix='/api/v1/patients')
 app.register_blueprint(visits_bp, url_prefix='/api/v1/visits')
 app.register_blueprint(medical_notes_bp, url_prefix='/api/v1/medical_notes')
