@@ -1,0 +1,302 @@
+{
+  "info": {
+    "name": "EHR-NLP API v3.1",
+    "description": "Complete API collection for Rheumatology EHR with NLP, Auto-Save, and Voice Recognition",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "ehr-nlp-project"
+  },
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Verify server is running and get system status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Patients",
+      "item": [
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mrn\": \"MRN001\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"date_of_birth\": \"1980-05-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/patients",
+              "host": ["{{base_url}}"],
+              "path": ["patients"]
+            },
+            "description": "Create a new patient record"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Patient by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/patients/:id",
+              "host": ["{{base_url}}"],
+              "path": ["patients", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Retrieve patient by ID (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Visits",
+      "item": [
+        {
+          "name": "Create Visit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_id\": 1,\n  \"visit_date\": \"2025-11-23\",\n  \"visit_type\": \"Follow-up\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/visits",
+              "host": ["{{base_url}}"],
+              "path": ["visits"]
+            },
+            "description": "Create a new visit for a patient (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Medical Notes",
+      "item": [
+        {
+          "name": "Save Draft Note (Auto-save)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visit_id\": 1,\n  \"text\": \"Patient reports bilateral knee pain with morning stiffness lasting 45 minutes. Pain worse with activity. No fever, no rash.\",\n  \"note_type\": \"Complete Note\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/medical_notes/draft",
+              "host": ["{{base_url}}"],
+              "path": ["medical_notes", "draft"]
+            },
+            "description": "Auto-save endpoint - called every 30 seconds (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        },
+        {
+          "name": "Finalize Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_id\": 1,\n  \"text\": \"Patient reports bilateral knee pain with morning stiffness lasting 45 minutes. Pain worse with activity. No fever, no rash. Assessment: Active rheumatoid arthritis. Plan: Continue methotrexate, add prednisone taper.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/medical_notes/finalize",
+              "host": ["{{base_url}}"],
+              "path": ["medical_notes", "finalize"]
+            },
+            "description": "Finalize and sign note - triggers NLP processing (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Note by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/medical_notes/:id",
+              "host": ["{{base_url}}"],
+              "path": ["medical_notes", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Retrieve medical note by ID (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Joint Assessments",
+      "item": [
+        {
+          "name": "Save Joint Assessment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visit_id\": 1,\n  \"joints\": [\n    {\n      \"joint_id\": \"left_knee\",\n      \"has_tenderness\": true,\n      \"has_pain\": true,\n      \"swelling_grade\": 2\n    },\n    {\n      \"joint_id\": \"right_knee\",\n      \"has_tenderness\": true,\n      \"has_pain\": false,\n      \"swelling_grade\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/joint_assessments",
+              "host": ["{{base_url}}"],
+              "path": ["joint_assessments"]
+            },
+            "description": "Save 3-parameter joint assessment (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Joint Assessment by Visit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/joint_assessments/visit/:visit_id",
+              "host": ["{{base_url}}"],
+              "path": ["joint_assessments", "visit", ":visit_id"],
+              "variable": [
+                {
+                  "key": "visit_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get all joint assessments for a visit (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Voice Recognition",
+      "item": [
+        {
+          "name": "Load VOSK Model (Lazy Loading)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/voice/load-model",
+              "host": ["{{base_url}}"],
+              "path": ["voice", "load-model"]
+            },
+            "description": "Load VOSK model on first voice use (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        },
+        {
+          "name": "Transcribe Audio",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "audio",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/voice/transcribe",
+              "host": ["{{base_url}}"],
+              "path": ["voice", "transcribe"]
+            },
+            "description": "Transcribe audio file to text using VOSK (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "DAS28 Automation",
+      "item": [
+        {
+          "name": "Calculate DAS28 Score",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visit_id\": 1,\n  \"tender_joint_count\": 8,\n  \"swollen_joint_count\": 4,\n  \"esr\": 35,\n  \"patient_global_health\": 60\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/das28/calculate",
+              "host": ["{{base_url}}"],
+              "path": ["das28", "calculate"]
+            },
+            "description": "Calculate DAS28-ESR score (TO BE IMPLEMENTED)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api/v1",
+      "type": "default"
+    }
+  ]
+}

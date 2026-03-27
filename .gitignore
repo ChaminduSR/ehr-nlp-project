@@ -115,6 +115,8 @@ htmlcov/
 .pytest_cache/
 
 
-# Conda
-*.conda
+# Conda environment
+environment.yml
 .conda/
+*.pyc
+__pycache__/

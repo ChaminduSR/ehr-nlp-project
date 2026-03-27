@@ -1,0 +1,47 @@
+[
+  {
+    "note_id": "N001",
+    "text": "Patient with DM2 and HTN presents with chest pain. Started on aspirin and nitroglycerin.",
+    "entities_total": 6,
+    "diseases": [],
+    "medications": [],
+    "abbreviations": 0,
+    "linked_entities": 6
+  },
+  {
+    "note_id": "N002",
+    "text": "History of COPD exacerbation, admitted for respiratory distress. On albuterol and prednisone.",
+    "entities_total": 7,
+    "diseases": [],
+    "medications": [],
+    "abbreviations": 0,
+    "linked_entities": 7
+  },
+  {
+    "note_id": "N003",
+    "text": "Acute kidney injury secondary to dehydration. Cr elevated to 2.5. Starting IV fluids.",
+    "entities_total": 6,
+    "diseases": [],
+    "medications": [],
+    "abbreviations": 0,
+    "linked_entities": 6
+  },
+  {
+    "note_id": "N004",
+    "text": "New diagnosis of atrial fibrillation. Anticoagulation with warfarin initiated.",
+    "entities_total": 4,
+    "diseases": [],
+    "medications": [],
+    "abbreviations": 0,
+    "linked_entities": 4
+  },
+  {
+    "note_id": "N005",
+    "text": "Post-op day 1 s/p CABG. Stable hemodynamics. Continue statin and beta blocker.",
+    "entities_total": 7,
+    "diseases": [],
+    "medications": [],
+    "abbreviations": 0,
+    "linked_entities": 7
+  }
+]

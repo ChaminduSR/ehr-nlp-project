@@ -1,0 +1,122 @@
+{
+  "patient_id": "P001",
+  "note_id": "N001",
+  "note_length": 1268,
+  "entities": {
+    "total": 94,
+    "by_type": {
+      "ENTITY": 94
+    },
+    "diseases": [],
+    "medications": []
+  },
+  "abbreviations": [
+    {
+      "short": "CAD",
+      "long": "coronary artery disease"
+    },
+    {
+      "short": "HTN",
+      "long": "Hypertension"
+    },
+    {
+      "short": "CKD",
+      "long": "Chronic kidney disease"
+    },
+    {
+      "short": "CKD",
+      "long": "Chronic kidney disease"
+    },
+    {
+      "short": "elevated",
+      "long": "elevated)\n- BNP: 850"
+    },
+    {
+      "short": "elevated",
+      "long": "elevated)\n- BNP: 850"
+    },
+    {
+      "short": "elevated",
+      "long": "elevated)\n- BNP: 850"
+    },
+    {
+      "short": "STEMI",
+      "long": "ST-elevation myocardial infarction"
+    },
+    {
+      "short": "ADHF",
+      "long": "Acute decompensated heart failure"
+    },
+    {
+      "short": "AKI",
+      "long": "Acute kidney injury"
+    }
+  ],
+  "umls_concepts": [
+    {
+      "entity": "PATIENT",
+      "cui": "C0030705",
+      "score": 0.9829968214035034,
+      "concept": "Patients"
+    },
+    {
+      "entity": "Chest pain",
+      "cui": "C0008031",
+      "score": 0.9849169850349426,
+      "concept": "Chest Pain"
+    },
+    {
+      "entity": "shortness",
+      "cui": "C0349588",
+      "score": 0.8199767470359802,
+      "concept": "Short stature"
+    },
+    {
+      "entity": "HPI",
+      "cui": "C0262512",
+      "score": 0.9909442663192749,
+      "concept": "History of present illness (fi"
+    },
+    {
+      "entity": "Patient",
+      "cui": "C0030705",
+      "score": 0.9829968214035034,
+      "concept": "Patients"
+    },
+    {
+      "entity": "history",
+      "cui": "C0019664",
+      "score": 0.994277834892273,
+      "concept": "History"
+    },
+    {
+      "entity": "coronary artery disease",
+      "cui": "C0010054",
+      "score": 0.9898595213890076,
+      "concept": "Coronary Arteriosclerosis"
+    },
+    {
+      "entity": "CAD",
+      "cui": "C0010054",
+      "score": 0.9898595213890076,
+      "concept": "Coronary Arteriosclerosis"
+    },
+    {
+      "entity": "CABG",
+      "cui": "C0010055",
+      "score": 0.9473147392272949,
+      "concept": "Coronary Artery Bypass Surgery"
+    },
+    {
+      "entity": "ED",
+      "cui": "C0242350",
+      "score": 0.9538666605949402,
+      "concept": "Erectile dysfunction"
+    }
+  ],
+  "statistics": {
+    "abbreviations_count": 10,
+    "linked_entities": 15,
+    "link_rate": "16.0%"
+  }
+}
